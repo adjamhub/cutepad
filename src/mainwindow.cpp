@@ -15,6 +15,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QScreen>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QToolBar>
@@ -28,22 +29,22 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _view(new MainView(this))
+    , _filePath("")
 {
-	_filePath = "";
-    _needToSave = false;
+    setCentralWidget(_view);
 
-	setCentralWidget(_view);
+    setupActions();
+    setupMenus();
+    setupToolbar();
 
-	setupActions();
-	setupMenus();
-	setupToolbar();
-	
-	// application icon and title
+    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);
+     
+    // application icon and title
     QIcon appIcon(":/cutepad.png");
     setWindowIcon(appIcon);
-    setWindowTitle("Untitled - cutepad");
+    setWindowTitle("untitled - cutepad");
 
-	_actionCut->setEnabled(false);
+    _actionCut->setEnabled(false);
     _actionCopy->setEnabled(false);
     _actionUndo->setEnabled(false);
     _actionRedo->setEnabled(false);    
@@ -51,6 +52,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, _actionCopy, &QAction::setEnabled);
     connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, _actionUndo, &QAction::setEnabled);
     connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, _actionRedo, &QAction::setEnabled);
+}
+
+
+void MainWindow::tile(const QMainWindow *previous)
+{
+    if (!previous)
+        return;
+    int topFrameWidth = previous->geometry().top() - previous->pos().y();
+    if (!topFrameWidth)
+        topFrameWidth = 40;
+    const QPoint pos = previous->pos() + 2 * QPoint(topFrameWidth, topFrameWidth);
+    if (screen()->availableGeometry().contains(rect().bottomRight() + pos))
+        move(pos);
 }
 
 
@@ -70,8 +84,6 @@ void MainWindow::saveFilePath(const QString &path)
     QString content = _view->textEdit()->toPlainText();
     QTextStream out(&file);
     out << content;
-    _actionSave->setEnabled(false);
-    _needToSave = false;
 
     // set "File Name - cutepad" on title bar
     QFileInfo info(file);
@@ -84,7 +96,7 @@ void MainWindow::saveFilePath(const QString &path)
 
 bool MainWindow::exitAfterSaving()
 {
-    if (_needToSave)
+    if (isWindowModified())
     {
         int risp = QMessageBox::question(this,
                                          "Save Changes",
@@ -129,116 +141,116 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::setupActions()
 {
     _actionNew = new QAction( QIcon::fromTheme("document-new") , "New", this);
-	connect(_actionNew,&QAction::triggered, this, &MainWindow::newWindow);		
-	_actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
-	connect(_actionOpen,&QAction::triggered, this, &MainWindow::openFile);	
-	_actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
-	connect(_actionSave,&QAction::triggered, this, &MainWindow::saveFile);
-	_actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
-	connect(_actionSaveAs,&QAction::triggered, this, &MainWindow::saveFileAs);	
-	_actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
-	connect(_actionPrint,&QAction::triggered, this, &MainWindow::printFile);	
-	_actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
-	connect(_actionClose,&QAction::triggered, this, &MainWindow::closeFile);	
-	_actionExit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
-	connect(_actionExit, &QAction::triggered, qApp, &QApplication::quit);
-	
-	_actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
-	connect(_actionUndo,&QAction::triggered, _view->textEdit(), &TextEdit::undo );	
-	_actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
-	connect(_actionRedo,&QAction::triggered, _view->textEdit(), &TextEdit::redo );	
-	_actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
-	connect(_actionCut,&QAction::triggered, _view->textEdit(), &TextEdit::cut );	
-	_actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
-	connect(_actionCopy,&QAction::triggered, _view->textEdit(), &TextEdit::copy );	
-	_actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
-	connect(_actionPaste,&QAction::triggered,  _view->textEdit(), &TextEdit::paste );	
-	_actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
-	connect(_actionSelectAll,&QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
-	
-	_actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
-	connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );	
-	_actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
-	connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOut );	
-	_actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
-	connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOriginal );	
-	_actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "Full Screen", this );
-	_actionFullScreen->setCheckable(true);
-	connect(_actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );	
+    connect(_actionNew,&QAction::triggered, this, &MainWindow::newWindow);      
+    _actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
+    connect(_actionOpen,&QAction::triggered, this, &MainWindow::openFile);  
+    _actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
+    connect(_actionSave,&QAction::triggered, this, &MainWindow::saveFile);
+    _actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
+    connect(_actionSaveAs,&QAction::triggered, this, &MainWindow::saveFileAs);  
+    _actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
+    connect(_actionPrint,&QAction::triggered, this, &MainWindow::printFile);    
+    _actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
+    connect(_actionClose,&QAction::triggered, this, &MainWindow::closeFile);    
+    _actionExit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
+    connect(_actionExit, &QAction::triggered, qApp, &QApplication::quit);
+    
+    _actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
+    connect(_actionUndo,&QAction::triggered, _view->textEdit(), &TextEdit::undo );  
+    _actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
+    connect(_actionRedo,&QAction::triggered, _view->textEdit(), &TextEdit::redo );  
+    _actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
+    connect(_actionCut,&QAction::triggered, _view->textEdit(), &TextEdit::cut );    
+    _actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
+    connect(_actionCopy,&QAction::triggered, _view->textEdit(), &TextEdit::copy );  
+    _actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
+    connect(_actionPaste,&QAction::triggered,  _view->textEdit(), &TextEdit::paste );   
+    _actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
+    connect(_actionSelectAll,&QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
+    
+    _actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
+    connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );  
+    _actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
+    connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOut ); 
+    _actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
+    connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOriginal );    
+    _actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "Full Screen", this );
+    _actionFullScreen->setCheckable(true);
+    connect(_actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );  
 
     _actionLineNumbers = new QAction( "Line Numbers", this );
     _actionLineNumbers->setCheckable(true);
-	connect(_actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );	
+    connect(_actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );   
     _actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     _actionFind->setCheckable(true);
-	connect(_actionFind, &QAction::triggered, _view, &MainView::setSearchbarVisible );	
+    connect(_actionFind, &QAction::triggered, _view, &MainView::setSearchbarVisible );  
     _actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     _actionReplace->setCheckable(true);
-	//connect(_actionReplace, &QAction::triggered, this, &MainWindow::boh );	
+    //connect(_actionReplace, &QAction::triggered, this, &MainWindow::boh );    
     
-	_actionAboutQt = new QAction("About Qt", this );
-	connect(_actionAboutQt,&QAction::triggered, qApp, &QApplication::aboutQt);	
-	_actionAboutApp = new QAction("About", this );
-	connect(_actionAboutApp, &QAction::triggered, this, &MainWindow::about);	
+    _actionAboutQt = new QAction("About Qt", this );
+    connect(_actionAboutQt,&QAction::triggered, qApp, &QApplication::aboutQt);  
+    _actionAboutApp = new QAction("About", this );
+    connect(_actionAboutApp, &QAction::triggered, this, &MainWindow::about);    
 }
 
 
 void MainWindow::setupMenus()
 {
-	QMenu* fileMenu = menuBar()->addMenu("&File");
-	fileMenu->addAction(_actionNew);
-	fileMenu->addAction(_actionOpen);
-	fileMenu->addAction(_actionSave);	
-	fileMenu->addAction(_actionSaveAs);	
-	fileMenu->addSeparator();
-	fileMenu->addAction(_actionPrint);	
-	fileMenu->addSeparator();
-	fileMenu->addAction(_actionClose);	
-	fileMenu->addAction(_actionExit);	
+    QMenu* fileMenu = menuBar()->addMenu("&File");
+    fileMenu->addAction(_actionNew);
+    fileMenu->addAction(_actionOpen);
+    fileMenu->addAction(_actionSave);   
+    fileMenu->addAction(_actionSaveAs); 
+    fileMenu->addSeparator();
+    fileMenu->addAction(_actionPrint);  
+    fileMenu->addSeparator();
+    fileMenu->addAction(_actionClose);  
+    fileMenu->addAction(_actionExit);   
 
-	QMenu* editMenu = menuBar()->addMenu("&Edit");
-	editMenu->addAction(_actionUndo);
-	editMenu->addAction(_actionRedo);
-	editMenu->addSeparator();
-	editMenu->addAction(_actionCut);
-	editMenu->addAction(_actionCopy);
-	editMenu->addAction(_actionPaste);
-	editMenu->addSeparator();
-	editMenu->addAction(_actionSelectAll);
-	
-	QMenu* viewMenu = menuBar()->addMenu("&View");
-	viewMenu->addAction(_actionZoomIn);
-	viewMenu->addAction(_actionZoomOut);
-	viewMenu->addAction(_actionZoomOriginal);
-	viewMenu->addSeparator();
-	viewMenu->addAction(_actionFullScreen);
+    QMenu* editMenu = menuBar()->addMenu("&Edit");
+    editMenu->addAction(_actionUndo);
+    editMenu->addAction(_actionRedo);
+    editMenu->addSeparator();
+    editMenu->addAction(_actionCut);
+    editMenu->addAction(_actionCopy);
+    editMenu->addAction(_actionPaste);
+    editMenu->addSeparator();
+    editMenu->addAction(_actionSelectAll);
+    
+    QMenu* viewMenu = menuBar()->addMenu("&View");
+    viewMenu->addAction(_actionZoomIn);
+    viewMenu->addAction(_actionZoomOut);
+    viewMenu->addAction(_actionZoomOriginal);
+    viewMenu->addSeparator();
+    viewMenu->addAction(_actionFullScreen);
 
-	QMenu* optionsMenu = menuBar()->addMenu("&Options");
-	optionsMenu->addAction(_actionLineNumbers);
-	optionsMenu->addAction(_actionFind);
-	optionsMenu->addAction(_actionReplace);
-	
-	QMenu* helpMenu = menuBar()->addMenu("&Help");
-	helpMenu->addAction(_actionAboutQt);
-	helpMenu->addAction(_actionAboutApp);	
+    QMenu* optionsMenu = menuBar()->addMenu("&Options");
+    optionsMenu->addAction(_actionLineNumbers);
+    optionsMenu->addAction(_actionFind);
+    optionsMenu->addAction(_actionReplace);
+    
+    QMenu* helpMenu = menuBar()->addMenu("&Help");
+    helpMenu->addAction(_actionAboutQt);
+    helpMenu->addAction(_actionAboutApp);   
 }
 
 
 void MainWindow::setupToolbar()
 {
-	QToolBar* toolBar = addToolBar("Main Toolbar");
-	toolBar->addAction(_actionNew);
-	toolBar->addAction(_actionOpen);
-	toolBar->addAction(_actionSave);
-	toolBar->addSeparator();
-	toolBar->addAction(_actionPrint);
-	toolBar->addSeparator();
-	toolBar->addAction(_actionUndo);
-	toolBar->addAction(_actionRedo);
-	toolBar->addSeparator();
-	toolBar->addAction(_actionCut);
-	toolBar->addAction(_actionCopy);
-	toolBar->addAction(_actionPaste);
+    QToolBar* toolBar = addToolBar("Main Toolbar");
+    toolBar->addAction(_actionNew);
+    toolBar->addAction(_actionOpen);
+    toolBar->addAction(_actionSave);
+    toolBar->addSeparator();
+    toolBar->addAction(_actionPrint);
+    toolBar->addSeparator();
+    toolBar->addAction(_actionUndo);
+    toolBar->addAction(_actionRedo);
+    toolBar->addSeparator();
+    toolBar->addAction(_actionCut);
+    toolBar->addAction(_actionCopy);
+    toolBar->addAction(_actionPaste);
 
     // toolbar style and (position) lock
     toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -246,19 +258,25 @@ void MainWindow::setupToolbar()
 }
 
 
+void MainWindow::documentWasModified()
+{
+	bool needToSave = _view->textEdit()->document()->isModified();
+	setWindowModified(needToSave);
+	_actionSave->setEnabled(needToSave);
+}
+
+
 void MainWindow::newWindow()
 {
-	// that's it, for now...
-	// why not trying to launch another process??
-    MainWindow* w = new MainWindow();
-    w->move(pos().x() + 50, pos().y() + 50);
-    w->show();
+	MainWindow *other = new MainWindow;
+    other->tile(this);
+    other->show();
 }
 
 
 void MainWindow::openFile()
 {
-	QString path = QFileDialog::getOpenFileName(this);
+    QString path = QFileDialog::getOpenFileName(this);
     if (path.isEmpty())
         return;
     loadFilePath(path);
@@ -301,12 +319,9 @@ void MainWindow::closeFile()
     if (exitAfterSaving())
     {
         // clear() triggers PlainTextEdit textChange signal...
-        // so we need to set _needToSave by hand
         _view->textEdit()->clear();
-        _needToSave = false;
-        setWindowTitle("Untitled - cutepad");
-        _actionSave->setEnabled(false);
-        _actionClose->setEnabled(false);
+        setWindowModified(false);
+        setWindowTitle("untitled - cutepad");
         return;
     }
 }
@@ -359,9 +374,9 @@ void MainWindow::onFullscreen(bool on)
 
 void MainWindow::about()
 {
-	QString version = qApp->applicationVersion();
-	
-	QMessageBox::about(this, 
-					   "About cutepad",
-            			"cutepad " + version + "\n\nThe Qt pad ;)\nJust an easy plain text editor, based on Qt libraries");
+    QString version = qApp->applicationVersion();
+    
+    QMessageBox::about(this, 
+                       "About cutepad",
+                        "cutepad " + version + "\n\nThe Qt pad ;)\nJust an easy plain text editor, based on Qt libraries");
 }

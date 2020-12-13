@@ -12,6 +12,8 @@
 #include "application.h"
 #include "mainwindow.h"
 
+#include <QCommandLineParser>
+
 
 Application::Application(int &argc, char *argv[])
     : QApplication(argc,argv)
@@ -26,6 +28,24 @@ Application::~Application()
 
 void Application::parseCommandlineArgs()
 {
-	MainWindow* w = new MainWindow();
-	w->show();
+	QCommandLineParser parser;
+	parser.setApplicationDescription(QCoreApplication::applicationName());
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addPositionalArgument("file", "The file(s) to open.");
+	parser.process(*this);
+	
+	MainWindow *mainWin = nullptr;
+	const QStringList posArgs = parser.positionalArguments();
+	for (const QString &file : posArgs) {
+    	MainWindow *newWin = new MainWindow;
+    	newWin->loadFilePath(file);
+    	newWin->tile(mainWin);
+    	newWin->show();
+    	mainWin = newWin;
+	}
+	
+	if (!mainWin)
+    	mainWin = new MainWindow;
+	mainWin->show();
 }

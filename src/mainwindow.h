@@ -26,6 +26,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
+	// needed to position next windows
+	void tile(const QMainWindow *previous);
+
     // public functions to load and save the actual file
     // from the outside
     void loadFilePath(const QString & path);
@@ -39,11 +42,13 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-	void setupActions();
-	void setupMenus();
-	void setupToolbar();
-	
+    void setupActions();
+    void setupMenus();
+    void setupToolbar();
+    
 private slots:
+    void documentWasModified();
+    
     void newWindow();
     void openFile();
     void saveFile();
@@ -56,13 +61,12 @@ private slots:
     void onZoomOriginal();
     void onFullscreen(bool on);
 
-	void about();
-	
+    void about();
+    
 private:
     MainView* _view;
     
     QString _filePath;
-    bool _needToSave;
     
     QAction* _actionNew;
     QAction* _actionOpen;
