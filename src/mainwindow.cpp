@@ -141,40 +141,56 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::setupActions()
 {
     _actionNew = new QAction( QIcon::fromTheme("document-new") , "New", this);
+    _actionNew->setShortcut(QKeySequence::New);
     connect(_actionNew,&QAction::triggered, this, &MainWindow::newWindow);      
     _actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
+    _actionOpen->setShortcut(QKeySequence::Open);
     connect(_actionOpen,&QAction::triggered, this, &MainWindow::openFile);  
     _actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
+    _actionSave->setShortcut(QKeySequence::Save);
     connect(_actionSave,&QAction::triggered, this, &MainWindow::saveFile);
     _actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
     connect(_actionSaveAs,&QAction::triggered, this, &MainWindow::saveFileAs);  
     _actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
+    _actionPrint->setShortcut(QKeySequence::Print);
     connect(_actionPrint,&QAction::triggered, this, &MainWindow::printFile);    
     _actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
+    _actionClose->setShortcut(QKeySequence::Close);
     connect(_actionClose,&QAction::triggered, this, &MainWindow::closeFile);    
     _actionExit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
+    _actionExit->setShortcut(QKeySequence::Quit);
     connect(_actionExit, &QAction::triggered, qApp, &QApplication::quit);
     
     _actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
+    _actionUndo->setShortcut(QKeySequence::Undo);
     connect(_actionUndo,&QAction::triggered, _view->textEdit(), &TextEdit::undo );  
     _actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
+    _actionRedo->setShortcut(QKeySequence::Redo);
     connect(_actionRedo,&QAction::triggered, _view->textEdit(), &TextEdit::redo );  
     _actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
+    _actionCut->setShortcut(QKeySequence::Cut);
     connect(_actionCut,&QAction::triggered, _view->textEdit(), &TextEdit::cut );    
     _actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
+    _actionCopy->setShortcut(QKeySequence::Copy);
     connect(_actionCopy,&QAction::triggered, _view->textEdit(), &TextEdit::copy );  
     _actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
+    _actionPaste->setShortcut(QKeySequence::Paste);
     connect(_actionPaste,&QAction::triggered,  _view->textEdit(), &TextEdit::paste );   
     _actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
+    _actionSelectAll->setShortcut(QKeySequence::SelectAll);
     connect(_actionSelectAll,&QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
     
     _actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
+    _actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );  
     _actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
+    _actionZoomOut->setShortcut(QKeySequence::ZoomOut);
     connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOut ); 
     _actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
+    _actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
     connect(_actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOriginal );    
     _actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "Full Screen", this );
+    _actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     _actionFullScreen->setCheckable(true);
     connect(_actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );  
 
@@ -182,9 +198,11 @@ void MainWindow::setupActions()
     _actionLineNumbers->setCheckable(true);
     connect(_actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );   
     _actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
+    _actionFind->setShortcut(QKeySequence::Find);
     _actionFind->setCheckable(true);
     connect(_actionFind, &QAction::triggered, _view, &MainView::setSearchbarVisible );  
     _actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
+    _actionReplace->setShortcut(QKeySequence::Replace);
     _actionReplace->setCheckable(true);
     //connect(_actionReplace, &QAction::triggered, this, &MainWindow::boh );    
     
