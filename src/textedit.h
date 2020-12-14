@@ -22,6 +22,10 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
     
+    void showLineNumbers(bool on);
+	void enableCurrentLineHighlighting(bool on);
+	    
+    // -------------------------------------------------------------------
     void lineNumberAreaPaintEvent (QPaintEvent *event);
     int lineNumberAreaWidth();
 

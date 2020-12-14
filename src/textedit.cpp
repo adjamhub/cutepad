@@ -16,17 +16,57 @@
 
 TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
+    , _lineNumberArea(nullptr)
 {
-	_lineNumberArea = new LineNumberArea(this);
-	
-	connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
-    connect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
-    connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
-	
-    updateLineNumberAreaWidth(0);
-    highlightCurrentLine();
 }
 
+
+void TextEdit::showLineNumbers(bool on)
+{
+	if (on) {
+		_lineNumberArea = new LineNumberArea(this);
+		connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
+		connect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
+		
+		updateLineNumberAreaWidth(0);
+	}
+	else {
+		disconnect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
+		disconnect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
+		
+		setViewportMargins(0, 0, 0, 0);	
+		delete _lineNumberArea;
+		_lineNumberArea = nullptr;
+	}
+}
+
+
+void TextEdit::enableCurrentLineHighlighting(bool on)
+{
+	if (on) {
+		highlightCurrentLine();
+		connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
+	} else {
+		QList<QTextEdit::ExtraSelection> extraSelections;
+		
+		if (!isReadOnly()) {
+    		QTextEdit::ExtraSelection selection;
+		
+			// FIXME: choose right background color
+    		QColor lineColor = QColor(Qt::white).lighter(160);
+		
+    		selection.format.setBackground(lineColor);
+    		selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    		selection.cursor = textCursor();
+    		selection.cursor.clearSelection();
+    		extraSelections.append(selection);
+		}
+		
+		setExtraSelections(extraSelections);
+
+		disconnect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
+	}
+}
 
 void TextEdit::lineNumberAreaPaintEvent (QPaintEvent *event)
 {
@@ -72,8 +112,10 @@ void TextEdit::resizeEvent(QResizeEvent *e)
 {
 	QPlainTextEdit::resizeEvent(e);
 	
-	QRect cr = contentsRect();
-	_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+	if (_lineNumberArea) {
+		QRect cr = contentsRect();
+		_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+	}
 }
 
 
@@ -106,6 +148,9 @@ void TextEdit::highlightCurrentLine()
 
 void TextEdit::updateLineNumberArea(const QRect &rect, int dy)
 {
+	if (!_lineNumberArea)
+		return;
+		
     if (dy)
         _lineNumberArea->scroll(0, dy);
     else

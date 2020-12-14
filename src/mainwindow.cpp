@@ -197,7 +197,7 @@ void MainWindow::setupActions()
     _actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     _actionReplace->setShortcut(QKeySequence::Replace);
     _actionReplace->setCheckable(true);
-    //connect(_actionReplace, &QAction::triggered, this, &MainWindow::boh );    
+    connect(_actionReplace, &QAction::triggered, _view, &MainView::enableCurrentLineHighlighting );    
     
     _actionAboutQt = new QAction("About Qt", this );
     connect(_actionAboutQt,&QAction::triggered, qApp, &QApplication::aboutQt);  

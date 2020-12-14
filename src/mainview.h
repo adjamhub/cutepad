@@ -38,6 +38,7 @@ public:
 public slots:    
     void setSearchbarVisible(bool on);
     void showLineNumbers(bool on);
+    void enableCurrentLineHighlighting(bool on);
     
 private:
 	TextEdit* _textEdit;
