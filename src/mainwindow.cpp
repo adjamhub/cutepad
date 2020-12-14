@@ -42,16 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowIcon(appIcon);
 	
 	setCurrentFilePath("");
-    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);
-	
-    _actionCut->setEnabled(false);
-    _actionCopy->setEnabled(false);
-    _actionUndo->setEnabled(false);
-    _actionRedo->setEnabled(false);    
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, _actionCut, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, _actionCopy, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, _actionUndo, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, _actionRedo, &QAction::setEnabled);
+    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);	
 }
 
 
@@ -211,7 +202,16 @@ void MainWindow::setupActions()
     _actionAboutQt = new QAction("About Qt", this );
     connect(_actionAboutQt,&QAction::triggered, qApp, &QApplication::aboutQt);  
     _actionAboutApp = new QAction("About", this );
-    connect(_actionAboutApp, &QAction::triggered, this, &MainWindow::about);    
+    connect(_actionAboutApp, &QAction::triggered, this, &MainWindow::about);  
+    
+    _actionCut->setEnabled(false);
+    _actionCopy->setEnabled(false);
+    _actionUndo->setEnabled(false);
+    _actionRedo->setEnabled(false);    
+    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, _actionCut, &QAction::setEnabled);
+    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, _actionCopy, &QAction::setEnabled);
+    connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, _actionUndo, &QAction::setEnabled);
+    connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, _actionRedo, &QAction::setEnabled);  
 }
 
 
