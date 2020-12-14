@@ -32,8 +32,8 @@ public:
     	return _textEdit;
     }
 
-	// load file content and enable syntax highlighting
-    void loadFilePath(const QString & path);
+	// enable syntax highlighting
+    void syntaxHighlightForFile(const QString & path);
 
 public slots:    
     void setSearchbarVisible(bool on);

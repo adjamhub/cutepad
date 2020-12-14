@@ -36,14 +36,14 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
     setupMenus();
     setupToolbar();
-
-    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);
      
     // application icon and title
     QIcon appIcon(":/cutepad.png");
     setWindowIcon(appIcon);
-    setWindowTitle("untitled - cutepad");
-
+	
+	setCurrentFilePath("");
+    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);
+	
     _actionCut->setEnabled(false);
     _actionCopy->setEnabled(false);
     _actionUndo->setEnabled(false);
@@ -70,8 +70,15 @@ void MainWindow::tile(const QMainWindow *previous)
 
 void MainWindow::loadFilePath(const QString &path)
 {
-    _view->loadFilePath(path);
-    _filePath = path;
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    _view->textEdit()->setPlainText(file.readAll());
+    QGuiApplication::restoreOverrideCursor();
+
+	setCurrentFilePath(path);    
 }
 
 
@@ -85,12 +92,7 @@ void MainWindow::saveFilePath(const QString &path)
     QTextStream out(&file);
     out << content;
 
-    // set "File Name - cutepad" on title bar
-    QFileInfo info(file);
-    QString fName = info.fileName();
-    setWindowTitle(fName + " - cutepad");
-
-    _filePath = path;
+	setCurrentFilePath(path);
 }
 
 
@@ -276,6 +278,27 @@ void MainWindow::setupToolbar()
 }
 
 
+void MainWindow::setCurrentFilePath(const QString& path)
+{
+	QString curFile;
+	if (path.isEmpty())
+	{
+		curFile = "untitled";
+		_filePath = "";
+ 	}
+ 	else
+    {
+        curFile = QFileInfo(path).canonicalFilePath();
+        _filePath = path;
+    }
+
+    _view->textEdit()->document()->setModified(false);
+    setWindowModified(false);
+
+    setWindowFilePath(curFile);
+}
+
+
 void MainWindow::documentWasModified()
 {
 	bool needToSave = _view->textEdit()->document()->isModified();
@@ -338,8 +361,7 @@ void MainWindow::closeFile()
     {
         // clear() triggers PlainTextEdit textChange signal...
         _view->textEdit()->clear();
-        setWindowModified(false);
-        setWindowTitle("untitled - cutepad");
+        setCurrentFilePath("");
         return;
     }
 }

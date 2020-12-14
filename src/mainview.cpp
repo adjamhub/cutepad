@@ -36,22 +36,14 @@ MainView::MainView (QWidget *parent)
 }
 
 
-void MainView::loadFilePath(const QString & path)
+void MainView::syntaxHighlightForFile(const QString & path)
 {
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    QString fileContent = file.readAll();
-    _textEdit->setPlainText(fileContent);
-
 	_highlighter->setTheme((_textEdit->palette().color(QPalette::Base).lightness() < 128)
                  	 ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
                  	 : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme));
 
     const auto def = _highlightRepo->definitionForFileName(path);
     _highlighter->setDefinition(def);
-
 }
 
 

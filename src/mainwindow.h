@@ -46,6 +46,8 @@ private:
     void setupMenus();
     void setupToolbar();
     
+    void setCurrentFilePath(const QString& path);
+    
 private slots:
     void documentWasModified();
     
