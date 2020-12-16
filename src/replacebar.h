@@ -7,23 +7,24 @@
  */
  
 
-#ifndef SEARCHBAR_H
-#define SEARCHBAR_H
+#ifndef REPLACEBAR_H
+#define REPLACEBAR_H
 
 
 #include <QWidget>
 #include <QLineEdit>
 
 
-class Searchbar : public QWidget
+class ReplaceBar : public QWidget
 {
     Q_OBJECT
 
 public:
-    Searchbar(QWidget *parent = nullptr);
+    ReplaceBar(QWidget *parent = nullptr);
     
 private:
-    QLineEdit* _lineEdit;
+    QLineEdit* _findLineEdit;
+    QLineEdit* _replaceLineEdit;
 };
 
 #endif // SEARCHBAR_H

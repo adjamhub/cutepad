@@ -17,6 +17,7 @@
 
 #include "textedit.h"
 #include "searchbar.h"
+#include "replacebar.h"
 
 #include <KSyntaxHighlighting/Repository>
 #include <KSyntaxHighlighting/SyntaxHighlighter>
@@ -37,12 +38,15 @@ public:
 
 public slots:    
     void showSearchbar();
+    void showReplaceBar();
+
     void showLineNumbers(bool on);
     void enableCurrentLineHighlighting(bool on);
     
 private:
 	TextEdit* _textEdit;
 	Searchbar* _searchbar;
+	ReplaceBar* _replaceBar;
 
 	KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
 	KSyntaxHighlighting::Repository* _highlightRepo;

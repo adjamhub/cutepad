@@ -9,20 +9,29 @@
  
 #include "searchbar.h"
 
+#include <QCheckBox>
 #include <QHBoxLayout>
+#include <QPushButton>
+
 
 Searchbar::Searchbar(QWidget *parent)
     : QWidget(parent)
     , _lineEdit( new QLineEdit(this) )
-    , _searchButton( new QPushButton(this) )
 {
-	_searchButton->setText("Find");
+	auto prevButton = new QPushButton("Previous", this);
+	auto nextButton = new QPushButton("Next", this);
+	auto caseCheckBox = new QCheckBox("Match Case", this);
+	auto wholeWordCheckBox = new QCheckBox("Whole words", this);
 	
 	// The UI
-    QHBoxLayout *layout = new QHBoxLayout;
+    auto layout = new QHBoxLayout;
     layout->setContentsMargins (0, 0, 0, 0);
     layout->addWidget (_lineEdit);
-    layout->addWidget (_searchButton);
+    layout->addWidget (nextButton);
+    layout->addWidget (prevButton);
+    layout->addWidget (caseCheckBox);
+    layout->addWidget (wholeWordCheckBox);
+    layout->addStretch();
     setLayout (layout);
     
     setFocusProxy(_lineEdit);

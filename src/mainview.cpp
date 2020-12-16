@@ -20,6 +20,7 @@ MainView::MainView (QWidget *parent)
     : QWidget (parent)
     , _textEdit(new TextEdit(this))
     , _searchbar(new Searchbar(this))
+    , _replaceBar(new ReplaceBar(this))
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
 {
@@ -29,10 +30,12 @@ MainView::MainView (QWidget *parent)
     mainGrid->setContentsMargins (0, 0, 0, 0);
     mainGrid->addWidget (_textEdit, 0, 0);
     mainGrid->addWidget (_searchbar, 1, 0);
+    mainGrid->addWidget (_replaceBar, 2, 0);
     setLayout (mainGrid);
 
-	// let's start with the hidden searchbar
+	// let's start with the hidden bar(s)
 	_searchbar->setVisible(false);
+	_replaceBar->setVisible(false);
 }
 
 
@@ -61,6 +64,17 @@ void MainView::showSearchbar()
 	}
 	_searchbar->show();
 	_searchbar->setFocus();
+}
+
+
+void MainView::showReplaceBar()
+{
+	if (_replaceBar->isVisible())
+	{
+		_replaceBar->hide();
+		return;
+	}
+	_replaceBar->show();
 }
 
 

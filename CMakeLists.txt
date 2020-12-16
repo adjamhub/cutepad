@@ -51,6 +51,7 @@ add_executable(cutepad
 	src/mainview.cpp
 	src/textedit.cpp
 	src/searchbar.cpp
+	src/replacebar.cpp
 	# ------------------
 	resources.qrc
 )
