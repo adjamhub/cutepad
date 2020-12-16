@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CUTEPAD_VERSION "0.0.0")
+set(CUTEPAD_VERSION "0.0.1")
 project(cutepad VERSION ${CUTEPAD_VERSION} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
