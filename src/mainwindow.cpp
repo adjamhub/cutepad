@@ -27,10 +27,14 @@
 #include <QPrintDialog>
 
 
+const int s_zoomIncrement = 3;
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _view(new MainView(this))
     , _filePath("")
+    , _zoomRange(0)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(_view);
@@ -97,7 +101,7 @@ void MainWindow::saveSettings()
     // font
     QFont f = _view->textEdit()->font();
     QString fontFamily = f.family();
-    int fontSize = f.pointSize();
+    int fontSize = f.pointSize() - _zoomRange * s_zoomIncrement; // consider the zoom...
     int fontWeight = f.weight();
     bool italic = f.italic();
     s.setValue("fontFamily", fontFamily);
@@ -443,16 +447,41 @@ void MainWindow::printFile()
 
 void MainWindow::onZoomIn()
 {
+    QFont f = _view->textEdit()->font();
+    // this has to eventually stop
+    qDebug() << "point size: " << f.pointSize();
+    qDebug() << "zoom * 10: " << s_zoomIncrement * 10;
+    if (f.pointSize() >= s_zoomIncrement * 10)
+    	return;
+    	
+    _zoomRange++;
+    f.setPointSize( f.pointSize() + s_zoomIncrement );
+	_view->textEdit()->setFont(f);
 }
 
 
 void MainWindow::onZoomOut()
 {
+    QFont f = _view->textEdit()->font();
+    // this has to eventually stop
+    qDebug() << "point size: " << f.pointSize();
+    qDebug() << "zoom * 10: " << s_zoomIncrement * 10;
+    if (f.pointSize() <= s_zoomIncrement * 2)
+    	return;
+
+    _zoomRange--;
+    f.setPointSize( f.pointSize() - s_zoomIncrement );
+
+	_view->textEdit()->setFont(f);
 }
 
 
 void MainWindow::onZoomOriginal()
 {
+    QFont f = _view->textEdit()->font();
+    f.setPointSize( f.pointSize() - _zoomRange * s_zoomIncrement );
+	_view->textEdit()->setFont(f);
+	_zoomRange = 0;
 }
 
 

@@ -74,6 +74,7 @@ private:
     MainView* _view;
     
     QString _filePath;
+    int _zoomRange;
 
 	QToolBar* _mainToolbar;
 	    
