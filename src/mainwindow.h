@@ -12,8 +12,6 @@
 
 
 #include <QMainWindow>
-#include <QAction>
-#include <QToolBar>
 
 #include "mainview.h"
 
@@ -48,14 +46,10 @@ protected:
 
 private:
     void setupActions();
-    void setupMenus();
-    void setupToolbar();
     
     void setCurrentFilePath(const QString& path);
     
 private slots:
-    void documentWasModified();
-    
     void newWindow();
     void openFile();
     void saveFile();
@@ -75,35 +69,6 @@ private:
     
     QString _filePath;
     int _zoomRange;
-
-	QToolBar* _mainToolbar;
-	    
-    QAction* _actionNew;
-    QAction* _actionOpen;
-    QAction* _actionSave;
-    QAction* _actionSaveAs;
-    QAction* _actionPrint;
-    QAction* _actionClose;
-    QAction* _actionExit;
-    
-    QAction* _actionUndo;
-    QAction* _actionRedo;
-    QAction* _actionCut;
-    QAction* _actionCopy;
-    QAction* _actionPaste;
-    QAction* _actionSelectAll;
-    
-    QAction* _actionZoomIn;
-    QAction* _actionZoomOut;
-    QAction* _actionZoomOriginal;
-    QAction* _actionFullScreen;
-    
-    QAction* _actionLineNumbers;
-    QAction* _actionFind;
-    QAction* _actionReplace;
-    
-    QAction* _actionAboutQt;
-    QAction* _actionAboutApp;
 };
 
 #endif // MAINWINDOW_H
