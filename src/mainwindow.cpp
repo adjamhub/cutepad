@@ -265,7 +265,7 @@ void MainWindow::setupActions()
     actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
     connect(actionZoomOriginal, &QAction::triggered, this, &MainWindow::onZoomOriginal );    
 
-    QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "Full Screen", this );
+    QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "FullScreen", this );
     actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );  
@@ -352,8 +352,18 @@ void MainWindow::setupActions()
     mainToolbar->addAction(actionUndo);
     mainToolbar->addAction(actionRedo);
     mainToolbar->addSeparator();
-    mainToolbar->addAction(actionFullScreen);
 
+    connect(actionFullScreen, &QAction::triggered, this, [=](bool on) { 
+    		if (on) { 
+    			mainToolbar->addAction(actionFullScreen); 
+    			actionFullScreen->setText("Exit FullScreen");
+    		} else { 
+    			mainToolbar->removeAction(actionFullScreen); 
+    			actionFullScreen->setText("FullScreen");
+    		}
+    	}
+    );
+    
     // toolbar style and (position) lock
     mainToolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     mainToolbar->setMovable(false);
@@ -469,9 +479,9 @@ void MainWindow::onZoomOut()
 void MainWindow::onZoomOriginal()
 {
 	if (_zoomRange > 0) {
-		_view->textEdit()->zoomOut(s_zoomIncrement * _zoomRange);
+		_view->textEdit()->zoomOut( _zoomRange );
 	} else {
-		_view->textEdit()->zoomIn(s_zoomIncrement * _zoomRange * -1);
+		_view->textEdit()->zoomIn( _zoomRange * -1 );
 	}
 	_zoomRange = 0;
 }
