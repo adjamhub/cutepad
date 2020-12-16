@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 #include <QAction>
+#include <QToolBar>
 
 #include "mainview.h"
 
@@ -73,7 +74,9 @@ private:
     MainView* _view;
     
     QString _filePath;
-    
+
+	QToolBar* _mainToolbar;
+	    
     QAction* _actionNew;
     QAction* _actionOpen;
     QAction* _actionSave;

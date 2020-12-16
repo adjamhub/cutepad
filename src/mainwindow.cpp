@@ -42,17 +42,17 @@ MainWindow::MainWindow(QWidget *parent)
     // application icon and title
     QIcon appIcon(":/cutepad.png");
     setWindowIcon(appIcon);
-	
-	loadSettings();
-	
-	setCurrentFilePath("");
-    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);	
+    
+    loadSettings();
+    
+    setCurrentFilePath("");
+    connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified); 
 }
 
 
 void MainWindow::loadSettings()
 {
-	QSettings s(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
     
     // size and position
     QSize size = s.value("size", QSize(800,600)).toSize();
@@ -81,7 +81,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::saveSettings()
 {
-	QSettings s(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
 
     // size and dimensions
     s.setValue("size", size() );
@@ -130,7 +130,7 @@ void MainWindow::loadFilePath(const QString &path)
     _view->textEdit()->setPlainText(file.readAll());
     QGuiApplication::restoreOverrideCursor();
 
-	setCurrentFilePath(path);    
+    setCurrentFilePath(path);    
 }
 
 
@@ -144,7 +144,7 @@ void MainWindow::saveFilePath(const QString &path)
     QTextStream out(&file);
     out << content;
 
-	setCurrentFilePath(path);
+    setCurrentFilePath(path);
 }
 
 
@@ -185,7 +185,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (exitAfterSaving())
     {
-    	saveSettings();
+        saveSettings();
         event->accept();
         return;
     }
@@ -320,35 +320,36 @@ void MainWindow::setupMenus()
 
 void MainWindow::setupToolbar()
 {
-    QToolBar* toolBar = addToolBar("Main Toolbar");
-    toolBar->addAction(_actionNew);
-    toolBar->addAction(_actionOpen);
-    toolBar->addAction(_actionSave);
-    toolBar->addSeparator();
-    toolBar->addAction(_actionPrint);
-    toolBar->addSeparator();
-    toolBar->addAction(_actionUndo);
-    toolBar->addAction(_actionRedo);
-    toolBar->addSeparator();
-    toolBar->addAction(_actionCut);
-    toolBar->addAction(_actionCopy);
-    toolBar->addAction(_actionPaste);
+    _mainToolbar = addToolBar("Main Toolbar");
+    
+    _mainToolbar->addAction(_actionNew);
+    _mainToolbar->addAction(_actionOpen);
+    _mainToolbar->addAction(_actionSave);
+    _mainToolbar->addSeparator();
+    _mainToolbar->addAction(_actionPrint);
+    _mainToolbar->addSeparator();
+    _mainToolbar->addAction(_actionUndo);
+    _mainToolbar->addAction(_actionRedo);
+    _mainToolbar->addSeparator();
+    _mainToolbar->addAction(_actionCut);
+    _mainToolbar->addAction(_actionCopy);
+    _mainToolbar->addAction(_actionPaste);
 
     // toolbar style and (position) lock
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    toolBar->setMovable(false);
+    _mainToolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    _mainToolbar->setMovable(false);
 }
 
 
 void MainWindow::setCurrentFilePath(const QString& path)
 {
-	QString curFile;
-	if (path.isEmpty())
-	{
-		curFile = "untitled";
-		_filePath = "";
- 	}
- 	else
+    QString curFile;
+    if (path.isEmpty())
+    {
+        curFile = "untitled";
+        _filePath = "";
+    }
+    else
     {
         curFile = QFileInfo(path).canonicalFilePath();
         _filePath = path;
@@ -363,15 +364,15 @@ void MainWindow::setCurrentFilePath(const QString& path)
 
 void MainWindow::documentWasModified()
 {
-	bool needToSave = _view->textEdit()->document()->isModified();
-	setWindowModified(needToSave);
-	_actionSave->setEnabled(needToSave);
+    bool needToSave = _view->textEdit()->document()->isModified();
+    setWindowModified(needToSave);
+    _actionSave->setEnabled(needToSave);
 }
 
 
 void MainWindow::newWindow()
 {
-	MainWindow *other = new MainWindow;
+    MainWindow *other = new MainWindow;
     other->tile(this);
     other->show();
 }
@@ -460,16 +461,16 @@ void MainWindow::onFullscreen(bool on)
     if (on)
     {
         showFullScreen();
-        //ui->toolBar->addAction(_actionFullScreen);
+        _mainToolbar->addAction(_actionFullScreen);
         _actionFullScreen->setText("Exit FullScreen");
-        //ui->menubar->hide();
+        menuBar()->hide();
     }
     else
     {
         showNormal();
-        //ui->toolBar->removeAction(_actionFullScreen);
+        _mainToolbar->removeAction(_actionFullScreen);
         _actionFullScreen->setText("FullScreen");
-        //ui->menubar->show();
+        menuBar()->show();
     }
 }
 
