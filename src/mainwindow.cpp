@@ -16,6 +16,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QScreen>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QToolBar>
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     , _view(new MainView(this))
     , _filePath("")
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(_view);
 
     setupActions();
@@ -41,8 +43,67 @@ MainWindow::MainWindow(QWidget *parent)
     QIcon appIcon(":/cutepad.png");
     setWindowIcon(appIcon);
 	
+	loadSettings();
+	
 	setCurrentFilePath("");
     connect(_view->textEdit()->document(), &QTextDocument::contentsChanged,this, &MainWindow::documentWasModified);	
+}
+
+
+void MainWindow::loadSettings()
+{
+	QSettings s(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    
+    // size and position
+    QSize size = s.value("size", QSize(800,600)).toSize();
+    resize(size);
+    QPoint pos = s.value("pos", QPoint(50,50)).toPoint();
+    move(pos);
+
+    // colors
+    QPalette p = _view->textEdit()->palette();
+    QColor textColor = QColor(s.value("textColor", "#000000").toString());
+    QColor baseColor = QColor(s.value("baseColor", "#FFFFFF").toString());
+    p.setColor(QPalette::Text, textColor);
+    p.setColor(QPalette::Base, baseColor);
+    _view->textEdit()->setPalette(p);
+
+    // font
+    QString fontFamily = s.value("fontFamily", "Noto Sans").toString();
+    int fontSize = s.value("fontSize", 12).toInt();
+    int fontWeight = s.value("fontWeight", 50).toInt();
+    bool italic = s.value("fontItalic", false).toBool();
+    QFont font(fontFamily,fontSize, fontWeight);
+    font.setItalic(italic);
+    _view->textEdit()->setFont(font);
+}
+
+
+void MainWindow::saveSettings()
+{
+	QSettings s(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+
+    // size and dimensions
+    s.setValue("size", size() );
+    s.setValue("pos", pos() );
+
+    // colors
+    QPalette p = _view->textEdit()->palette();
+    QString textColor = p.color(QPalette::Text).name();
+    QString baseColor = p.color(QPalette::Base).name();
+    s.setValue("textColor", textColor);
+    s.setValue("baseColor", baseColor);
+
+    // font
+    QFont f = _view->textEdit()->font();
+    QString fontFamily = f.family();
+    int fontSize = f.pointSize();
+    int fontWeight = f.weight();
+    bool italic = f.italic();
+    s.setValue("fontFamily", fontFamily);
+    s.setValue("fontSize", fontSize);
+    s.setValue("fontWeight", fontWeight);
+    s.setValue("fontItalic", italic);
 }
 
 
@@ -124,6 +185,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (exitAfterSaving())
     {
+    	saveSettings();
         event->accept();
         return;
     }

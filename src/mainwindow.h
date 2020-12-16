@@ -26,6 +26,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
+    // load & save settings automagically
+    void loadSettings();
+    void saveSettings();
+
 	// needed to position next windows
 	void tile(const QMainWindow *previous);
 

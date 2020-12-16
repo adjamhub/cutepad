@@ -23,7 +23,6 @@ public:
     ~Application();
 
 	void parseCommandlineArgs();
-	
 };
 
 #endif // APPLICATION_H
