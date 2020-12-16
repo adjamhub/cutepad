@@ -27,9 +27,6 @@
 #include <QPrintDialog>
 
 
-const int s_zoomIncrement = 3;
-
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _view(new MainView(this))
@@ -99,7 +96,7 @@ void MainWindow::saveSettings()
     // font
     QFont f = _view->textEdit()->font();
     QString fontFamily = f.family();
-    int fontSize = f.pointSize() - _zoomRange * s_zoomIncrement; // consider the zoom...
+    int fontSize = f.pointSize() - _zoomRange; // consider the zoom...
     int fontWeight = f.weight();
     bool italic = f.italic();
     s.setValue("fontFamily", fontFamily);
@@ -200,9 +197,11 @@ void MainWindow::setupActions()
 	// ------------------------------------------------------------------------------------------------------------------------
 	// Create and set ALL the needed actions
 	
+    // file actions -----------------------------------------------------------------------------------------------------------
     QAction* actionNew = new QAction( QIcon::fromTheme("document-new") , "New", this);
     actionNew->setShortcut(QKeySequence::New);
     connect(actionNew, &QAction::triggered, this, &MainWindow::newWindow);      
+    
     QAction* actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
     actionOpen->setShortcut(QKeySequence::Open);
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);  
@@ -215,61 +214,78 @@ void MainWindow::setupActions()
     
     QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
     connect(actionSaveAs, &QAction::triggered, this, &MainWindow::saveFileAs);  
+    
     QAction* actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
     actionPrint->setShortcut(QKeySequence::Print);
     connect(actionPrint, &QAction::triggered, this, &MainWindow::printFile);    
+    
     QAction* actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
     actionClose->setShortcut(QKeySequence::Close);
     connect(actionClose, &QAction::triggered, this, &MainWindow::closeFile);    
+    
     QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
     actionQuit->setShortcut(QKeySequence::Quit);
     connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit);
     
+    // edit actions -----------------------------------------------------------------------------------------------------------
     QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(actionUndo, &QAction::triggered, _view->textEdit(), &TextEdit::undo );  
+    
     QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(actionRedo, &QAction::triggered, _view->textEdit(), &TextEdit::redo );  
+    
     QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
     actionCut->setShortcut(QKeySequence::Cut);
     connect(actionCut, &QAction::triggered, _view->textEdit(), &TextEdit::cut );    
+    
     QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, _view->textEdit(), &TextEdit::copy );  
+    
     QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
     actionPaste->setShortcut(QKeySequence::Paste);
     connect(actionPaste, &QAction::triggered,  _view->textEdit(), &TextEdit::paste );   
+    
     QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
     actionSelectAll->setShortcut(QKeySequence::SelectAll);
     connect(actionSelectAll, &QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
     
+    // view actions -----------------------------------------------------------------------------------------------------------
     QAction* actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
     actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );  
+    
     QAction* actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
     actionZoomOut->setShortcut(QKeySequence::ZoomOut);
-    connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOut ); 
+    connect(actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut ); 
+    
     QAction* actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
     actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
-    connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomOriginal );    
+    connect(actionZoomOriginal, &QAction::triggered, this, &MainWindow::onZoomOriginal );    
+
     QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "Full Screen", this );
     actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );  
 
+    // xxx actions -----------------------------------------------------------------------------------------------------------
     QAction* actionLineNumbers = new QAction( "Line Numbers", this );
     actionLineNumbers->setCheckable(true);
     connect(actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );   
+    
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
     connect(actionFind, &QAction::triggered, _view, &MainView::showSearchbar );  
+    
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, _view, &MainView::enableCurrentLineHighlighting );    
     
     QAction* actionAboutQt = new QAction("About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);  
+    
     QAction* actionAboutApp = new QAction("About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);  
     
@@ -437,41 +453,26 @@ void MainWindow::printFile()
 
 
 void MainWindow::onZoomIn()
-{
-    QFont f = _view->textEdit()->font();
-    // this has to eventually stop
-    qDebug() << "point size: " << f.pointSize();
-    qDebug() << "zoom * 10: " << s_zoomIncrement * 10;
-    if (f.pointSize() >= s_zoomIncrement * 10)
-    	return;
-    	
+{   	
     _zoomRange++;
-    f.setPointSize( f.pointSize() + s_zoomIncrement );
-	_view->textEdit()->setFont(f);
+	_view->textEdit()->zoomIn();
 }
 
 
 void MainWindow::onZoomOut()
 {
-    QFont f = _view->textEdit()->font();
-    // this has to eventually stop
-    qDebug() << "point size: " << f.pointSize();
-    qDebug() << "zoom * 10: " << s_zoomIncrement * 10;
-    if (f.pointSize() <= s_zoomIncrement * 2)
-    	return;
-
     _zoomRange--;
-    f.setPointSize( f.pointSize() - s_zoomIncrement );
-
-	_view->textEdit()->setFont(f);
+    _view->textEdit()->zoomOut();
 }
 
 
 void MainWindow::onZoomOriginal()
 {
-    QFont f = _view->textEdit()->font();
-    f.setPointSize( f.pointSize() - _zoomRange * s_zoomIncrement );
-	_view->textEdit()->setFont(f);
+	if (_zoomRange > 0) {
+		_view->textEdit()->zoomOut(s_zoomIncrement * _zoomRange);
+	} else {
+		_view->textEdit()->zoomIn(s_zoomIncrement * _zoomRange * -1);
+	}
 	_zoomRange = 0;
 }
 

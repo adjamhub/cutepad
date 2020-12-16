@@ -28,7 +28,7 @@ class MainView : public QWidget
 public:
     MainView (QWidget *parent = nullptr);
     
-    TextEdit* textEdit() const {
+    TextEdit* textEdit() {
     	return _textEdit;
     }
 
