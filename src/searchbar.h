@@ -12,7 +12,8 @@
 
 
 #include <QWidget>
-
+#include <QLineEdit>
+#include <QPushButton>
 
 class Searchbar : public QWidget
 {
@@ -20,7 +21,10 @@ class Searchbar : public QWidget
 
 public:
     Searchbar(QWidget *parent = nullptr);
-    ~Searchbar();
+    
+private:
+    QLineEdit* _lineEdit;
+    QPushButton* _searchButton;
 };
 
 #endif // SEARCHBAR_H

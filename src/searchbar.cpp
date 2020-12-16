@@ -9,14 +9,22 @@
  
 #include "searchbar.h"
 
+#include <QHBoxLayout>
 
 Searchbar::Searchbar(QWidget *parent)
     : QWidget(parent)
+    , _lineEdit( new QLineEdit(this) )
+    , _searchButton( new QPushButton(this) )
 {
-}
-
-
-Searchbar::~Searchbar()
-{
+	_searchButton->setText("Find");
+	
+	// The UI
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setContentsMargins (0, 0, 0, 0);
+    layout->addWidget (_lineEdit);
+    layout->addWidget (_searchButton);
+    setLayout (layout);
+    
+    setFocusProxy(_lineEdit);
 }
 

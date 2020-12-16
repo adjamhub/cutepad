@@ -263,7 +263,7 @@ void MainWindow::setupActions()
     connect(actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );   
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
-    connect(actionFind, &QAction::triggered, _view, &MainView::setSearchbarVisible );  
+    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchbar );  
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, _view, &MainView::enableCurrentLineHighlighting );    

@@ -36,7 +36,7 @@ public:
     void syntaxHighlightForFile(const QString & path);
 
 public slots:    
-    void setSearchbarVisible(bool on);
+    void showSearchbar();
     void showLineNumbers(bool on);
     void enableCurrentLineHighlighting(bool on);
     

@@ -47,13 +47,20 @@ void MainView::syntaxHighlightForFile(const QString & path)
 }
 
 
-void MainView::setSearchbarVisible(bool on)
+void MainView::showSearchbar()
 {
-	_searchbar->setVisible(on);
-	if (on)
+	if (_searchbar->isVisible())
 	{
+		if (_searchbar->hasFocus())
+		{
+			_searchbar->hide();
+			return;
+		}
 		_searchbar->setFocus();
+		return;
 	}
+	_searchbar->show();
+	_searchbar->setFocus();
 }
 
 
