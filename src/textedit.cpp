@@ -26,6 +26,7 @@ void TextEdit::enableLineNumbers(bool on)
 {
 	if (on) {
 		_lineNumberArea = new LineNumberArea(this);
+		_lineNumberArea->show();
 		connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
 		connect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
 		
