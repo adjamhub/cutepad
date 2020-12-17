@@ -19,7 +19,7 @@
 MainView::MainView (QWidget *parent)
     : QWidget (parent)
     , _textEdit(new TextEdit(this))
-    , _searchbar(new Searchbar(this))
+    , _searchBar(new SearchBar(this))
     , _replaceBar(new ReplaceBar(this))
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
@@ -29,12 +29,12 @@ MainView::MainView (QWidget *parent)
     mainGrid->setVerticalSpacing (4);
     mainGrid->setContentsMargins (0, 0, 0, 0);
     mainGrid->addWidget (_textEdit, 0, 0);
-    mainGrid->addWidget (_searchbar, 1, 0);
+    mainGrid->addWidget (_searchBar, 1, 0);
     mainGrid->addWidget (_replaceBar, 2, 0);
     setLayout (mainGrid);
 
 	// let's start with the hidden bar(s)
-	_searchbar->setVisible(false);
+	_searchBar->setVisible(false);
 	_replaceBar->setVisible(false);
 }
 
@@ -52,18 +52,18 @@ void MainView::syntaxHighlightForFile(const QString & path)
 
 void MainView::showSearchbar()
 {
-	if (_searchbar->isVisible())
+	if (_searchBar->isVisible())
 	{
-		if (_searchbar->hasFocus())
+		if (_searchBar->hasFocus())
 		{
-			_searchbar->hide();
+			_searchBar->hide();
 			return;
 		}
-		_searchbar->setFocus();
+		_searchBar->setFocus();
 		return;
 	}
-	_searchbar->show();
-	_searchbar->setFocus();
+	_searchBar->show();
+	_searchBar->setFocus();
 }
 
 

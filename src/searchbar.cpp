@@ -14,7 +14,7 @@
 #include <QPushButton>
 
 
-Searchbar::Searchbar(QWidget *parent)
+SearchBar::SearchBar(QWidget *parent)
     : QWidget(parent)
     , _lineEdit( new QLineEdit(this) )
 {

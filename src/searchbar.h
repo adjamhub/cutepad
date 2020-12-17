@@ -15,12 +15,12 @@
 #include <QLineEdit>
 
 
-class Searchbar : public QWidget
+class SearchBar : public QWidget
 {
     Q_OBJECT
 
 public:
-    Searchbar(QWidget *parent = nullptr);
+    SearchBar(QWidget *parent = nullptr);
     
 private:
     QLineEdit* _lineEdit;

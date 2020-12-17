@@ -42,7 +42,7 @@ public slots:
     
 private:
 	TextEdit* _textEdit;
-	Searchbar* _searchbar;
+	SearchBar* _searchBar;
 	ReplaceBar* _replaceBar;
 
 	KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
