@@ -3,19 +3,10 @@ Name=CutePad
 GenericName=Text Editor
 Comment=Lightweight Qt text editor
 Exec=cutepad %F
-Icon=cutepad
+Icon=accessories-text-editor
 Terminal=false
 Type=Application
 MimeType=text/plain;
 Categories=Qt;Utility;TextEditor;
 X-KDE-StartupNotify=false;
 Keywords=Text;Editor;Plaintext;
-Actions=new-window;standalone-window;
-
-[Desktop Action new-window]
-Name=New Window
-Exec=cutepad --win
-
-[Desktop Action standalone-window]
-Name=Standalone Window
-Exec=cutepad --standalone

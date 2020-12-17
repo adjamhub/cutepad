@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
      
     // application icon and title
-    QIcon appIcon(":/cutepad.png");
+    QIcon appIcon = QIcon::fromTheme( "accessories-text-editor" );
     setWindowIcon(appIcon);
     
     loadSettings();

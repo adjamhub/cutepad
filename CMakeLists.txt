@@ -52,8 +52,6 @@ add_executable(cutepad
 	src/textedit.cpp
 	src/searchbar.cpp
 	src/replacebar.cpp
-	# ------------------
-	resources.qrc
 )
 
 target_link_libraries(cutepad PRIVATE 
@@ -66,12 +64,8 @@ target_link_libraries(cutepad PRIVATE
 )
 
 # -------------------------------------------------------------------------
-set(DESKTOP_FILE cutepad.desktop)
-set(ICON_FILE cutepad.png)
-
 install(TARGETS cutepad RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-install(FILES ${DESKTOP_FILE} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-install(FILES ${ICON_FILE} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/96x96/apps")
+install(FILES cutepad.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
 
 # --------------------------------------------------------------------------
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
