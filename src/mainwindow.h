@@ -62,6 +62,8 @@ private slots:
     void onZoomOriginal();
     void onFullscreen(bool on);
 
+	void selectFont();
+	
     void about();
     
 private:

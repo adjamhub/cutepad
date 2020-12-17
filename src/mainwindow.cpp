@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFileDialog>
+#include <QFontDialog>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -239,7 +240,8 @@ void MainWindow::setupActions()
     
     QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
     actionQuit->setShortcut(QKeySequence::Quit);
-    connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit);
+    // qApp->quit() does NOT save settings!!! Needs investigation
+    connect(actionQuit, &QAction::triggered, this, &MainWindow::close);
     
     // edit actions -----------------------------------------------------------------------------------------------------------
     QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
@@ -302,7 +304,11 @@ void MainWindow::setupActions()
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );    
+
+    QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
+    connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );    
     
+    // about actions -----------------------------------------------------------------------------------------------------------
     QAction* actionAboutQt = new QAction("About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);  
     
@@ -355,6 +361,8 @@ void MainWindow::setupActions()
     optionsMenu->addSeparator();
     optionsMenu->addAction(actionFind);
     optionsMenu->addAction(actionReplace);
+    optionsMenu->addSeparator();
+    optionsMenu->addAction(actionFontChange);
     
     QMenu* helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction(actionAboutQt);
@@ -521,6 +529,21 @@ void MainWindow::onFullscreen(bool on)
         showNormal();
         menuBar()->show();
     }
+}
+
+
+void MainWindow::selectFont()
+{
+    bool ok;
+    // initialFont is the font initially shown in the dialog
+    QFont initialFont = _view->textEdit()->font();
+    initialFont.setPointSize( initialFont.pointSize() - _zoomRange );
+    QFont font = QFontDialog::getFont(&ok, initialFont);
+    if (!ok)
+        return;
+
+    _view->textEdit()->setFont(font);
+    _view->textEdit()->setFocus();
 }
 
 
