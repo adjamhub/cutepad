@@ -36,13 +36,15 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(_view);
 
+	// we need to load settings BEFORE setup actions,
+	// to SET initial states
+    loadSettings();
+    
     setupActions();
      
     // application icon and title
     QIcon appIcon = QIcon::fromTheme( "accessories-text-editor" );
     setWindowIcon(appIcon);
-    
-    loadSettings();
     
     connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
     setCurrentFilePath("");
@@ -75,6 +77,12 @@ void MainWindow::loadSettings()
     QFont font(fontFamily,fontSize, fontWeight);
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
+    
+    // textEdit
+    bool highlight = s.value("CurrentLineHighlight", false).toBool();
+    _view->textEdit()->enableCurrentLineHighlighting(highlight);
+    bool lineNumbers = s.value("LineNumbers", false).toBool();
+    _view->textEdit()->enableLineNumbers(lineNumbers);
 }
 
 
@@ -103,6 +111,12 @@ void MainWindow::saveSettings()
     s.setValue("fontSize", fontSize);
     s.setValue("fontWeight", fontWeight);
     s.setValue("fontItalic", italic);
+    
+    // textEdit
+    bool highlight = _view->textEdit()->isCurrentLineHighlightingEnabled();
+	s.setValue("CurrentLineHighlight", highlight);
+    bool lineNumbers = _view->textEdit()->isLineNumbersEnabled();
+    s.setValue("LineNumbers", lineNumbers);
 }
 
 
@@ -273,7 +287,13 @@ void MainWindow::setupActions()
     // xxx actions -----------------------------------------------------------------------------------------------------------
     QAction* actionLineNumbers = new QAction( "Line Numbers", this );
     actionLineNumbers->setCheckable(true);
-    connect(actionLineNumbers, &QAction::triggered, _view, &MainView::showLineNumbers );   
+    actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
+    connect(actionLineNumbers, &QAction::triggered, _view->textEdit(), &TextEdit::enableLineNumbers );   
+    
+    QAction* actionCurrentLineHighlight = new QAction( "Current Line Highlight", this );
+    actionCurrentLineHighlight->setCheckable(true);
+    actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
+    connect(actionCurrentLineHighlight, &QAction::triggered, _view->textEdit(), &TextEdit::enableCurrentLineHighlighting );   
     
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
@@ -331,6 +351,8 @@ void MainWindow::setupActions()
 
     QMenu* optionsMenu = menuBar()->addMenu("&Options");
     optionsMenu->addAction(actionLineNumbers);
+    optionsMenu->addAction(actionCurrentLineHighlight);
+    optionsMenu->addSeparator();
     optionsMenu->addAction(actionFind);
     optionsMenu->addAction(actionReplace);
     

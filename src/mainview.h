@@ -39,9 +39,6 @@ public:
 public slots:    
     void showSearchbar();
     void showReplaceBar();
-
-    void showLineNumbers(bool on);
-    void enableCurrentLineHighlighting(bool on);
     
 private:
 	TextEdit* _textEdit;

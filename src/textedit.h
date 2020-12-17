@@ -22,8 +22,11 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
     
-    void showLineNumbers(bool on);
+    void enableLineNumbers(bool on);
+    bool isLineNumbersEnabled();
+	
 	void enableCurrentLineHighlighting(bool on);
+	bool isCurrentLineHighlightingEnabled();
 	    
     // -------------------------------------------------------------------
     void lineNumberAreaPaintEvent (QPaintEvent *event);
@@ -39,6 +42,7 @@ private slots:
 
 private:
     QWidget* _lineNumberArea;
+    bool _highlight;
 };
 
 
@@ -60,12 +64,12 @@ public:
     }
 
 protected:
-    void paintEvent (QPaintEvent *event) {
+    void paintEvent (QPaintEvent *event) override {
         _editor->lineNumberAreaPaintEvent (event);
     }
 
 private:
-    TextEdit *_editor;
+    TextEdit* _editor;
 };
 
 

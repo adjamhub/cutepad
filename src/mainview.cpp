@@ -76,15 +76,3 @@ void MainView::showReplaceBar()
 	}
 	_replaceBar->show();
 }
-
-
-void MainView::showLineNumbers(bool on)
-{
-	_textEdit->showLineNumbers(on);
-}
-
-
-void MainView::enableCurrentLineHighlighting(bool on)
-{
-	_textEdit->enableCurrentLineHighlighting(on);
-}

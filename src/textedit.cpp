@@ -1,6 +1,6 @@
 /*
  * Copyright (C) Andrea Diamantini 2020 <adjam@protonmail.com>
- * Based on Code Editor Example: https://doc.qt.io/qt-5/qtwidgets-widgets-CodeEditor-example.html
+ * Based on Code Editor Example: https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
  *
  * CutePad project
  *
@@ -17,11 +17,12 @@
 TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
     , _lineNumberArea(nullptr)
+    , _highlight(false)
 {
 }
 
 
-void TextEdit::showLineNumbers(bool on)
+void TextEdit::enableLineNumbers(bool on)
 {
 	if (on) {
 		_lineNumberArea = new LineNumberArea(this);
@@ -41,8 +42,18 @@ void TextEdit::showLineNumbers(bool on)
 }
 
 
+bool TextEdit::isLineNumbersEnabled()
+{
+	return _lineNumberArea ? true : false;
+}
+
+
 void TextEdit::enableCurrentLineHighlighting(bool on)
 {
+	if (_highlight == on)
+		return;
+		
+	_highlight = on;
 	if (on) {
 		highlightCurrentLine();
 		connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
@@ -54,19 +65,24 @@ void TextEdit::enableCurrentLineHighlighting(bool on)
 		
 			// FIXME: choose right background color
     		QColor lineColor = QColor(Qt::white).lighter(160);
-		
     		selection.format.setBackground(lineColor);
     		selection.format.setProperty(QTextFormat::FullWidthSelection, true);
     		selection.cursor = textCursor();
     		selection.cursor.clearSelection();
     		extraSelections.append(selection);
 		}
-		
 		setExtraSelections(extraSelections);
 
 		disconnect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
 	}
 }
+
+
+bool TextEdit::isCurrentLineHighlightingEnabled()
+{
+	return _highlight;
+}
+
 
 void TextEdit::lineNumberAreaPaintEvent (QPaintEvent *event)
 {
