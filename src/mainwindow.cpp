@@ -71,8 +71,8 @@ void MainWindow::loadSettings()
     _view->textEdit()->setPalette(p);
 
     // font
-    QString fontFamily = s.value("fontFamily", "Noto Sans").toString();
-    int fontSize = s.value("fontSize", 12).toInt();
+    QString fontFamily = s.value("fontFamily", "Monospace").toString();
+    int fontSize = s.value("fontSize", 10).toInt();
     int fontWeight = s.value("fontWeight", 50).toInt();
     bool italic = s.value("fontItalic", false).toBool();
     QFont font(fontFamily,fontSize, fontWeight);

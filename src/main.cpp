@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
     
     app.setApplicationName("cutepad");
     app.setApplicationVersion(CUTEPAD_VERSION_STRING);
-    app.setOrganizationName("dvjlabs");
-    app.setOrganizationDomain("dvjlabs.org");
+    app.setOrganizationName("adjam");
+    app.setOrganizationDomain("adjam.org");
 
     app.parseCommandlineArgs();
 
