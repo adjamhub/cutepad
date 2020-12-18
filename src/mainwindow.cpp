@@ -144,6 +144,7 @@ void MainWindow::loadFilePath(const QString &path)
     _view->textEdit()->setPlainText(file.readAll());
     QGuiApplication::restoreOverrideCursor();
 
+    _view->syntaxHighlightForFile(path);
     setCurrentFilePath(path);    
 }
 
@@ -355,12 +356,13 @@ void MainWindow::setupActions()
     viewMenu->addSeparator();
     viewMenu->addAction(actionFullScreen);
 
+	QMenu* searchMenu = menuBar()->addMenu("&Search");
+    searchMenu->addAction(actionFind);
+    searchMenu->addAction(actionReplace);
+	
     QMenu* optionsMenu = menuBar()->addMenu("&Options");
     optionsMenu->addAction(actionLineNumbers);
     optionsMenu->addAction(actionCurrentLineHighlight);
-    optionsMenu->addSeparator();
-    optionsMenu->addAction(actionFind);
-    optionsMenu->addAction(actionReplace);
     optionsMenu->addSeparator();
     optionsMenu->addAction(actionFontChange);
     
