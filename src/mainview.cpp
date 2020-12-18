@@ -15,6 +15,8 @@
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
+#include <QDebug>
+
 
 MainView::MainView (QWidget *parent)
     : QWidget (parent)
@@ -35,7 +37,9 @@ MainView::MainView (QWidget *parent)
 
 	// let's start with the hidden bar(s)
 	_searchBar->setVisible(false);
-	_replaceBar->setVisible(false);
+	_replaceBar->setVisible(false);	
+	
+	connect(_searchBar, &SearchBar::find, this, &MainView::find);
 }
 
 
@@ -75,4 +79,26 @@ void MainView::showReplaceBar()
 		return;
 	}
 	_replaceBar->show();
+}
+
+
+void MainView::find(bool forward, bool casesensitive, bool wholewords)
+{
+	QString search = _searchBar->lineEdit()->text();
+	
+	QTextDocument::FindFlags flags;
+
+	if (!forward) {
+		flags |= QTextDocument::FindBackward;
+	}
+	
+	if (casesensitive) {
+		flags |= QTextDocument::FindCaseSensitively;
+	}
+	
+	if (wholewords) {
+		flags |= QTextDocument::FindWholeWords;
+	}
+	
+	_textEdit->find(search, flags);
 }

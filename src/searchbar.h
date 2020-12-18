@@ -18,10 +18,21 @@
 class SearchBar : public QWidget
 {
     Q_OBJECT
-
+	
 public:
     SearchBar(QWidget *parent = nullptr);
-    
+
+	QLineEdit* lineEdit() const {
+		return _lineEdit;
+	}
+
+signals:
+	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+	
+private slots:
+	void findBackward();
+	void findForward();
+	    
 private:
     QLineEdit* _lineEdit;
 };

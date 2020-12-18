@@ -40,6 +40,9 @@ public slots:
     void showSearchbar();
     void showReplaceBar();
     
+private slots:
+	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+	
 private:
 	TextEdit* _textEdit;
 	SearchBar* _searchBar;
@@ -51,4 +54,3 @@ private:
 
 
 #endif // MAIN_VIEW_H
-
