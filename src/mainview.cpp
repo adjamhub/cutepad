@@ -40,6 +40,7 @@ MainView::MainView (QWidget *parent)
 	_replaceBar->setVisible(false);	
 	
 	connect(_searchBar, &SearchBar::find, this, &MainView::find);
+	connect(this, &MainView::notFound, _searchBar, &SearchBar::notFoundMessage);
 }
 
 
@@ -100,5 +101,7 @@ void MainView::find(bool forward, bool casesensitive, bool wholewords)
 		flags |= QTextDocument::FindWholeWords;
 	}
 	
-	_textEdit->find(search, flags);
+	bool res = _textEdit->find(search, flags);
+	if (!res)
+		emit notFound();
 }

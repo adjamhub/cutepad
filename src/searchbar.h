@@ -12,6 +12,9 @@
 
 
 #include <QWidget>
+
+#include <QCheckBox>
+#include <QLabel>
 #include <QLineEdit>
 
 
@@ -29,12 +32,19 @@ public:
 signals:
 	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
 	
+public slots:
+	void notFoundMessage();
+
 private slots:
 	void findBackward();
 	void findForward();
-	    
+
 private:
     QLineEdit* _lineEdit;
+    
+    QCheckBox* _caseCheckBox;
+    QCheckBox* _wholeWordCheckBox;
+    QLabel* _notFoundLabel;
 };
 
 #endif // SEARCHBAR_H

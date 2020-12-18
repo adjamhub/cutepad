@@ -26,6 +26,7 @@
 class MainView : public QWidget
 {
     Q_OBJECT
+    
 public:
     MainView (QWidget *parent = nullptr);
     
@@ -42,6 +43,9 @@ public slots:
     
 private slots:
 	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+	
+signals:
+	void notFound();
 	
 private:
 	TextEdit* _textEdit;

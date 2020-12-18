@@ -11,13 +11,15 @@
 
 #include <QCheckBox>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
 
 
 SearchBar::SearchBar(QWidget *parent)
     : QWidget(parent)
     , _lineEdit( new QLineEdit(this) )
+    , _caseCheckBox( new QCheckBox("Match Case", this) )
+    , _wholeWordCheckBox( new QCheckBox("Whole words", this) )
+    , _notFoundLabel( new QLabel(this) )
 {
 	connect(_lineEdit, &QLineEdit::returnPressed, this, &SearchBar::findForward);
 	
@@ -31,9 +33,6 @@ SearchBar::SearchBar(QWidget *parent)
 	nextButton->setShortcut(QKeySequence::FindNext);
 	connect(nextButton, &QPushButton::clicked, this, &SearchBar::findForward);
 	
-	auto caseCheckBox = new QCheckBox("Match Case", this);
-	auto wholeWordCheckBox = new QCheckBox("Whole words", this);
-	
 	// The UI
     auto layout = new QHBoxLayout;
     layout->setContentsMargins (0, 0, 0, 0);
@@ -41,9 +40,12 @@ SearchBar::SearchBar(QWidget *parent)
     layout->addWidget (_lineEdit);
     layout->addWidget (nextButton);
     layout->addWidget (prevButton);
-    layout->addWidget (caseCheckBox);
-    layout->addWidget (wholeWordCheckBox);
+    layout->addWidget (_caseCheckBox);
+    layout->addWidget (_wholeWordCheckBox);
     layout->addStretch();
+    layout->addWidget (_notFoundLabel);
+    layout->addStretch();
+    
     setLayout (layout);
 	    
     setFocusProxy(_lineEdit);
@@ -52,12 +54,25 @@ SearchBar::SearchBar(QWidget *parent)
 
 void SearchBar::findBackward()
 {
-//	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
-	emit find(false);
+	_notFoundLabel->setText("");
+
+	bool caseSensitive = _caseCheckBox->isChecked();
+	bool wholeWords = _wholeWordCheckBox->isChecked();
+	emit find(false, caseSensitive, wholeWords);
 }
 
 
 void SearchBar::findForward()
 {
-	emit find(true);
+	_notFoundLabel->setText("");
+
+	bool caseSensitive = _caseCheckBox->isChecked();
+	bool wholeWords = _wholeWordCheckBox->isChecked();
+	emit find(true, caseSensitive, wholeWords);
+}
+
+
+void SearchBar::notFoundMessage()
+{
+	_notFoundLabel->setText("<b>Not Found</b>");
 }
