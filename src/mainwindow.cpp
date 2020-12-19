@@ -208,6 +208,27 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Escape) {
+		if (_view->isSearchBarActive()) {
+			_view->hideSearchBar();
+			event->accept();
+			return;
+		}
+		
+		if (_view->isReplaceBarActive()) {
+			_view->hideReplaceBar();
+			event->accept();
+			return;
+		}
+	}
+	
+	QMainWindow::keyPressEvent(event);
+	return;
+}
+
+
 void MainWindow::setupActions()
 {
 	// ------------------------------------------------------------------------------------------------------------------------
@@ -300,7 +321,7 @@ void MainWindow::setupActions()
     
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
-    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchbar );  
+    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchBar );  
     
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);

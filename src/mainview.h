@@ -31,29 +31,34 @@ public:
     MainView (QWidget *parent = nullptr);
     
     TextEdit* textEdit() {
-    	return _textEdit;
+        return _textEdit;
     }
 
-	// enable syntax highlighting
+    // enable syntax highlighting
     void syntaxHighlightForFile(const QString & path);
 
 public slots:    
-    void showSearchbar();
+    void showSearchBar();
+    void hideSearchBar();
+    bool isSearchBarActive();
+
     void showReplaceBar();
+    void hideReplaceBar();
+    bool isReplaceBarActive();
     
 private slots:
-	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
-	
-signals:
-	void notFound();
-	
-private:
-	TextEdit* _textEdit;
-	SearchBar* _searchBar;
-	ReplaceBar* _replaceBar;
+    void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
 
-	KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
-	KSyntaxHighlighting::Repository* _highlightRepo;
+signals:
+    void notFound();
+
+private:
+    TextEdit* _textEdit;
+    SearchBar* _searchBar;
+    ReplaceBar* _replaceBar;
+
+    KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
+    KSyntaxHighlighting::Repository* _highlightRepo;
 };
 
 

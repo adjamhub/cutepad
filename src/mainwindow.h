@@ -16,6 +16,7 @@
 #include "mainview.h"
 
 class QCloseEvent;
+class QKeyEvent;
 
 
 class MainWindow : public QMainWindow
@@ -29,8 +30,8 @@ public:
     void loadSettings();
     void saveSettings();
 
-	// needed to position next windows
-	void tile(const QMainWindow *previous);
+    // needed to position next windows
+    void tile(const QMainWindow *previous);
 
     // public functions to load and save the actual file
     // from the outside
@@ -43,12 +44,13 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event);
 
 private:
     void setupActions();
-    
+
     void setCurrentFilePath(const QString& path);
-    
+
 private slots:
     void newWindow();
     void openFile();
@@ -62,13 +64,13 @@ private slots:
     void onZoomOriginal();
     void onFullscreen(bool on);
 
-	void selectFont();
-	
+    void selectFont();
+
     void about();
-    
+
 private:
     MainView* _view;
-    
+
     QString _filePath;
     int _zoomRange;
 };

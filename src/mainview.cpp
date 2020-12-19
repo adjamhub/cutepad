@@ -56,31 +56,43 @@ void MainView::syntaxHighlightForFile(const QString & path)
 }
 
 
-void MainView::showSearchbar()
+void MainView::showSearchBar()
 {
-    if (_searchBar->isVisible())
-    {
-        if (_searchBar->hasFocus())
-        {
-            _searchBar->hide();
-            return;
-        }
-        _searchBar->setFocus();
-        return;
-    }
+    // TODO: if text is selected, copy to lineEdit
     _searchBar->show();
     _searchBar->setFocus();
 }
 
 
+void MainView::hideSearchBar()
+{
+    _searchBar->hide();
+}
+
+
+bool MainView::isSearchBarActive()
+{
+    return _searchBar->isVisible();
+}
+
+
 void MainView::showReplaceBar()
 {
-    if (_replaceBar->isVisible())
-    {
-        _replaceBar->hide();
-        return;
-    }
+    // TODO: if text is selected, copy to FIND lineEdit
     _replaceBar->show();
+    _replaceBar->setFocus();
+}
+
+
+void MainView::hideReplaceBar()
+{
+    _replaceBar->hide();
+}
+
+
+bool MainView::isReplaceBarActive()
+{
+    return _replaceBar->isVisible();
 }
 
 
