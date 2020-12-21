@@ -5,7 +5,7 @@
  *
  * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
- 
+
 
 #ifndef SEARCHBAR_H
 #define SEARCHBAR_H
@@ -21,27 +21,27 @@
 class SearchBar : public QWidget
 {
     Q_OBJECT
-	
+
 public:
     SearchBar(QWidget *parent = nullptr);
 
-	QLineEdit* lineEdit() const {
-		return _lineEdit;
-	}
+    QLineEdit* lineEdit() const {
+        return _lineEdit;
+    }
 
 signals:
-	void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
-	
+    void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+
 public slots:
-	void notFoundMessage();
+    void notFoundMessage();
 
 private slots:
-	void findBackward();
-	void findForward();
+    void findBackward();
+    void findForward();
 
 private:
     QLineEdit* _lineEdit;
-    
+
     QCheckBox* _caseCheckBox;
     QCheckBox* _wholeWordCheckBox;
     QLabel* _notFoundLabel;

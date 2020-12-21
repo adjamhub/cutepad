@@ -6,7 +6,7 @@
  *
  * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
- 
+
 
 #ifndef TEXTEDIT_H
 #define TEXTEDIT_H
@@ -21,13 +21,13 @@ class TextEdit : public QPlainTextEdit
 
 public:
     TextEdit(QWidget *parent = nullptr);
-    
+
     void enableLineNumbers(bool on);
     bool isLineNumbersEnabled();
-	
-	void enableCurrentLineHighlighting(bool on);
-	bool isCurrentLineHighlightingEnabled();
-	    
+
+    void enableCurrentLineHighlighting(bool on);
+    bool isCurrentLineHighlightingEnabled();
+
     // -------------------------------------------------------------------
     void lineNumberAreaPaintEvent (QPaintEvent *event);
     int lineNumberAreaWidth();
@@ -54,8 +54,8 @@ class LineNumberArea : public QWidget
     Q_OBJECT
 
 public:
-    LineNumberArea (TextEdit *editor) 
-    	: QWidget (editor) {
+    LineNumberArea (TextEdit *editor)
+        : QWidget (editor) {
         _editor = editor;
     }
 

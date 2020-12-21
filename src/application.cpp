@@ -5,7 +5,7 @@
  *
  * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
- 
+
 
 #include "version.h"
 
@@ -28,24 +28,24 @@ Application::~Application()
 
 void Application::parseCommandlineArgs()
 {
-	QCommandLineParser parser;
-	parser.setApplicationDescription(QCoreApplication::applicationName());
-	parser.addHelpOption();
-	parser.addVersionOption();
-	parser.addPositionalArgument("file", "The file(s) to open.");
-	parser.process(*this);
-	
-	MainWindow *mainWin = nullptr;
-	const QStringList posArgs = parser.positionalArguments();
-	for (const QString &file : posArgs) {
-    	MainWindow *newWin = new MainWindow;
-    	newWin->loadFilePath(file);
-    	newWin->tile(mainWin);
-    	newWin->show();
-    	mainWin = newWin;
-	}
-	
-	if (!mainWin)
-    	mainWin = new MainWindow;
-	mainWin->show();
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QCoreApplication::applicationName());
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("file", "The file(s) to open.");
+    parser.process(*this);
+
+    MainWindow *mainWin = nullptr;
+    const QStringList posArgs = parser.positionalArguments();
+    for (const QString &file : posArgs) {
+        MainWindow *newWin = new MainWindow;
+        newWin->loadFilePath(file);
+        newWin->tile(mainWin);
+        newWin->show();
+        mainWin = newWin;
+    }
+
+    if (!mainWin)
+        mainWin = new MainWindow;
+    mainWin->show();
 }
