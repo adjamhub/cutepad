@@ -9,7 +9,9 @@
 
 #include "mainview.h"
 
-#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QTextDocument>
+#include <QTextCursor>
 
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
@@ -26,20 +28,21 @@ MainView::MainView (QWidget *parent)
     , _highlightRepo(new KSyntaxHighlighting::Repository)
 {
     // The UI
-    QGridLayout *mainGrid = new QGridLayout;
-    mainGrid->setVerticalSpacing (4);
-    mainGrid->setContentsMargins (0, 0, 0, 0);
-    mainGrid->addWidget (_textEdit, 0, 0);
-    mainGrid->addWidget (_searchBar, 1, 0);
-    mainGrid->addWidget (_replaceBar, 2, 0);
-    setLayout (mainGrid);
+    auto layout = new QVBoxLayout;
+    layout->setContentsMargins (0, 0, 0, 0);
+    layout->addWidget (_textEdit);
+    layout->addWidget (_searchBar);
+    layout->addWidget (_replaceBar);
+    setLayout (layout);
 
     // let's start with the hidden bar(s)
     _searchBar->setVisible(false);
-    _replaceBar->setVisible(false); 
-    
+    _replaceBar->setVisible(false);
+
     connect(_searchBar, &SearchBar::find, this, &MainView::find);
     connect(this, &MainView::notFound, _searchBar, &SearchBar::notFoundMessage);
+
+    connect(_replaceBar, &ReplaceBar::replace, this, &MainView::replace);
 }
 
 
@@ -58,8 +61,19 @@ void MainView::syntaxHighlightForFile(const QString & path)
 
 void MainView::showSearchBar()
 {
-    // TODO: if text is selected, copy to lineEdit
+    if (_replaceBar->isVisible()) {
+        _replaceBar->hide();
+        return;
+    }
+
+    if (_searchBar->isVisible()) {
+        _searchBar->hide();
+        return;
+    }
+
     _searchBar->show();
+
+    // TODO: if text is selected, copy to lineEdit
     _searchBar->setFocus();
 }
 
@@ -78,8 +92,16 @@ bool MainView::isSearchBarActive()
 
 void MainView::showReplaceBar()
 {
-    // TODO: if text is selected, copy to FIND lineEdit
+    if (_replaceBar->isVisible()) {
+        _searchBar->hide();
+        _replaceBar->hide();
+        return;
+    }
+
+    _searchBar->show();
     _replaceBar->show();
+
+    // TODO: if text is selected, copy to FIND lineEdit
     _replaceBar->setFocus();
 }
 
@@ -96,25 +118,46 @@ bool MainView::isReplaceBarActive()
 }
 
 
-void MainView::find(bool forward, bool casesensitive, bool wholewords)
+void MainView::find(const QString & search, bool forward, bool casesensitive, bool wholewords)
 {
-    QString search = _searchBar->lineEdit()->text();
-    
     QTextDocument::FindFlags flags;
 
     if (!forward) {
         flags |= QTextDocument::FindBackward;
     }
-    
+
     if (casesensitive) {
         flags |= QTextDocument::FindCaseSensitively;
     }
-    
+
     if (wholewords) {
         flags |= QTextDocument::FindWholeWords;
     }
-    
+
     bool res = _textEdit->find(search, flags);
     if (!res)
         emit notFound();
+}
+
+
+void MainView::replace(const QString &replace, bool justNext)
+{
+    QString find = _searchBar->_findLineEdit->text();
+    bool matchCase = _searchBar->_caseCheckBox->isChecked();
+    bool wholeWords = _searchBar->_wholeWordCheckBox->isChecked();
+
+    qDebug() << "find: " << find;
+    qDebug() << "replace: " << replace;
+    qDebug() << "just next: " << justNext;
+    qDebug() << "match case: " << matchCase;
+    qDebug() << "whole words: " << wholeWords;
+}
+
+
+void MainView::highlightText(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+
+    // TODO ...
 }

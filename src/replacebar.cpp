@@ -9,30 +9,52 @@
 
 #include "replacebar.h"
 
-#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 
 
 ReplaceBar::ReplaceBar(QWidget *parent)
     : QWidget(parent)
-    , _findLineEdit( new QLineEdit(this) )
     , _replaceLineEdit( new QLineEdit(this) )
 {
-    auto findLabel = new QLabel("Find:", this);
-    auto replaceLabel = new QLabel("Replace", this);
+    auto replaceLabel = new QLabel("Replace with:", this);
+    replaceLabel->setMinimumWidth(100);
+
+    _replaceLineEdit->setMinimumWidth(250);
+    _replaceLineEdit->setMaximumWidth(250);
+
     auto replaceNextButton = new QPushButton("Replace", this);
+    replaceNextButton->setMinimumWidth(120);
+    connect(replaceNextButton, &QPushButton::clicked, this, &ReplaceBar::replaceNext);
+
     auto replaceAllButton = new QPushButton("Replace All", this);
+    replaceAllButton->setMinimumWidth(120);
+    connect(replaceAllButton, &QPushButton::clicked, this, &ReplaceBar::replaceAll);
 
     // The UI
-    auto layout = new QGridLayout;
+    auto layout = new QHBoxLayout;
     layout->setContentsMargins (0, 0, 0, 0);
-    layout->addWidget (findLabel, 0, 0);
-    layout->addWidget (_findLineEdit, 0, 1);
-    layout->addWidget (replaceNextButton, 0, 2);
-    layout->addWidget (replaceLabel, 1, 0);
-    layout->addWidget (_replaceLineEdit, 1, 1);
-    layout->addWidget (replaceAllButton, 1, 2);
+    layout->addWidget (replaceLabel);
+    layout->addWidget (_replaceLineEdit);
+    layout->addWidget (replaceNextButton);
+    layout->addWidget (replaceAllButton);
+    layout->addStretch();
     setLayout (layout);
+
+    setFocusProxy(_replaceLineEdit);
 }
 
+
+void ReplaceBar::replaceNext()
+{
+    QString rep = _replaceLineEdit->text();
+    emit replace(rep, true);
+}
+
+
+void ReplaceBar::replaceAll()
+{
+    QString rep = _replaceLineEdit->text();
+    emit replace(rep, false);
+}

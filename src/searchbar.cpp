@@ -16,28 +16,34 @@
 
 SearchBar::SearchBar(QWidget *parent)
     : QWidget(parent)
-    , _lineEdit( new QLineEdit(this) )
+    , _findLineEdit( new QLineEdit(this) )
     , _caseCheckBox( new QCheckBox("Match Case", this) )
     , _wholeWordCheckBox( new QCheckBox("Whole words", this) )
     , _notFoundLabel( new QLabel(this) )
 {
-    connect(_lineEdit, &QLineEdit::returnPressed, this, &SearchBar::findForward);
+    connect(_findLineEdit, &QLineEdit::returnPressed, this, &SearchBar::findForward);
 
     auto label = new QLabel("Search for:", this);
+    label->setMinimumWidth(100);
+
+    _findLineEdit->setMinimumWidth(250);
+    _findLineEdit->setMaximumWidth(250);
 
     auto prevButton = new QPushButton("Previous", this);
+    prevButton->setMinimumWidth(120);
     prevButton->setShortcut(QKeySequence::FindPrevious);
     connect(prevButton, &QPushButton::clicked, this, &SearchBar::findBackward);
 
     auto nextButton = new QPushButton("Next", this);
     nextButton->setShortcut(QKeySequence::FindNext);
+    nextButton->setMinimumWidth(120);
     connect(nextButton, &QPushButton::clicked, this, &SearchBar::findForward);
 
     // The UI
     auto layout = new QHBoxLayout;
     layout->setContentsMargins (0, 0, 0, 0);
     layout->addWidget (label);
-    layout->addWidget (_lineEdit);
+    layout->addWidget (_findLineEdit);
     layout->addWidget (nextButton);
     layout->addWidget (prevButton);
     layout->addWidget (_caseCheckBox);
@@ -48,7 +54,7 @@ SearchBar::SearchBar(QWidget *parent)
 
     setLayout (layout);
 
-    setFocusProxy(_lineEdit);
+    setFocusProxy(_findLineEdit);
 }
 
 
@@ -56,9 +62,10 @@ void SearchBar::findBackward()
 {
     _notFoundLabel->setText("");
 
+    QString search = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
     bool wholeWords = _wholeWordCheckBox->isChecked();
-    emit find(false, caseSensitive, wholeWords);
+    emit find(search, false, caseSensitive, wholeWords);
 }
 
 
@@ -66,9 +73,10 @@ void SearchBar::findForward()
 {
     _notFoundLabel->setText("");
 
+    QString search = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
     bool wholeWords = _wholeWordCheckBox->isChecked();
-    emit find(true, caseSensitive, wholeWords);
+    emit find(search, true, caseSensitive, wholeWords);
 }
 
 

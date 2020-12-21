@@ -5,7 +5,7 @@
  *
  * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
- 
+
 
 #ifndef REPLACEBAR_H
 #define REPLACEBAR_H
@@ -15,15 +15,26 @@
 #include <QLineEdit>
 
 
+class MainView;
+
+
 class ReplaceBar : public QWidget
 {
     Q_OBJECT
 
 public:
     ReplaceBar(QWidget *parent = nullptr);
-    
+
+signals:
+    void replace(const QString &replace, bool justNext = true);
+
+private slots:
+    void replaceNext();
+    void replaceAll();
+
 private:
-    QLineEdit* _findLineEdit;
+    friend class MainView;
+
     QLineEdit* _replaceLineEdit;
 };
 

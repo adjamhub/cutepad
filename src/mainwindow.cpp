@@ -211,17 +211,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape) {
+
+        if (_view->isReplaceBarActive()) {
+            _view->hideSearchBar();
+            _view->hideReplaceBar();
+            event->accept();
+            return;
+        }
+
         if (_view->isSearchBarActive()) {
             _view->hideSearchBar();
             event->accept();
             return;
         }
 
-        if (_view->isReplaceBarActive()) {
-            _view->hideReplaceBar();
-            event->accept();
-            return;
-        }
     }
 
     QMainWindow::keyPressEvent(event);

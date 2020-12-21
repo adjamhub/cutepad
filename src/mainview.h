@@ -26,10 +26,10 @@
 class MainView : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     MainView (QWidget *parent = nullptr);
-    
+
     TextEdit* textEdit() {
         return _textEdit;
     }
@@ -37,7 +37,7 @@ public:
     // enable syntax highlighting
     void syntaxHighlightForFile(const QString & path);
 
-public slots:    
+public slots:
     void showSearchBar();
     void hideSearchBar();
     bool isSearchBarActive();
@@ -45,9 +45,16 @@ public slots:
     void showReplaceBar();
     void hideReplaceBar();
     bool isReplaceBarActive();
-    
+
 private slots:
-    void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+    void find(const QString & search,
+              bool forward = true,
+              bool casesensitive = false,
+              bool wholewords = false);
+
+    void replace(const QString &replace, bool justNext = true);
+
+    void highlightText(const QString &text);
 
 signals:
     void notFound();

@@ -18,19 +18,21 @@
 #include <QLineEdit>
 
 
+class MainView;
+
+
 class SearchBar : public QWidget
 {
     Q_OBJECT
 
 public:
-    SearchBar(QWidget *parent = nullptr);
-
-    QLineEdit* lineEdit() const {
-        return _lineEdit;
-    }
+    SearchBar(QWidget *parent);
 
 signals:
-    void find(bool forward = true, bool casesensitive = false, bool wholewords = false);
+    void find(const QString &search,
+              bool forward = true,
+              bool casesensitive = false,
+              bool wholewords = false);
 
 public slots:
     void notFoundMessage();
@@ -40,7 +42,9 @@ private slots:
     void findForward();
 
 private:
-    QLineEdit* _lineEdit;
+    friend class MainView;
+
+    QLineEdit* _findLineEdit;
 
     QCheckBox* _caseCheckBox;
     QCheckBox* _wholeWordCheckBox;
