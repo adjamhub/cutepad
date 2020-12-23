@@ -49,8 +49,7 @@ public slots:
 private slots:
     void find(const QString & search,
               bool forward = true,
-              bool casesensitive = false,
-              bool wholewords = false);
+              bool casesensitive = false);
 
     void replace(const QString &replace, bool justNext = true);
 

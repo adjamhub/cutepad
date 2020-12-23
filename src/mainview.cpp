@@ -118,7 +118,7 @@ bool MainView::isReplaceBarActive()
 }
 
 
-void MainView::find(const QString & search, bool forward, bool casesensitive, bool wholewords)
+void MainView::find(const QString & search, bool forward, bool casesensitive)
 {
     QTextDocument::FindFlags flags;
 
@@ -128,10 +128,6 @@ void MainView::find(const QString & search, bool forward, bool casesensitive, bo
 
     if (casesensitive) {
         flags |= QTextDocument::FindCaseSensitively;
-    }
-
-    if (wholewords) {
-        flags |= QTextDocument::FindWholeWords;
     }
 
     bool res = _textEdit->find(search, flags);
@@ -144,13 +140,48 @@ void MainView::replace(const QString &replace, bool justNext)
 {
     QString find = _searchBar->_findLineEdit->text();
     bool matchCase = _searchBar->_caseCheckBox->isChecked();
-    bool wholeWords = _searchBar->_wholeWordCheckBox->isChecked();
 
-    qDebug() << "find: " << find;
-    qDebug() << "replace: " << replace;
-    qDebug() << "just next: " << justNext;
-    qDebug() << "match case: " << matchCase;
-    qDebug() << "whole words: " << wholeWords;
+	if (find.isEmpty()) {
+		return;
+	}
+
+	Qt::CaseSensitivity cs = matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive;
+	QString content = _textEdit->toPlainText();
+
+	if (!justNext) {
+		content.replace(find, replace, cs);
+		_textEdit->setPlainText(content);
+		_textEdit->document()->setModified(true);
+		return;
+	}
+
+    QTextDocument::FindFlags flags;
+
+    if (matchCase) {
+        flags |= QTextDocument::FindCaseSensitively;
+    }
+
+	bool found = _textEdit->find(find, flags);
+	if (!found) {
+		// TODO: advise search restart from the beginning...
+		QTextCursor cur = _textEdit->textCursor();
+		cur.setPosition(0);
+		_textEdit->setTextCursor(cur);
+		found = _textEdit->find(find,flags);
+		if (!found) {
+			emit notFound();
+			return;
+		}
+	}
+	int n = find.length();
+	int position = _textEdit->textCursor().position() - n;
+	content.replace(position, n, replace);
+	_textEdit->setPlainText(content);
+	_textEdit->document()->setModified(true);
+	QTextCursor cur = _textEdit->textCursor();
+	cur.setPosition(position + n);
+	_textEdit->setTextCursor(cur);
+	return;
 }
 
 

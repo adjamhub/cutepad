@@ -18,7 +18,6 @@ SearchBar::SearchBar(QWidget *parent)
     : QWidget(parent)
     , _findLineEdit( new QLineEdit(this) )
     , _caseCheckBox( new QCheckBox("Match Case", this) )
-    , _wholeWordCheckBox( new QCheckBox("Whole words", this) )
     , _notFoundLabel( new QLabel(this) )
 {
     connect(_findLineEdit, &QLineEdit::returnPressed, this, &SearchBar::findForward);
@@ -47,7 +46,6 @@ SearchBar::SearchBar(QWidget *parent)
     layout->addWidget (nextButton);
     layout->addWidget (prevButton);
     layout->addWidget (_caseCheckBox);
-    layout->addWidget (_wholeWordCheckBox);
     layout->addStretch();
     layout->addWidget (_notFoundLabel);
     layout->addStretch();
@@ -64,8 +62,7 @@ void SearchBar::findBackward()
 
     QString search = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    bool wholeWords = _wholeWordCheckBox->isChecked();
-    emit find(search, false, caseSensitive, wholeWords);
+    emit find(search, false, caseSensitive);
 }
 
 
@@ -75,8 +72,7 @@ void SearchBar::findForward()
 
     QString search = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    bool wholeWords = _wholeWordCheckBox->isChecked();
-    emit find(search, true, caseSensitive, wholeWords);
+    emit find(search, true, caseSensitive);
 }
 
 

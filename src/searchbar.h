@@ -31,8 +31,7 @@ public:
 signals:
     void find(const QString &search,
               bool forward = true,
-              bool casesensitive = false,
-              bool wholewords = false);
+              bool casesensitive = false);
 
 public slots:
     void notFoundMessage();
@@ -47,7 +46,6 @@ private:
     QLineEdit* _findLineEdit;
 
     QCheckBox* _caseCheckBox;
-    QCheckBox* _wholeWordCheckBox;
     QLabel* _notFoundLabel;
 };
 
