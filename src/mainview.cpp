@@ -56,6 +56,7 @@ void MainView::syntaxHighlightForFile(const QString & path)
     _highlighter->setDefinition(def);
 
     qDebug() << "path:" << path;
+    qDebug() << "def name: " << def.name();
 }
 
 
