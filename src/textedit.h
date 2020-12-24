@@ -32,7 +32,13 @@ public:
     void lineNumberAreaPaintEvent (QPaintEvent *event);
     int lineNumberAreaWidth();
 
+    bool isTabReplacementEnabled();
+
+public slots:
+    void enableTabReplacement(bool on);
+
 protected:
+    void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event);
 
 private slots:
@@ -42,7 +48,9 @@ private slots:
 
 private:
     QWidget* _lineNumberArea;
+
     bool _highlight;
+    bool _tabReplace;
 };
 
 

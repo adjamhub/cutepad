@@ -40,10 +40,7 @@ public:
     bool isSearchBarActive();
     bool isReplaceBarActive();
 
-    bool isTabReplacementEnabled();
-
 private:
-    void tabsHighlightning(bool on);
     void tabSpaceReplace();
 
 public slots:
@@ -53,16 +50,12 @@ public slots:
     void showReplaceBar();
     void hideReplaceBar();
 
-    void enableTabReplacement(bool on);
-
 private slots:
     void find(const QString & search,
               bool forward = true,
               bool casesensitive = false);
 
     void replace(const QString &replace, bool justNext = true);
-
-    void highlightText(const QString &text);
 
 signals:
     void notFound();
@@ -74,8 +67,6 @@ private:
 
     KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
     KSyntaxHighlighting::Repository* _highlightRepo;
-
-    bool _tabReplace;
 };
 
 

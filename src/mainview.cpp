@@ -26,7 +26,6 @@ MainView::MainView (QWidget *parent)
     , _replaceBar(new ReplaceBar(this))
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
-    , _tabReplace(false)
 {
     // The UI
     auto layout = new QVBoxLayout;
@@ -58,18 +57,6 @@ void MainView::syntaxHighlightForFile(const QString & path)
 
     qDebug() << "path:" << path;
     qDebug() << "def name: " << def.name();
-}
-
-
-void MainView::tabsHighlightning(bool on)
-{
-
-}
-
-
-bool MainView::isTabReplacementEnabled()
-{
-    return _tabReplace;
 }
 
 
@@ -141,13 +128,6 @@ bool MainView::isReplaceBarActive()
 }
 
 
-void MainView::enableTabReplacement(bool on)
-{
-    _tabReplace = on;
-    tabsHighlightning(on);
-}
-
-
 void MainView::find(const QString & search, bool forward, bool casesensitive)
 {
     QTextDocument::FindFlags flags;
@@ -212,13 +192,4 @@ void MainView::replace(const QString &replace, bool justNext)
 	cur.setPosition(position + n);
 	_textEdit->setTextCursor(cur);
 	return;
-}
-
-
-void MainView::highlightText(const QString &text)
-{
-    if (text.isEmpty())
-        return;
-
-    // TODO ...
 }

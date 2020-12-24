@@ -13,12 +13,27 @@
 #include <QPainter>
 #include <QTextBlock>
 
+#include <QDebug>
+
 
 TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
     , _lineNumberArea(nullptr)
     , _highlight(false)
+    , _tabReplace(false)
 {
+}
+
+
+bool TextEdit::isTabReplacementEnabled()
+{
+    return _tabReplace;
+}
+
+
+void TextEdit::enableTabReplacement(bool on)
+{
+    _tabReplace = on;
 }
 
 
@@ -125,9 +140,23 @@ int TextEdit::lineNumberAreaWidth()
 }
 
 
-void TextEdit::resizeEvent(QResizeEvent *e)
+void TextEdit::keyPressEvent(QKeyEvent *event)
 {
-    QPlainTextEdit::resizeEvent(e);
+    if (_tabReplace && event->key() == Qt::Key_Tab) {
+        QTextCursor cur = textCursor();
+        cur.insertText("    ");
+        setTextCursor(cur);
+        event->accept();
+	return;
+    }
+
+    return QPlainTextEdit::keyPressEvent(event);
+}
+
+
+void TextEdit::resizeEvent(QResizeEvent *event)
+{
+    QPlainTextEdit::resizeEvent(event);
 
     if (_lineNumberArea) {
         QRect cr = contentsRect();

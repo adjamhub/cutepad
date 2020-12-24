@@ -88,7 +88,7 @@ void MainWindow::loadSettings()
     bool lineNumbers = s.value("LineNumbers", false).toBool();
     _view->textEdit()->enableLineNumbers(lineNumbers);
     bool tabReplace = s.value("TabReplace", false).toBool();
-    _view->enableTabReplacement(tabReplace);
+    _view->textEdit()->enableTabReplacement(tabReplace);
 }
 
 
@@ -123,7 +123,7 @@ void MainWindow::saveSettings()
     s.setValue("CurrentLineHighlight", highlight);
     bool lineNumbers = _view->textEdit()->isLineNumbersEnabled();
     s.setValue("LineNumbers", lineNumbers);
-    bool tabReplace = _view->isTabReplacementEnabled();
+    bool tabReplace = _view->textEdit()->isTabReplacementEnabled();
     s.setValue("TabReplace", tabReplace);
 }
 
@@ -348,7 +348,7 @@ void MainWindow::setupActions()
 
     QAction* actionTabSpaceReplace = new QAction("Replace tabs with (4) spaces", this);
     actionTabSpaceReplace->setCheckable(true);
-    connect(actionTabSpaceReplace, &QAction::triggered, _view, &MainView::enableTabReplacement);
+    connect(actionTabSpaceReplace, &QAction::triggered, _view->textEdit(), &TextEdit::enableTabReplacement);
 
     QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
     connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );
