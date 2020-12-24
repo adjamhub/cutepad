@@ -75,7 +75,10 @@ bool MainView::isTabReplacementEnabled()
 
 void MainView::tabSpaceReplace()
 {
-
+    QString content = _textEdit->toPlainText();
+    content.replace("\t", "    ");
+    _textEdit->setPlainText(content);
+    _textEdit->document()->setModified(true);
 }
 
 
@@ -141,6 +144,7 @@ bool MainView::isReplaceBarActive()
 void MainView::enableTabReplacement(bool on)
 {
     _tabReplace = on;
+    tabsHighlightning(on);
 }
 
 

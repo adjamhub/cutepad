@@ -78,6 +78,8 @@ void MainWindow::loadSettings()
     QFont font(fontFamily,fontSize, fontWeight);
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
+    QFontMetrics fm(font);
+    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance("    ") );
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
