@@ -26,6 +26,7 @@ MainView::MainView (QWidget *parent)
     , _replaceBar(new ReplaceBar(this))
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
+    , _tabReplace(false)
 {
     // The UI
     auto layout = new QVBoxLayout;
@@ -57,6 +58,24 @@ void MainView::syntaxHighlightForFile(const QString & path)
 
     qDebug() << "path:" << path;
     qDebug() << "def name: " << def.name();
+}
+
+
+void MainView::tabsHighlightning(bool on)
+{
+
+}
+
+
+bool MainView::isTabReplacementEnabled()
+{
+    return _tabReplace;
+}
+
+
+void MainView::tabSpaceReplace()
+{
+
 }
 
 
@@ -116,6 +135,12 @@ void MainView::hideReplaceBar()
 bool MainView::isReplaceBarActive()
 {
     return _replaceBar->isVisible();
+}
+
+
+void MainView::enableTabReplacement(bool on)
+{
+    _tabReplace = on;
 }
 
 

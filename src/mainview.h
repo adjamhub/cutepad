@@ -37,14 +37,23 @@ public:
     // enable syntax highlighting
     void syntaxHighlightForFile(const QString & path);
 
+    bool isSearchBarActive();
+    bool isReplaceBarActive();
+
+    bool isTabReplacementEnabled();
+
+private:
+    void tabsHighlightning(bool on);
+    void tabSpaceReplace();
+
 public slots:
     void showSearchBar();
     void hideSearchBar();
-    bool isSearchBarActive();
 
     void showReplaceBar();
     void hideReplaceBar();
-    bool isReplaceBarActive();
+
+    void enableTabReplacement(bool on);
 
 private slots:
     void find(const QString & search,
@@ -65,6 +74,8 @@ private:
 
     KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
     KSyntaxHighlighting::Repository* _highlightRepo;
+
+    bool _tabReplace;
 };
 
 

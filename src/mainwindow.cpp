@@ -79,11 +79,13 @@ void MainWindow::loadSettings()
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
 
-    // textEdit
+    // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
     _view->textEdit()->enableCurrentLineHighlighting(highlight);
     bool lineNumbers = s.value("LineNumbers", false).toBool();
     _view->textEdit()->enableLineNumbers(lineNumbers);
+    bool tabReplace = s.value("TabReplace", false).toBool();
+    _view->enableTabReplacement(tabReplace);
 }
 
 
@@ -113,11 +115,13 @@ void MainWindow::saveSettings()
     s.setValue("fontWeight", fontWeight);
     s.setValue("fontItalic", italic);
 
-    // textEdit
+    // options
     bool highlight = _view->textEdit()->isCurrentLineHighlightingEnabled();
     s.setValue("CurrentLineHighlight", highlight);
     bool lineNumbers = _view->textEdit()->isLineNumbersEnabled();
     s.setValue("LineNumbers", lineNumbers);
+    bool tabReplace = _view->isTabReplacementEnabled();
+    s.setValue("TabReplace", tabReplace);
 }
 
 
@@ -272,18 +276,26 @@ void MainWindow::setupActions()
     QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(actionUndo, &QAction::triggered, _view->textEdit(), &TextEdit::undo );
+    actionUndo->setEnabled(false);
+    connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
 
     QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(actionRedo, &QAction::triggered, _view->textEdit(), &TextEdit::redo );
+    actionRedo->setEnabled(false);
+    connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
     actionCut->setShortcut(QKeySequence::Cut);
     connect(actionCut, &QAction::triggered, _view->textEdit(), &TextEdit::cut );
+    actionCut->setEnabled(false);
+    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
 
     QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, _view->textEdit(), &TextEdit::copy );
+    actionCopy->setEnabled(false);
+    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
     QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
     actionPaste->setShortcut(QKeySequence::Paste);
@@ -311,7 +323,16 @@ void MainWindow::setupActions()
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );
 
-    // xxx actions -----------------------------------------------------------------------------------------------------------
+    // find actions -----------------------------------------------------------------------------------------------------------
+    QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
+    actionFind->setShortcut(QKeySequence::Find);
+    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchBar );
+
+    QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
+    actionReplace->setShortcut(QKeySequence::Replace);
+    connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
+
+    // option actions -----------------------------------------------------------------------------------------------------------
     QAction* actionLineNumbers = new QAction( "Line Numbers", this );
     actionLineNumbers->setCheckable(true);
     actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
@@ -322,13 +343,9 @@ void MainWindow::setupActions()
     actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
     connect(actionCurrentLineHighlight, &QAction::triggered, _view->textEdit(), &TextEdit::enableCurrentLineHighlighting );
 
-    QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
-    actionFind->setShortcut(QKeySequence::Find);
-    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchBar );
-
-    QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
-    actionReplace->setShortcut(QKeySequence::Replace);
-    connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
+    QAction* actionTabSpaceReplace = new QAction("Replace tabs with (4) spaces", this);
+    actionTabSpaceReplace->setCheckable(true);
+    connect(actionTabSpaceReplace, &QAction::triggered, _view, &MainView::enableTabReplacement);
 
     QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
     connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );
@@ -339,15 +356,6 @@ void MainWindow::setupActions()
 
     QAction* actionAboutApp = new QAction("About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
-
-    actionCut->setEnabled(false);
-    actionCopy->setEnabled(false);
-    actionUndo->setEnabled(false);
-    actionRedo->setEnabled(false);
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
-    connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MENUBAR
@@ -387,6 +395,7 @@ void MainWindow::setupActions()
     QMenu* optionsMenu = menuBar()->addMenu("&Options");
     optionsMenu->addAction(actionLineNumbers);
     optionsMenu->addAction(actionCurrentLineHighlight);
+    optionsMenu->addAction(actionTabSpaceReplace);
     optionsMenu->addSeparator();
     optionsMenu->addAction(actionFontChange);
 
