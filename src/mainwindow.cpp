@@ -72,14 +72,15 @@ void MainWindow::loadSettings()
 
     // font
     QString fontFamily = s.value("fontFamily", "Monospace").toString();
-    int fontSize = s.value("fontSize", 10).toInt();
+    int fontSize = s.value("fontSize", 12).toInt();
     int fontWeight = s.value("fontWeight", 50).toInt();
     bool italic = s.value("fontItalic", false).toBool();
     QFont font(fontFamily,fontSize, fontWeight);
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
     QFontMetrics fm(font);
-    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance("    ") );
+    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance(' ') * 4 );
+    qDebug() << "horizontal advance: " << fm.horizontalAdvance(' ');
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
@@ -575,7 +576,7 @@ void MainWindow::selectFont()
     // initialFont is the font initially shown in the dialog
     QFont initialFont = _view->textEdit()->font();
     initialFont.setPointSize( initialFont.pointSize() - _zoomRange );
-    QFont font = QFontDialog::getFont(&ok, initialFont);
+    QFont font = QFontDialog::getFont(&ok, initialFont, this, "Select font", QFontDialog::MonospacedFonts);
     if (!ok)
         return;
 
