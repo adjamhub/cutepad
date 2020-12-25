@@ -69,6 +69,9 @@ private slots:
 
     void about();
 
+signals:
+    void updateActionStatus();
+
 private:
     MainView* _view;
 

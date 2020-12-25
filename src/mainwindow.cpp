@@ -365,6 +365,14 @@ void MainWindow::setupActions()
     QAction* actionAboutApp = new QAction("About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
+    // UPDATE ACTION(s) STATUS -------------------------------------------------------------------------------------------------
+    connect(this, &MainWindow::updateActionStatus, this, [=] {
+            actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
+            actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
+            actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
+        }
+    );
+
     // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MENUBAR
 
@@ -616,9 +624,7 @@ void MainWindow::resetSettings()
         QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
         s.clear();
         loadSettings();
-        actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
-        actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
-        actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
+        emit updateActionStatus();
         break;
     }
     case QMessageBox::Cancel:
