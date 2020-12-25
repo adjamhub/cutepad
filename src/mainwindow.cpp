@@ -355,6 +355,9 @@ void MainWindow::setupActions()
     QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
     connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );
 
+    QAction* actionResetSettings = new QAction("Reset all settings", this);
+    connect(actionResetSettings, &QAction::triggered, this, &MainWindow::resetSettings);
+
     // about actions -----------------------------------------------------------------------------------------------------------
     QAction* actionAboutQt = new QAction("About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
@@ -403,6 +406,8 @@ void MainWindow::setupActions()
     optionsMenu->addAction(actionTabSpaceReplace);
     optionsMenu->addSeparator();
     optionsMenu->addAction(actionFontChange);
+    optionsMenu->addSeparator();
+    optionsMenu->addAction(actionResetSettings);
 
     QMenu* helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction(actionAboutQt);
@@ -594,4 +599,33 @@ void MainWindow::about()
     QMessageBox::about(this,
                        "About cutepad",
                         "cutepad " + version + "\n\nThe Qt pad ;)\nJust an easy plain text editor, based on Qt libraries");
+}
+
+
+void MainWindow::resetSettings()
+{
+    int risp = QMessageBox::question(this,
+                                     "Reset All Settings",
+                                     "Are you sure you want to reset all settings?",
+                                     QMessageBox::Reset | QMessageBox::Cancel);
+
+    switch(risp)
+    {
+    case QMessageBox::Reset:
+    {
+        QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+        s.clear();
+        loadSettings();
+        actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
+        actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
+        actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
+        break;
+    }
+    case QMessageBox::Cancel:
+        return;
+
+    default:
+        // this should never happen
+        break;
+    }
 }

@@ -65,6 +65,7 @@ private slots:
     void onFullscreen(bool on);
 
     void selectFont();
+    void resetSettings();
 
     void about();
 

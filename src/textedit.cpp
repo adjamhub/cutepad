@@ -33,7 +33,7 @@ void TextEdit::checkTabSpaceReplacementNeeded()
 
     QString content = toPlainText();
 
-    if (!content.contains("\n")) {
+    if (!content.contains("\t")) {
         return;
     }
 

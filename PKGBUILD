@@ -2,7 +2,7 @@
 
 pkgname=cutepad-git
 _pkgname=cutepad
-pkgver=r29.fd15503
+pkgver=r35.1600534
 pkgrel=1
 pkgdesc='Lightweight Qt plain text editor'
 arch=(x86_64)
