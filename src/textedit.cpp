@@ -10,6 +10,7 @@
 
 #include "textedit.h"
 
+#include <QMessageBox>
 #include <QPainter>
 #include <QTextBlock>
 
@@ -25,6 +26,32 @@ TextEdit::TextEdit(QWidget *parent)
 }
 
 
+void TextEdit::checkTabSpaceReplacementNeeded()
+{
+    if (!_tabReplace)
+        return;
+
+    QString content = toPlainText();
+
+    if (!content.contains("\n")) {
+        return;
+    }
+
+    int risp = QMessageBox::question(this,
+                                     "Replace Tabs with (4) Spaces",
+                                     "Your document contains tabs. Would you like them to be replaced with (4) spaces?",
+                                     QMessageBox::Yes | QMessageBox::No);
+
+    if (risp == QMessageBox::No) {
+        return;
+    }
+
+    content.replace("\t", "    ");
+    setPlainText(content);
+    document()->setModified(true);
+}
+
+
 bool TextEdit::isTabReplacementEnabled()
 {
     return _tabReplace;
@@ -34,6 +61,7 @@ bool TextEdit::isTabReplacementEnabled()
 void TextEdit::enableTabReplacement(bool on)
 {
     _tabReplace = on;
+    checkTabSpaceReplacementNeeded();
 }
 
 

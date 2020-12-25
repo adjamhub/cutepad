@@ -39,9 +39,9 @@ void Application::parseCommandlineArgs()
     const QStringList posArgs = parser.positionalArguments();
     for (const QString &file : posArgs) {
         MainWindow *newWin = new MainWindow;
-        newWin->loadFilePath(file);
         newWin->tile(mainWin);
         newWin->show();
+        newWin->loadFilePath(file);
         mainWin = newWin;
     }
 

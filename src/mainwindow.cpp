@@ -153,6 +153,7 @@ void MainWindow::loadFilePath(const QString &path)
 
     _view->syntaxHighlightForFile(path);
     setCurrentFilePath(path);
+    _view->textEdit()->checkTabSpaceReplacementNeeded();
 }
 
 
@@ -348,6 +349,7 @@ void MainWindow::setupActions()
 
     QAction* actionTabSpaceReplace = new QAction("Replace tabs with (4) spaces", this);
     actionTabSpaceReplace->setCheckable(true);
+    actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
     connect(actionTabSpaceReplace, &QAction::triggered, _view->textEdit(), &TextEdit::enableTabReplacement);
 
     QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );

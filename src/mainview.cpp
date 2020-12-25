@@ -60,15 +60,6 @@ void MainView::syntaxHighlightForFile(const QString & path)
 }
 
 
-void MainView::tabSpaceReplace()
-{
-    QString content = _textEdit->toPlainText();
-    content.replace("\t", "    ");
-    _textEdit->setPlainText(content);
-    _textEdit->document()->setModified(true);
-}
-
-
 void MainView::showSearchBar()
 {
     if (_replaceBar->isVisible()) {

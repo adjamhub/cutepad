@@ -40,9 +40,6 @@ public:
     bool isSearchBarActive();
     bool isReplaceBarActive();
 
-private:
-    void tabSpaceReplace();
-
 public slots:
     void showSearchBar();
     void hideSearchBar();

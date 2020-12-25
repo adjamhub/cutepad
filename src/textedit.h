@@ -32,6 +32,7 @@ public:
     void lineNumberAreaPaintEvent (QPaintEvent *event);
     int lineNumberAreaWidth();
 
+    void checkTabSpaceReplacementNeeded();
     bool isTabReplacementEnabled();
 
 public slots:
