@@ -43,6 +43,10 @@ ReplaceBar::ReplaceBar(QWidget *parent)
     setLayout (layout);
 
     setFocusProxy(_replaceLineEdit);
+
+    // tab order
+    setTabOrder(_replaceLineEdit, replaceNextButton);
+    setTabOrder(replaceNextButton, replaceAllButton);
 }
 
 

@@ -53,6 +53,11 @@ SearchBar::SearchBar(QWidget *parent)
     setLayout (layout);
 
     setFocusProxy(_findLineEdit);
+
+    // tab order
+    setTabOrder(_findLineEdit, nextButton);
+    setTabOrder(nextButton, prevButton);
+    setTabOrder(prevButton,_caseCheckBox);
 }
 
 
