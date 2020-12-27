@@ -46,8 +46,10 @@ void TextEdit::checkTabSpaceReplacementNeeded()
         return;
     }
 
+    QTextCursor actual = textCursor();
     content.replace("\t", "    ");
     setPlainText(content);
+    setTextCursor(actual);
     document()->setModified(true);
 }
 
@@ -175,7 +177,7 @@ void TextEdit::keyPressEvent(QKeyEvent *event)
         cur.insertText("    ");
         setTextCursor(cur);
         event->accept();
-	return;
+    return;
     }
 
     return QPlainTextEdit::keyPressEvent(event);

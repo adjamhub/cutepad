@@ -16,10 +16,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_MINIMUM_VERSION "5.15.0")
 
 find_package(Qt5 "${QT_MINIMUM_VERSION}" COMPONENTS REQUIRED
-				Core
-				Gui
-				Widgets 
-				PrintSupport
+                Core
+                Gui
+                Widgets
+                PrintSupport
 )
 
 # KF5 things --------------------------------------------------------------
@@ -44,23 +44,23 @@ find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}")
 
 # -------------------------------------------------------------------------
 add_executable(cutepad
-	src/main.cpp
-	src/application.cpp
-	src/mainwindow.cpp
-	src/mainwindow.h
-	src/mainview.cpp
-	src/textedit.cpp
-	src/searchbar.cpp
-	src/replacebar.cpp
+    src/main.cpp
+    src/application.cpp
+    src/mainwindow.cpp
+    src/mainwindow.h
+    src/mainview.cpp
+    src/textedit.cpp
+    src/searchbar.cpp
+    src/replacebar.cpp
 )
 
 target_link_libraries(cutepad PRIVATE 
-		Qt5::Core 
-		Qt5::Gui 
-		Qt5::Widgets 
-		Qt5::PrintSupport
-		# ----------------------
-		KF5::SyntaxHighlighting
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::PrintSupport
+        # ----------------------
+        KF5::SyntaxHighlighting
 )
 
 # -------------------------------------------------------------------------
