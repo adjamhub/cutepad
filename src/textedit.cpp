@@ -33,7 +33,7 @@ void TextEdit::checkTabSpaceReplacementNeeded()
 
     QString content = toPlainText();
 
-    if (!content.contains("\t")) {
+    if (!content.contains( QChar(QChar::Tabulation) )) {
         return;
     }
 
@@ -172,14 +172,81 @@ int TextEdit::lineNumberAreaWidth()
 
 void TextEdit::keyPressEvent(QKeyEvent *event)
 {
-    if (_tabReplace && event->key() == Qt::Key_Tab) {
+    // TAB: (eventually) replace with spaces
+    // TAB: if there is a selection, move it
+    if (event->key() == Qt::Key_Tab) {
+        
+        QString indentation = _tabReplace ? "    " : QString(QChar(QChar::Tabulation));
+
+        if (!textCursor().hasSelection()) {
+            qDebug() << "TAB pressed, NO selection";
+            QTextCursor cur = textCursor();
+            cur.beginEditBlock();
+            cur.insertText (indentation);
+            cur.endEditBlock();
+            setTextCursor(cur);
+            event->accept();
+            return;
+        } else {
+
+            QTextCursor cur = textCursor();
+            QString selection = cur.selectedText();
+            cur.removeSelectedText();            
+            QStringList rows = selection.split(QChar (QChar::ParagraphSeparator));
+            int start = cur.position();
+            cur.beginEditBlock();
+            for (int i = 0; i < rows.size(); i++) {
+                QString row = rows.at(i);
+                cur.insertText(indentation);
+                cur.insertText (row);
+                if (i != rows.size() - 1) {
+                    cur.insertText( QChar (QChar::ParagraphSeparator) );
+                }
+            }
+            cur.endEditBlock();
+            int end = cur.position();
+            cur.setPosition(start);
+            cur.setPosition(end, QTextCursor::KeepAnchor);
+            setTextCursor(cur);
+            event->accept();
+            return;
+        }
+    }
+    
+    if (event->key() == Qt::Key_Backtab) {
+        if (!textCursor().hasSelection()) {
+            event->ignore();
+            return;
+        }
+
+        QString indentation = _tabReplace ? "    " : QString(QChar (QChar::Tabulation));
+
         QTextCursor cur = textCursor();
-        cur.insertText("    ");
+        QString selection = cur.selectedText();
+        cur.removeSelectedText();            
+        QStringList rows = selection.split(QChar (QChar::ParagraphSeparator));
+        int start = cur.position();
+        cur.beginEditBlock();
+        for (int i = 0; i < rows.size(); i++) {
+            QString row = rows.at(i);
+            if (row.startsWith(indentation)) {
+                row.remove(0, indentation.size());
+            }
+            cur.insertText (row);
+            if (i != rows.size() - 1) {
+                cur.insertText( QChar (QChar::ParagraphSeparator) );
+            }
+        }
+        cur.endEditBlock();
+        int end = cur.position();
+        cur.setPosition(start);
+        cur.setPosition(end, QTextCursor::KeepAnchor);
         setTextCursor(cur);
         event->accept();
         return;
     }
 
+    // ENTER / RETURN: preserve indentation
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         QTextCursor actual = textCursor();
         QTextCursor cur = actual;
