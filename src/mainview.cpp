@@ -141,18 +141,31 @@ void MainView::find(const QString & search, bool forward, bool casesensitive)
         flags |= QTextDocument::FindCaseSensitively;
     }
 
-    bool res = _textEdit->find(search, flags);
-    if (!res)
-        emit searchMessage("not found");
+    bool found = _textEdit->find(search, flags);
+    if (!found) {
+        QTextCursor cur = _textEdit->textCursor();
+        if (forward) {
+            cur.movePosition(QTextCursor::Start);
+        } else {
+            cur.movePosition(QTextCursor::End);
+        }
+        _textEdit->setTextCursor(cur);
+        emit searchMessage("Search restarted");
+        found = _textEdit->find(search, flags);
+        if (!found) {
+            emit searchMessage("not found");
+            return;
+        }
+    }
 }
 
 
 void MainView::replace(const QString &replace, bool justNext)
 {
-    QString find = _searchBar->_findLineEdit->text();
+    QString search = _searchBar->_findLineEdit->text();
     bool matchCase = _searchBar->_caseCheckBox->isChecked();
 
-    if (find.isEmpty()) {
+    if (search.isEmpty()) {
         return;
     }
 
@@ -160,7 +173,7 @@ void MainView::replace(const QString &replace, bool justNext)
     QString content = _textEdit->toPlainText();
 
     if (!justNext) {
-        content.replace(find, replace, cs);
+        content.replace(search, replace, cs);
         _textEdit->setPlainText(content);
         _textEdit->document()->setModified(true);
         return;
@@ -172,19 +185,20 @@ void MainView::replace(const QString &replace, bool justNext)
         flags |= QTextDocument::FindCaseSensitively;
     }
 
-    bool found = _textEdit->find(find, flags);
+    bool found = _textEdit->find(search, flags);
     if (!found) {
         // TODO: advise search restart from the beginning...
         QTextCursor cur = _textEdit->textCursor();
-        cur.setPosition(0);
+        cur.movePosition(QTextCursor::Start);
         _textEdit->setTextCursor(cur);
-        found = _textEdit->find(find,flags);
+        emit searchMessage("Search restarted");
+        found = _textEdit->find(search, flags);
         if (!found) {
             emit searchMessage("not found");
             return;
         }
     }
-    int n = find.length();
+    int n = search.length();
     int position = _textEdit->textCursor().position() - n;
     content.replace(position, n, replace);
     _textEdit->setPlainText(content);
