@@ -40,7 +40,7 @@ MainView::MainView (QWidget *parent)
     _replaceBar->setVisible(false);
 
     connect(_searchBar, &SearchBar::find, this, &MainView::find);
-    connect(this, &MainView::notFound, _searchBar, &SearchBar::notFoundMessage);
+    connect(this, &MainView::searchMessage, _searchBar, &SearchBar::searchMessage);
 
     connect(_replaceBar, &ReplaceBar::replace, this, &MainView::replace);
 }
@@ -143,7 +143,7 @@ void MainView::find(const QString & search, bool forward, bool casesensitive)
 
     bool res = _textEdit->find(search, flags);
     if (!res)
-        emit notFound();
+        emit searchMessage("not found");
 }
 
 
@@ -180,7 +180,7 @@ void MainView::replace(const QString &replace, bool justNext)
         _textEdit->setTextCursor(cur);
         found = _textEdit->find(find,flags);
         if (!found) {
-            emit notFound();
+            emit searchMessage("not found");
             return;
         }
     }

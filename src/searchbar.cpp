@@ -76,7 +76,8 @@ void SearchBar::findForward()
 }
 
 
-void SearchBar::notFoundMessage()
+void SearchBar::searchMessage(const QString &msg)
 {
-    _notFoundLabel->setText("<b>Not Found</b>");
+    QString text = QString("<b>") + msg + QString("</b>");
+    _notFoundLabel->setText(text);
 }

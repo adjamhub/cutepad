@@ -55,7 +55,7 @@ private slots:
     void replace(const QString &replace, bool justNext = true);
 
 signals:
-    void notFound();
+    void searchMessage(const QString &);
 
 private:
     TextEdit* _textEdit;

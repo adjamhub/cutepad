@@ -34,7 +34,7 @@ signals:
               bool casesensitive = false);
 
 public slots:
-    void notFoundMessage();
+    void searchMessage(const QString & msg);
 
 private slots:
     void findBackward();
