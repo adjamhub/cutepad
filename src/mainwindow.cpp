@@ -487,7 +487,15 @@ void MainWindow::openFile()
     QString path = QFileDialog::getOpenFileName(this);
     if (path.isEmpty())
         return;
-    loadFilePath(path);
+    
+    if (_filePath.isEmpty() && !isWindowModified()) {
+        loadFilePath(path);
+        return;
+    }
+    MainWindow *other = new MainWindow;
+    other->tile(this);
+    other->show();
+    other->loadFilePath(path);
 }
 
 
