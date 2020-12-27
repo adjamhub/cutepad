@@ -177,7 +177,33 @@ void TextEdit::keyPressEvent(QKeyEvent *event)
         cur.insertText("    ");
         setTextCursor(cur);
         event->accept();
-    return;
+        return;
+    }
+
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        QTextCursor actual = textCursor();
+        QTextCursor cur = actual;
+        cur.movePosition(QTextCursor::StartOfLine);
+        QString indentation;
+        while (!cur.atBlockEnd()) {
+            cur.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+            QString sel = cur.selectedText();
+            if (sel != " " && sel != "\t") {
+                break;
+            }
+            indentation.append(sel);
+            cur.clearSelection();    // remember to reset anchor
+        }
+
+        // go to next line and add indentation
+        actual.beginEditBlock();
+        actual.insertText (QChar (QChar::ParagraphSeparator));
+        actual.insertText (indentation);
+        actual.endEditBlock();
+
+        setTextCursor(actual);
+        event->accept();
+        return;
     }
 
     return QPlainTextEdit::keyPressEvent(event);
