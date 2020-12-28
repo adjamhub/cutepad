@@ -42,7 +42,7 @@ ecm_setup_version(${CUTEPAD_VERSION}
 find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}")
 
 
-# -------------------------------------------------------------------------
+# Compile && Link ---------------------------------------------------------
 add_executable(cutepad
     src/main.cpp
     src/application.cpp
@@ -63,9 +63,12 @@ target_link_libraries(cutepad PRIVATE
         KF5::SyntaxHighlighting
 )
 
-# -------------------------------------------------------------------------
+# INSTALL ----------------------------------------------------------------
 install(TARGETS cutepad RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-install(FILES cutepad.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+
+install(FILES data/cutepad.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+install(FILES data/cutepad.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/metainfo")
+install(FILES LICENSE DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cutepad")
 
 # --------------------------------------------------------------------------
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

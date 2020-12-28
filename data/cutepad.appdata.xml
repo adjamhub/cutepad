@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.adjam.cutepad</id>
+  <launchable type="desktop-id">cutepad.desktop</launchable>
+  <name>Cutepad</name>
+  <summary>Lightweight Qt plain text editor</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <description>
+    <p>Cutepad is a lightweight plain-text editor based on Qt. Its main features are:</p>
+    <ul>
+      <li>Syntax highlighting (thanks to the magical KF5::syntaxhighlightning library</li>
+      <li>Option to show line numbers</li>
+      <li>Option to highlight current line</li>
+      <li>Tab/Space replacement</li>
+      <li>Printing</li>
+      <li>Text zooming</li>
+      <li>Ability to work in fullscreen mode</li>
+      <li>Find and replace widgets</li>
+    </ul>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/adjamhub/cutepad/master/data/current_line_highlight.jpg</image>
+    </screenshot>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/adjamhub/cutepad/master/data/line_numbers.jpg</image>
+    </screenshot>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/adjamhub/cutepad/master/data/syntax_highlightning.jpg</image>
+    </screenshot>
+  </screenshots>
+  <url type="bugtracker">https://github.com/adjamhub/cutepad/issues</url>
+  <url type="homepage">https://github.com/adjamhub/cutepad</url>
+  <developer_name>Andrea Diamantini (adjam)</developer_name>
+  <update_contact>adjam@protonmail.com</update_contact>
+</component>

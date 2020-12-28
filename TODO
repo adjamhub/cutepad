@@ -1,0 +1,39 @@
+LEGEND:
+(-) TODO
+(x) DONE
+(N) WONT DO
+==================================================================================
+
+(-) Add help document, written with cutepad ;), explaining the best features
+add action to open it
+open it on first run
+---------
+(-) CHANGELOG file 
+to be opened on cutepad upgrade
+---------
+(-) do we need a singleton??
+---------
+(-) theme support
+---------
+(-) SMART mode
+---------
+(-) brackets???
+---------
+(-) CPack && CMake improvements
+install LICENSE
+install HELP FILE
+install METADATA
+---------
+(-) metadata
+---------
+(-) Recent files (can I check if a file is just opened??)
+---------
+(-) error/warning/message bars
+---------
+(-) read only mode (do we need it? Or just a read only check?? Maybe better...)
+(-) read only check
+---------
+(-) urls ??? (do we really need to open URLs on click?
+---------
+(-) investigate CLIPBOARD support
+
