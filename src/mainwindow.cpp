@@ -49,26 +49,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
     setCurrentFilePath("");
+
+    // last, remember to save settings on exit
+    connect(qApp, &QCoreApplication::aboutToQuit, this, &MainWindow::saveSettings);
 }
 
 
 void MainWindow::loadSettings()
 {
-    QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+    qDebug() << "window id: " << winId() << "loading settings";
+
+    // the settings object
+    QSettings s;
 
     // size and position
     QSize size = s.value("size", QSize(800,600)).toSize();
     resize(size);
     QPoint pos = s.value("pos", QPoint(50,50)).toPoint();
     move(pos);
-
-    // colors
-    QPalette p = _view->textEdit()->palette();
-    QColor textColor = QColor(s.value("textColor", "#000000").toString());
-    QColor baseColor = QColor(s.value("baseColor", "#FFFFFF").toString());
-    p.setColor(QPalette::Text, textColor);
-    p.setColor(QPalette::Base, baseColor);
-    _view->textEdit()->setPalette(p);
 
     // font
     QString fontFamily = s.value("fontFamily", "Monospace").toString();
@@ -80,7 +78,6 @@ void MainWindow::loadSettings()
     _view->textEdit()->setFont(font);
     QFontMetrics fm(font);
     _view->textEdit()->setTabStopDistance( fm.horizontalAdvance(' ') * 4 );
-    qDebug() << "horizontal advance: " << fm.horizontalAdvance(' ');
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
@@ -94,18 +91,14 @@ void MainWindow::loadSettings()
 
 void MainWindow::saveSettings()
 {
-    QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+    qDebug() << "window id: " << winId() << "saving settings";
+
+    // the settings object
+    QSettings s;
 
     // size and dimensions
     s.setValue("size", size() );
     s.setValue("pos", pos() );
-
-    // colors
-    QPalette p = _view->textEdit()->palette();
-    QString textColor = p.color(QPalette::Text).name();
-    QString baseColor = p.color(QPalette::Base).name();
-    s.setValue("textColor", textColor);
-    s.setValue("baseColor", baseColor);
 
     // font
     QFont f = _view->textEdit()->font();
@@ -132,12 +125,17 @@ void MainWindow::tile(const QMainWindow *previous)
 {
     if (!previous)
         return;
+
+    // TODO: investigate about better positioning
     int topFrameWidth = previous->geometry().top() - previous->pos().y();
-    if (!topFrameWidth)
+    if (!topFrameWidth) {
         topFrameWidth = 40;
+    }
+
     const QPoint pos = previous->pos() + 2 * QPoint(topFrameWidth, topFrameWidth);
-    if (screen()->availableGeometry().contains(rect().bottomRight() + pos))
+    if (screen()->availableGeometry().contains(rect().bottomRight() + pos)) {
         move(pos);
+    }
 }
 
 
@@ -148,11 +146,13 @@ void MainWindow::loadFilePath(const QString &path)
         return;
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    _view->textEdit()->setPlainText(file.readAll());
-    QGuiApplication::restoreOverrideCursor();
 
+    _view->textEdit()->setPlainText(file.readAll());
     _view->syntaxHighlightForFile(path);
     setCurrentFilePath(path);
+
+    QGuiApplication::restoreOverrideCursor();
+
     _view->textEdit()->checkTabSpaceReplacementNeeded();
 }
 
@@ -163,9 +163,14 @@ void MainWindow::saveFilePath(const QString &path)
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+
     QString content = _view->textEdit()->toPlainText();
     QTextStream out(&file);
     out << content;
+    file.close();
+
+    QGuiApplication::restoreOverrideCursor();
 
     setCurrentFilePath(path);
 }
@@ -173,31 +178,31 @@ void MainWindow::saveFilePath(const QString &path)
 
 bool MainWindow::exitAfterSaving()
 {
-    if (isWindowModified())
-    {
+    if (isWindowModified()) {
+
         int risp = QMessageBox::question(this,
                                          "Save Changes",
                                          "The file has unsaved changes",
                                          QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel);
 
-        switch(risp)
-        {
-        case QMessageBox::Save:
-            // save and exit
-            saveFile();
-            break;
+        switch(risp) {
 
-        case QMessageBox::No:
-            // don't save and exit
-            break;
+            case QMessageBox::Save:
+                // save and exit
+                saveFile();
+                break;
 
-        case QMessageBox::Cancel:
-            // don't exit
-            return false;
+            case QMessageBox::No:
+                // don't save and exit
+                break;
 
-        default:
-            // this should never happen
-            break;
+            case QMessageBox::Cancel:
+                // don't exit
+                return false;
+
+            default:
+                // this should never happen
+                break;
         }
     }
     return true;
@@ -206,8 +211,7 @@ bool MainWindow::exitAfterSaving()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (exitAfterSaving())
-    {
+    if (exitAfterSaving()) {
         saveSettings();
         event->accept();
         return;
@@ -246,115 +250,138 @@ void MainWindow::setupActions()
     // Create and set ALL the needed actions
 
     // file actions -----------------------------------------------------------------------------------------------------------
+    // NEW
     QAction* actionNew = new QAction( QIcon::fromTheme("document-new") , "New", this);
     actionNew->setShortcut(QKeySequence::New);
     connect(actionNew, &QAction::triggered, this, &MainWindow::newWindow);
 
+    // OPEN
     QAction* actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
     actionOpen->setShortcut(QKeySequence::Open);
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
+    // SAVE
     QAction* actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
     actionSave->setShortcut(QKeySequence::Save);
     connect(actionSave, &QAction::triggered, this, &MainWindow::saveFile);
     actionSave->setEnabled(false);
     connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, actionSave, &QAction::setEnabled);
 
+    // SAVE AS
     QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
     connect(actionSaveAs, &QAction::triggered, this, &MainWindow::saveFileAs);
 
+    // PRINT
     QAction* actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
     actionPrint->setShortcut(QKeySequence::Print);
     connect(actionPrint, &QAction::triggered, this, &MainWindow::printFile);
 
+    // CLOSE
     QAction* actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
     actionClose->setShortcut(QKeySequence::Close);
-    connect(actionClose, &QAction::triggered, this, &MainWindow::closeFile);
+    connect(actionClose, &QAction::triggered, this, &MainWindow::close);
 
+    // QUIT
     QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
     actionQuit->setShortcut(QKeySequence::Quit);
-    // qApp->quit() does NOT save settings!!! Needs investigation
-    connect(actionQuit, &QAction::triggered, this, &MainWindow::close);
+    connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit, Qt::QueuedConnection);
 
     // edit actions -----------------------------------------------------------------------------------------------------------
+    // UNDO
     QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(actionUndo, &QAction::triggered, _view->textEdit(), &TextEdit::undo );
     actionUndo->setEnabled(false);
     connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
 
+    // REDO
     QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(actionRedo, &QAction::triggered, _view->textEdit(), &TextEdit::redo );
     actionRedo->setEnabled(false);
     connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
+    // CUT
     QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
     actionCut->setShortcut(QKeySequence::Cut);
     connect(actionCut, &QAction::triggered, _view->textEdit(), &TextEdit::cut );
     actionCut->setEnabled(false);
     connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
 
+    // COPY
     QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, _view->textEdit(), &TextEdit::copy );
     actionCopy->setEnabled(false);
     connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
+    // PASTE
     QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
     actionPaste->setShortcut(QKeySequence::Paste);
     connect(actionPaste, &QAction::triggered,  _view->textEdit(), &TextEdit::paste );
 
+    //SELECT ALL
     QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
     actionSelectAll->setShortcut(QKeySequence::SelectAll);
     connect(actionSelectAll, &QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
 
     // view actions -----------------------------------------------------------------------------------------------------------
+    // ZOOM IN
     QAction* actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
     actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );
 
+    // ZOOM OUT
     QAction* actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
     actionZoomOut->setShortcut(QKeySequence::ZoomOut);
     connect(actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut );
 
+    // ZOOM ORIGINAL
     QAction* actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
     actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
     connect(actionZoomOriginal, &QAction::triggered, this, &MainWindow::onZoomOriginal );
 
+    // FULL SCREEN
     QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "FullScreen", this );
     actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );
 
     // find actions -----------------------------------------------------------------------------------------------------------
+    // FIND
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
     connect(actionFind, &QAction::triggered, _view, &MainView::showSearchBar );
 
+    // REPLACE
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
 
     // option actions -----------------------------------------------------------------------------------------------------------
+    // LINE NUMBERS
     QAction* actionLineNumbers = new QAction( "Line Numbers", this );
     actionLineNumbers->setCheckable(true);
     actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
     connect(actionLineNumbers, &QAction::triggered, _view->textEdit(), &TextEdit::enableLineNumbers );
 
+    // CURRENT LINE HIGHLIGHT
     QAction* actionCurrentLineHighlight = new QAction( "Current Line Highlight", this );
     actionCurrentLineHighlight->setCheckable(true);
     actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
     connect(actionCurrentLineHighlight, &QAction::triggered, _view->textEdit(), &TextEdit::enableCurrentLineHighlighting );
 
+    // TAB SPACE REPLACE
     QAction* actionTabSpaceReplace = new QAction("Replace tabs with (4) spaces", this);
     actionTabSpaceReplace->setCheckable(true);
     actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
     connect(actionTabSpaceReplace, &QAction::triggered, _view->textEdit(), &TextEdit::enableTabReplacement);
 
+    // FONT
     QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
     connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );
 
+    // RESET SETTINGS
     QAction* actionResetSettings = new QAction("Reset all settings", this);
     connect(actionResetSettings, &QAction::triggered, this, &MainWindow::resetSettings);
 
@@ -456,13 +483,10 @@ void MainWindow::setupActions()
 void MainWindow::setCurrentFilePath(const QString& path)
 {
     QString curFile;
-    if (path.isEmpty())
-    {
+    if (path.isEmpty()) {
         curFile = "untitled";
         _filePath = "";
-    }
-    else
-    {
+    } else {
         curFile = QFileInfo(path).canonicalFilePath();
         _filePath = path;
     }
@@ -492,6 +516,7 @@ void MainWindow::openFile()
         loadFilePath(path);
         return;
     }
+
     MainWindow *other = new MainWindow;
     other->tile(this);
     other->show();
@@ -501,8 +526,7 @@ void MainWindow::openFile()
 
 void MainWindow::saveFile()
 {
-    if (_filePath.isEmpty())
-    {
+    if (_filePath.isEmpty()) {
         saveFileAs();
         return;
     }
@@ -521,8 +545,7 @@ void MainWindow::saveFileAs()
 
     // try to add .txt extension in the end
     QFileInfo info(path);
-    if (info.fileName() == info.baseName())
-    {
+    if (info.fileName() == info.baseName()) {
         path += ".txt";
     }
 
@@ -530,24 +553,11 @@ void MainWindow::saveFileAs()
 }
 
 
-void MainWindow::closeFile()
-{
-    if (exitAfterSaving())
-    {
-        // clear() triggers PlainTextEdit textChange signal...
-        _view->textEdit()->clear();
-        setCurrentFilePath("");
-        return;
-    }
-}
-
-
 void MainWindow::printFile()
 {
     QPrinter printer;
     QPrintDialog printDialog(&printer, this);
-    if (printDialog.exec() == QDialog::Accepted)
-    {
+    if (printDialog.exec() == QDialog::Accepted) {
         _view->textEdit()->print(&printer);
     }
 }
@@ -580,13 +590,10 @@ void MainWindow::onZoomOriginal()
 
 void MainWindow::onFullscreen(bool on)
 {
-    if (on)
-    {
+    if (on) {
         showFullScreen();
         menuBar()->hide();
-    }
-    else
-    {
+    } else {
         showNormal();
         menuBar()->show();
     }
@@ -600,8 +607,9 @@ void MainWindow::selectFont()
     QFont initialFont = _view->textEdit()->font();
     initialFont.setPointSize( initialFont.pointSize() - _zoomRange );
     QFont font = QFontDialog::getFont(&ok, initialFont, this, "Select font", QFontDialog::MonospacedFonts);
-    if (!ok)
+    if (!ok) {
         return;
+    }
 
     _view->textEdit()->setFont(font);
     _view->textEdit()->setFocus();
@@ -625,21 +633,21 @@ void MainWindow::resetSettings()
                                      "Are you sure you want to reset all settings?",
                                      QMessageBox::Reset | QMessageBox::Cancel);
 
-    switch(risp)
-    {
-    case QMessageBox::Reset:
-    {
-        QSettings s ( QCoreApplication::organizationName() , QCoreApplication::applicationName() );
-        s.clear();
-        loadSettings();
-        emit updateActionStatus();
-        break;
-    }
-    case QMessageBox::Cancel:
-        return;
+    switch(risp) {
+        case QMessageBox::Reset: {
 
-    default:
-        // this should never happen
-        break;
+            // the settings object
+            QSettings s;
+            s.clear();
+            loadSettings();
+            emit updateActionStatus();
+            break;
+        }
+        case QMessageBox::Cancel:
+            return;
+
+        default:
+            // this should never happen
+            break;
     }
 }

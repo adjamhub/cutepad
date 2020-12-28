@@ -187,7 +187,6 @@ void MainView::replace(const QString &replace, bool justNext)
 
     bool found = _textEdit->find(search, flags);
     if (!found) {
-        // TODO: advise search restart from the beginning...
         QTextCursor cur = _textEdit->textCursor();
         cur.movePosition(QTextCursor::Start);
         _textEdit->setTextCursor(cur);

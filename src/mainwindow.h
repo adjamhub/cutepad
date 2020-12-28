@@ -56,7 +56,6 @@ private slots:
     void openFile();
     void saveFile();
     void saveFileAs();
-    void closeFile();
     void printFile();
 
     void onZoomIn();
