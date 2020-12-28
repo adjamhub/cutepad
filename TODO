@@ -6,9 +6,10 @@ LEGEND:
 
 (x) metadata
 ---------
-(-) Add help document, written with cutepad ;), explaining the best features
-add action to open it
-open it on first run
+(x) Add help document, written with cutepad ;), explaining the best features
+(x) add action to open it
+--------
+(-) open something on first run
 ---------
 (-) CHANGELOG file 
 to be opened on cutepad upgrade
@@ -23,7 +24,7 @@ to be opened on cutepad upgrade
 ---------
 (-) CPack && CMake improvements
 - (x) install LICENSE
-- (-) install HELP FILE
+- (x) install HELP FILE
 - (x) install METADATA
 ---------
 (-) Recent files (can I check if a file is just opened??)
