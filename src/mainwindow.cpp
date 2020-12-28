@@ -386,9 +386,15 @@ void MainWindow::setupActions()
     connect(actionResetSettings, &QAction::triggered, this, &MainWindow::resetSettings);
 
     // about actions -----------------------------------------------------------------------------------------------------------
+    // MANUAL
+    QAction* actionShowManual = new QAction( QIcon::fromTheme("help"), "Help", this );
+    connect(actionShowManual, &QAction::triggered, this, &MainWindow::showManual);
+    
+    // ABOUT Qt
     QAction* actionAboutQt = new QAction("About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
 
+    // ABOUT
     QAction* actionAboutApp = new QAction("About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
@@ -445,6 +451,7 @@ void MainWindow::setupActions()
     optionsMenu->addAction(actionResetSettings);
 
     QMenu* helpMenu = menuBar()->addMenu("&Help");
+    helpMenu->addAction(actionShowManual);
     helpMenu->addAction(actionAboutQt);
     helpMenu->addAction(actionAboutApp);
 
@@ -650,4 +657,22 @@ void MainWindow::resetSettings()
             // this should never happen
             break;
     }
+}
+
+
+void MainWindow::showManual()
+{
+    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    qDebug() << "dirs: " << dirs;
+    QString manual = QStandardPaths::locate(QStandardPaths::AppDataLocation, "MANUAL");
+    qDebug() << "manual path: " << manual;
+    if (manual.isEmpty())
+        return;
+    // TODO: needs to advise on return
+    
+    MainWindow *other = new MainWindow;
+    other->tile(this);
+    other->show();
+    other->loadFilePath(manual);
+    other->view()->textEdit()->setReadOnly(true);
 }

@@ -66,9 +66,10 @@ target_link_libraries(cutepad PRIVATE
 # INSTALL ----------------------------------------------------------------
 install(TARGETS cutepad RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 
-install(FILES data/cutepad.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+install(FILES data/cutepad.desktop     DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
 install(FILES data/cutepad.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/metainfo")
-install(FILES LICENSE DESTINATION "${CMAKE_INSTALL_PREFIX}/share/cutepad")
+install(FILES LICENSE                  DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
+install(FILES data/MANUAL              DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
 
 # --------------------------------------------------------------------------
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)

@@ -26,6 +26,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
+    MainView* view() {
+        return _view;
+    }
+    
     // load & save settings automagically
     void loadSettings();
     void saveSettings();
@@ -67,6 +71,7 @@ private slots:
     void resetSettings();
 
     void about();
+    void showManual();
 
 signals:
     void updateActionStatus();
