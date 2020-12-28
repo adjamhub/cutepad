@@ -4,6 +4,8 @@ LEGEND:
 (N) WONT DO
 ==================================================================================
 
+(x) metadata
+---------
 (-) Add help document, written with cutepad ;), explaining the best features
 add action to open it
 open it on first run
@@ -20,11 +22,9 @@ to be opened on cutepad upgrade
 (-) brackets???
 ---------
 (-) CPack && CMake improvements
-install LICENSE
-install HELP FILE
-install METADATA
----------
-(-) metadata
+- (x) install LICENSE
+- (-) install HELP FILE
+- (x) install METADATA
 ---------
 (-) Recent files (can I check if a file is just opened??)
 ---------
@@ -36,4 +36,6 @@ install METADATA
 (-) urls ??? (do we really need to open URLs on click?
 ---------
 (-) investigate CLIPBOARD support
+---------
+(-) highlight all occurrences on find
 

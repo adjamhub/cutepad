@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Qt things ---------------------------------------------------------------
-set(QT_MINIMUM_VERSION "5.15.0")
+set(QT_MINIMUM_VERSION "5.14.0")
 
 find_package(Qt5 "${QT_MINIMUM_VERSION}" COMPONENTS REQUIRED
                 Core
