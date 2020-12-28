@@ -20,9 +20,12 @@ Its main features include:
 
 Here are some screenshots (because seeing is believing...)
 
+cutepad with line numbers
 ![Line Numbers](data/line_numbers.jpg "Line Numbers")
-![Syntax Highlighting](data/syntax_highlightning.jpg "Syntax Highlight")
-![Current Line Highlight](data/current_line_highlight.jpg "Current Line Highlight")
 
-    
+syntax highlighting
+![Syntax Highlighting](data/syntax_highlightning.jpg "Syntax Highlight")
+
+current line highlight
+![Current Line Highlight](data/current_line_highlight.jpg "Current Line Highlight")
 
