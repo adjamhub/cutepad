@@ -14,6 +14,7 @@
 #include <QMainWindow>
 
 #include "mainview.h"
+#include "statusbar.h"
 
 class QCloseEvent;
 class QKeyEvent;
@@ -48,7 +49,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     void setupActions();
@@ -73,11 +74,14 @@ private slots:
     void about();
     void showManual();
 
+    void updateStatusBar();
+
 signals:
     void updateActionStatus();
 
 private:
     MainView* _view;
+    StatusBar* _statusBar;
 
     QString _filePath;
     int _zoomRange;

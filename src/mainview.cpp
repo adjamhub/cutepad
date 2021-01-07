@@ -26,6 +26,7 @@ MainView::MainView (QWidget *parent)
     , _replaceBar(new ReplaceBar(this))
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
+    , _lang("none")
 {
     // The UI
     auto layout = new QVBoxLayout;
@@ -57,6 +58,9 @@ void MainView::syntaxHighlightForFile(const QString & path)
 
     qDebug() << "path:" << path;
     qDebug() << "def name: " << def.name();
+
+    // consider moving to translatedName()
+    _lang = def.name();
 }
 
 

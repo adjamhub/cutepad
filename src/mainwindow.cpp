@@ -19,6 +19,7 @@
 #include <QScreen>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QStatusBar>
 #include <QTextStream>
 #include <QToolBar>
 
@@ -31,6 +32,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _view(new MainView(this))
+    , _statusBar(new StatusBar(this))
     , _filePath("")
     , _zoomRange(0)
 {
@@ -50,8 +52,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
     setCurrentFilePath("");
 
+    // take care of the statusbar
+    statusBar()->addWidget(_statusBar);
+    connect(_view->textEdit(), &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::updateStatusBar);
+
     // last, remember to save settings on exit
     connect(qApp, &QCoreApplication::aboutToQuit, this, &MainWindow::saveSettings);
+    updateStatusBar();
 }
 
 
@@ -154,6 +161,7 @@ void MainWindow::loadFilePath(const QString &path)
     QGuiApplication::restoreOverrideCursor();
 
     _view->textEdit()->checkTabSpaceReplacementNeeded();
+    updateStatusBar();
 }
 
 
@@ -675,4 +683,16 @@ void MainWindow::showManual()
     other->show();
     other->loadFilePath(manual);
     other->view()->textEdit()->setReadOnly(true);
+}
+
+
+void MainWindow::updateStatusBar()
+{
+    _statusBar->setLanguage(_view->language());
+
+    int row = _view->textEdit()->textCursor().blockNumber();
+    int col = _view->textEdit()->textCursor().positionInBlock();
+    _statusBar->setPosition(row,col);
+
+    _statusBar->setCodec("none");
 }

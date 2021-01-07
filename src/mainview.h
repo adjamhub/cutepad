@@ -40,6 +40,8 @@ public:
     bool isSearchBarActive();
     bool isReplaceBarActive();
 
+    inline QString language() const { return _lang; };
+
 public slots:
     void showSearchBar();
     void hideSearchBar();
@@ -64,6 +66,8 @@ private:
 
     KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
     KSyntaxHighlighting::Repository* _highlightRepo;
+
+    QString _lang;
 };
 
 
