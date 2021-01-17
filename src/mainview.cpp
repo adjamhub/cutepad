@@ -40,7 +40,7 @@ MainView::MainView (QWidget *parent)
     _searchBar->setVisible(false);
     _replaceBar->setVisible(false);
 
-    connect(_searchBar, &SearchBar::find, this, &MainView::find);
+    connect(_searchBar, &SearchBar::search, this, &MainView::find);
     connect(this, &MainView::searchMessage, _searchBar, &SearchBar::searchMessage);
 
     connect(_replaceBar, &ReplaceBar::replace, this, &MainView::replace);

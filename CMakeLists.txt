@@ -47,7 +47,6 @@ add_executable(cutepad
     src/main.cpp
     src/application.cpp
     src/mainwindow.cpp
-    src/mainwindow.h
     src/mainview.cpp
     src/textedit.cpp
     src/searchbar.cpp

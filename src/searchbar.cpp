@@ -65,9 +65,9 @@ void SearchBar::findBackward()
 {
     _notFoundLabel->setText("");
 
-    QString search = _findLineEdit->text();
+    QString str = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    emit find(search, false, caseSensitive);
+    emit search(str, false, caseSensitive);
 }
 
 
@@ -75,9 +75,9 @@ void SearchBar::findForward()
 {
     _notFoundLabel->setText("");
 
-    QString search = _findLineEdit->text();
+    QString str = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    emit find(search, true, caseSensitive);
+    emit search(str, true, caseSensitive);
 }
 
 

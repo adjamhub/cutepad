@@ -40,7 +40,7 @@ public slots:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -68,7 +68,7 @@ public:
         _editor = editor;
     }
 
-    QSize sizeHint() const {
+    QSize sizeHint() const override {
         return QSize (_editor->lineNumberAreaWidth(), 0);
     }
 

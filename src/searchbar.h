@@ -29,9 +29,9 @@ public:
     SearchBar(QWidget *parent);
 
 signals:
-    void find(const QString &search,
-              bool forward = true,
-              bool casesensitive = false);
+    void search(const QString &search,
+                bool forward = true,
+                bool casesensitive = false);
 
 public slots:
     void searchMessage(const QString & msg);
