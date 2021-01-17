@@ -178,9 +178,12 @@ void MainWindow::saveFilePath(const QString &path)
     out << content;
     file.close();
 
+    _view->syntaxHighlightForFile(path);
+
     QGuiApplication::restoreOverrideCursor();
 
     setCurrentFilePath(path);
+    updateStatusBar();
 }
 
 
