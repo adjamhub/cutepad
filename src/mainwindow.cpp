@@ -434,7 +434,7 @@ void MainWindow::setupActions()
     // Encodings actions
     QMenu* encodingsMenu = new QMenu("Encodings", this);
 
-    QVector<QTextCodec *> codecs = findCodecs();
+    QVector<QTextCodec *> codecs = Encodings::findCodecs();
     for (const QTextCodec *codec : qAsConst(codecs)) {
         const QByteArray name = codec->name();
         QAction *action = encodingsMenu->addAction(tr("%1...").arg(QLatin1String(name)));
@@ -739,13 +739,10 @@ void MainWindow::encode()
     const QAction *action = qobject_cast<const QAction *>(sender());
     const QByteArray codecName = action->data().toByteArray();
     QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
-
     QTextCodec* actualCodec = _view->textCodec();
     QString content = _view->textEdit()->toPlainText();
-    QByteArray encodedData = actualCodec->fromUnicode(content);
 
-    QTextCodec::ConverterState state;
-    QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
+    QString decodedString = Encodings::convert(content, actualCodec, targetCodec);
 
     _view->textEdit()->setPlainText(decodedString);
     _view->setTextCodec(targetCodec);
