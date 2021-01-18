@@ -13,7 +13,7 @@
 
 
 #include <QWidget>
-
+#include <QTextCodec>
 
 #include "textedit.h"
 #include "searchbar.h"
@@ -42,6 +42,9 @@ public:
 
     inline QString language() const { return _lang; };
 
+    QTextCodec* textCodec();
+    void setTextCodec(QTextCodec* codec);
+
 public slots:
     void showSearchBar();
     void hideSearchBar();
@@ -68,6 +71,7 @@ private:
     KSyntaxHighlighting::Repository* _highlightRepo;
 
     QString _lang;
+    QTextCodec* _textCodec;
 };
 
 

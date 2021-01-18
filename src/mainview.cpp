@@ -27,6 +27,7 @@ MainView::MainView (QWidget *parent)
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
     , _lang("none")
+    , _textCodec(nullptr)
 {
     // The UI
     auto layout = new QVBoxLayout;
@@ -130,6 +131,19 @@ void MainView::hideReplaceBar()
 bool MainView::isReplaceBarActive()
 {
     return _replaceBar->isVisible();
+}
+
+
+QTextCodec* MainView::textCodec()
+{
+    return _textCodec;
+}
+
+
+void MainView::setTextCodec(QTextCodec* codec)
+{
+    qDebug() << "using codec:" << codec->name();
+    _textCodec = codec;
 }
 
 

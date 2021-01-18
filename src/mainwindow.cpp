@@ -20,6 +20,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStatusBar>
+#include <QTextCodec>
 #include <QTextStream>
 #include <QToolBar>
 
@@ -149,12 +150,18 @@ void MainWindow::tile(const QMainWindow *previous)
 void MainWindow::loadFilePath(const QString &path)
 {
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Cannot open file. Not readable");
         return;
+    }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    _view->textEdit()->setPlainText(file.readAll());
+    QTextStream in(&file);
+    QTextCodec* cod = in.codec();
+    _view->setTextCodec(cod);
+    QString fileText = in.readAll();
+    _view->textEdit()->setPlainText(fileText);
     _view->syntaxHighlightForFile(path);
     setCurrentFilePath(path);
 
@@ -168,8 +175,10 @@ void MainWindow::loadFilePath(const QString &path)
 void MainWindow::saveFilePath(const QString &path)
 {
     QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Cannot save file. Not writable");
         return;
+    }
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -697,5 +706,10 @@ void MainWindow::updateStatusBar()
     int col = _view->textEdit()->textCursor().positionInBlock();
     _statusBar->setPosition(row,col);
 
-    _statusBar->setCodec("none");
+    QTextCodec* cod = _view->textCodec();
+    QString codecText = "none";
+    if (cod) {
+        codecText = cod->name();
+    }
+    _statusBar->setCodec(codecText);
 }
