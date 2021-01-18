@@ -740,11 +740,20 @@ void MainWindow::encode()
     const QByteArray codecName = action->data().toByteArray();
     QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
     QTextCodec* actualCodec = _view->textCodec();
+
+    if (codecName == actualCodec->name()) {
+        qDebug() << "we are moving to the same codec. Aborting...";
+        return;
+    }
     QString content = _view->textEdit()->toPlainText();
 
     QString decodedString = Encodings::convert(content, actualCodec, targetCodec);
 
     _view->textEdit()->setPlainText(decodedString);
     _view->setTextCodec(targetCodec);
+
+    _view->textEdit()->document()->setModified(true);
+    setWindowModified(true);
+
     updateStatusBar();
 }
