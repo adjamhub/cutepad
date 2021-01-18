@@ -8,6 +8,7 @@
 
 
 #include "mainwindow.h"
+#include "encodings.h"
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -184,7 +185,7 @@ void MainWindow::saveFilePath(const QString &path)
 
     QString content = _view->textEdit()->toPlainText();
     QTextCodec* codec = _view->textCodec();
-    QByteArray encodedString = codec->fromUnicode(string);
+    QByteArray encodedString = codec->fromUnicode(content);
     
     QTextStream out(&file);
     out << encodedString;
@@ -430,6 +431,19 @@ void MainWindow::setupActions()
     );
 
     // ------------------------------------------------------------------------------------------------------------------------
+    // Encodings actions
+    QMenu* encodingsMenu = new QMenu("Encodings", this);
+
+    QVector<QTextCodec *> codecs = findCodecs();
+    for (const QTextCodec *codec : qAsConst(codecs)) {
+        const QByteArray name = codec->name();
+        QAction *action = encodingsMenu->addAction(tr("%1...").arg(QLatin1String(name)));
+        action->setData(QVariant(name));
+        connect(action, &QAction::triggered, this, &MainWindow::encode);
+    }
+
+
+    // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MENUBAR
 
     QMenu* fileMenu = menuBar()->addMenu("&File");
@@ -465,6 +479,8 @@ void MainWindow::setupActions()
     searchMenu->addAction(actionReplace);
 
     QMenu* optionsMenu = menuBar()->addMenu("&Options");
+    optionsMenu->addMenu(encodingsMenu);
+    optionsMenu->addSeparator();
     optionsMenu->addAction(actionLineNumbers);
     optionsMenu->addAction(actionCurrentLineHighlight);
     optionsMenu->addAction(actionTabSpaceReplace);
@@ -715,4 +731,23 @@ void MainWindow::updateStatusBar()
         codecText = cod->name();
     }
     _statusBar->setCodec(codecText);
+}
+
+
+void MainWindow::encode()
+{
+    const QAction *action = qobject_cast<const QAction *>(sender());
+    const QByteArray codecName = action->data().toByteArray();
+    QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
+
+    QTextCodec* actualCodec = _view->textCodec();
+    QString content = _view->textEdit()->toPlainText();
+    QByteArray encodedData = actualCodec->fromUnicode(content);
+
+    QTextCodec::ConverterState state;
+    QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
+
+    _view->textEdit()->setPlainText(decodedString);
+    _view->setTextCodec(targetCodec);
+    updateStatusBar();
 }

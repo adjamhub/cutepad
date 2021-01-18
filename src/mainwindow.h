@@ -75,6 +75,7 @@ private slots:
     void showManual();
 
     void updateStatusBar();
+    void encode();
 
 signals:
     void updateActionStatus();
