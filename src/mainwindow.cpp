@@ -183,8 +183,11 @@ void MainWindow::saveFilePath(const QString &path)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     QString content = _view->textEdit()->toPlainText();
+    QTextCodec* codec = _view->textCodec();
+    QByteArray encodedString = codec->fromUnicode(string);
+    
     QTextStream out(&file);
-    out << content;
+    out << encodedString;
     file.close();
 
     _view->syntaxHighlightForFile(path);
