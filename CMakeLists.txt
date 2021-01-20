@@ -46,7 +46,6 @@ find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}")
 add_executable(cutepad
     src/main.cpp
     src/application.cpp
-    src/encodings.cpp
     src/mainview.cpp
     src/mainwindow.cpp
     src/replacebar.cpp

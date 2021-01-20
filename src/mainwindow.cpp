@@ -8,7 +8,6 @@
 
 
 #include "mainwindow.h"
-#include "encodings.h"
 #include "settingsdialog.h"
 
 #include <QApplication>
@@ -373,6 +372,52 @@ void MainWindow::setupActions()
     connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
 
     // option actions -----------------------------------------------------------------------------------------------------------
+    // ENCODINGS
+    QMenu* encodingsMenu = new QMenu("Encodings... ", this);
+
+    QMenu* unicodeMenu = new QMenu("UNICODE", this);
+    QMenu* iso8859Menu = new QMenu("ISO-8859", this);
+    QMenu* ibmMenu = new QMenu("IBM", this);
+    QMenu* windowsMenu = new QMenu("Windows", this);
+    QMenu* othersMenu = new QMenu("Others", this);
+    
+    const QList<int> mibs = QTextCodec::availableMibs();
+    QStringList codecsName;
+    for (int mib : mibs) {
+        QTextCodec *codec = QTextCodec::codecForMib(mib);
+        QString name = codec->name().toUpper();
+        if (codecsName.contains(name)) {
+            continue;
+        }
+        codecsName << name;
+        QAction *action = new QAction(name, this);
+        action->setData(QVariant(name));
+        connect(action, &QAction::triggered, this, &MainWindow::encode);
+        qDebug() << "mib: " << mib;
+        qDebug() << "name: " << name;
+        if (name.startsWith("UTF-")) {
+            unicodeMenu->addAction(action);
+        } else
+        if (name.startsWith("ISO-8859")) {
+            iso8859Menu->addAction(action);
+        } else
+        if (name.startsWith("IBM")) {
+            ibmMenu->addAction(action);
+        } else
+        if (name.startsWith("WINDOWS")) {
+            windowsMenu->addAction(action);
+        } else {
+            othersMenu->addAction(action);
+        }
+    }
+
+    encodingsMenu->addMenu(unicodeMenu);
+    encodingsMenu->addMenu(iso8859Menu);
+    encodingsMenu->addMenu(ibmMenu);
+    encodingsMenu->addMenu(windowsMenu);
+    encodingsMenu->addMenu(othersMenu);
+    
+    // SETTINGS
     QAction* actionShowSettings = new QAction("Settings", this);
     connect(actionShowSettings, &QAction::triggered, this, &MainWindow::showSettings);
 
@@ -390,16 +435,6 @@ void MainWindow::setupActions()
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
     // ------------------------------------------------------------------------------------------------------------------------
-    // Encodings actions
-    QMenu* encodingsMenu = new QMenu("Encodings... ", this);
-
-    QVector<QTextCodec *> codecs = Encodings::findCodecs();
-    for (const QTextCodec *codec : qAsConst(codecs)) {
-        const QByteArray name = codec->name();
-        QAction *action = encodingsMenu->addAction(tr("%1...").arg(QLatin1String(name)));
-        action->setData(QVariant(name));
-        connect(action, &QAction::triggered, this, &MainWindow::encode);
-    }
 
 
     // ------------------------------------------------------------------------------------------------------------------------
@@ -657,8 +692,11 @@ void MainWindow::encode()
     }
     QString content = _view->textEdit()->toPlainText();
 
-    QString decodedString = Encodings::convert(content, actualCodec, targetCodec);
-
+    // FIXME: What about "state"???
+    QByteArray encodedData = actualCodec->fromUnicode(content);
+    QTextCodec::ConverterState state;
+    QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
+    
     _view->textEdit()->setPlainText(decodedString);
     _view->setTextCodec(targetCodec);
 
