@@ -47,12 +47,13 @@ add_executable(cutepad
     src/main.cpp
     src/application.cpp
     src/encodings.cpp
-    src/mainwindow.cpp
     src/mainview.cpp
-    src/textedit.cpp
-    src/searchbar.cpp
-    src/statusbar.cpp
+    src/mainwindow.cpp
     src/replacebar.cpp
+    src/searchbar.cpp
+    src/settingsdialog.cpp
+    src/statusbar.cpp
+    src/textedit.cpp
 )
 
 target_link_libraries(cutepad PRIVATE 

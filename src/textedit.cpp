@@ -20,6 +20,7 @@
 TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
     , _lineNumberArea(nullptr)
+    , _lineNumbersMode(0)
     , _highlight(false)
     , _tabReplace(false)
 {
@@ -38,8 +39,8 @@ void TextEdit::checkTabSpaceReplacementNeeded()
     }
 
     int risp = QMessageBox::question(this,
-                                     "Replace Tabs with (4) Spaces",
-                                     "Your document contains tabs. Would you like them to be replaced with (4) spaces?",
+                                     "Replace Tabs with Spaces",
+                                     "Your document contains tabs. Would you like them to be replaced with spaces?",
                                      QMessageBox::Yes | QMessageBox::No);
 
     if (risp == QMessageBox::No) {
@@ -47,7 +48,7 @@ void TextEdit::checkTabSpaceReplacementNeeded()
     }
 
     QTextCursor actual = textCursor();
-    content.replace("\t", "    ");
+    content.replace( QChar(QChar::Tabulation) , _spaces);
     setPlainText(content);
     setTextCursor(actual);
     document()->setModified(true);
@@ -67,17 +68,25 @@ void TextEdit::enableTabReplacement(bool on)
 }
 
 
-void TextEdit::enableLineNumbers(bool on)
+void TextEdit::setLineNumbersMode(int mode)
 {
-    if (on) {
+    _lineNumbersMode = mode;
+
+    // TODO: implement SMART mode
+
+    // show
+    if (_lineNumbersMode == 1) {
         _lineNumberArea = new LineNumberArea(this);
         _lineNumberArea->show();
         connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
         connect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
 
         updateLineNumberAreaWidth(0);
+        return;
     }
-    else {
+    
+    // hide
+    if (_lineNumbersMode == 0) {
         disconnect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
         disconnect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
 
@@ -88,9 +97,9 @@ void TextEdit::enableLineNumbers(bool on)
 }
 
 
-bool TextEdit::isLineNumbersEnabled()
+int TextEdit::lineNumbersMode()
 {
-    return _lineNumberArea ? true : false;
+    return _lineNumbersMode;
 }
 
 
@@ -99,28 +108,29 @@ void TextEdit::enableCurrentLineHighlighting(bool on)
     if (_highlight == on)
         return;
 
-    _highlight = on;
+    _highlight = on;    
     if (on) {
         highlightCurrentLine();
         connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
-    } else {
-        QList<QTextEdit::ExtraSelection> extraSelections;
-
-        if (!isReadOnly()) {
-            QTextEdit::ExtraSelection selection;
-
-            // FIXME: choose right background color
-            QColor lineColor = QColor(Qt::white).lighter(160);
-            selection.format.setBackground(lineColor);
-            selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-            selection.cursor = textCursor();
-            selection.cursor.clearSelection();
-            extraSelections.append(selection);
-        }
-        setExtraSelections(extraSelections);
-
-        disconnect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
+        return;
     }
+    // else... hide!!!
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+
+        // FIXME: choose right background color
+        QColor lineColor = QColor(Qt::white).lighter(160);
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+    setExtraSelections(extraSelections);
+
+    disconnect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
 }
 
 
@@ -175,8 +185,8 @@ void TextEdit::keyPressEvent(QKeyEvent *event)
     // TAB: (eventually) replace with spaces
     // TAB: if there is a selection, move it
     if (event->key() == Qt::Key_Tab) {
-        
-        QString indentation = _tabReplace ? "    " : QString(QChar(QChar::Tabulation));
+
+        QString indentation = _tabReplace ? _spaces : QString(QChar(QChar::Tabulation));
 
         if (!textCursor().hasSelection()) {
             qDebug() << "TAB pressed, NO selection";
@@ -301,10 +311,9 @@ void TextEdit::highlightCurrentLine()
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
-        // TODO: let user change line highlight color
-        QColor lineColor = QColor(Qt::yellow).lighter(160);
+//        QColor lineColor = QColor(Qt::yellow).lighter(160);
 
-        selection.format.setBackground(lineColor);
+        selection.format.setBackground(_highlightLineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
@@ -327,4 +336,33 @@ void TextEdit::updateLineNumberArea(const QRect &rect, int dy)
 
     if (rect.contains(viewport()->rect()))
         updateLineNumberAreaWidth(0);
+}
+
+
+void TextEdit::setHighlightLineColor(const QColor& color)
+{
+    _highlightLineColor = color;
+    
+    highlightCurrentLine();
+}
+
+
+QColor TextEdit::highlightLineColor()
+{
+    return _highlightLineColor;
+}
+
+
+void TextEdit::setTabsCount(int tabsCount)
+{
+    _spaces = "";
+    for (int i = 0; i < tabsCount; i++) {
+        _spaces.append( QChar(QChar::Space) );
+    }
+}
+
+
+int TextEdit::tabsCount()
+{
+    return _spaces.count();
 }

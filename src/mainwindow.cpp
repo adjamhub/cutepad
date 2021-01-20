@@ -9,11 +9,11 @@
 
 #include "mainwindow.h"
 #include "encodings.h"
+#include "settingsdialog.h"
 
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFileDialog>
-#include <QFontDialog>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -77,6 +77,23 @@ void MainWindow::loadSettings()
     QPoint pos = s.value("pos", QPoint(50,50)).toPoint();
     move(pos);
 
+    // options
+    bool highlight = s.value("CurrentLineHighlight", false).toBool();
+    _view->textEdit()->enableCurrentLineHighlighting(highlight);
+
+    QColor highlightLineColor = s.value("HighlightLineColor", QColor(Qt::yellow).lighter(160)).value<QColor>();
+    _view->textEdit()->setHighlightLineColor(highlightLineColor);
+
+    int lineNumbers = s.value("LineNumbers", 0).toInt();
+    qDebug() << "line numbers mode:" << lineNumbers;
+    _view->textEdit()->setLineNumbersMode(lineNumbers);
+
+    bool tabReplace = s.value("TabReplace", false).toBool();
+    _view->textEdit()->enableTabReplacement(tabReplace);
+    
+    int tabsCount = s.value("TabsCount", 4).toInt();
+    _view->textEdit()->setTabsCount(tabsCount);
+
     // font
     QString fontFamily = s.value("fontFamily", "Monospace").toString();
     int fontSize = s.value("fontSize", 12).toInt();
@@ -86,15 +103,7 @@ void MainWindow::loadSettings()
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
     QFontMetrics fm(font);
-    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance(' ') * 4 );
-
-    // options
-    bool highlight = s.value("CurrentLineHighlight", false).toBool();
-    _view->textEdit()->enableCurrentLineHighlighting(highlight);
-    bool lineNumbers = s.value("LineNumbers", false).toBool();
-    _view->textEdit()->enableLineNumbers(lineNumbers);
-    bool tabReplace = s.value("TabReplace", false).toBool();
-    _view->textEdit()->enableTabReplacement(tabReplace);
+    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance( QChar(QChar::Space) ) * tabsCount );
 }
 
 
@@ -108,25 +117,6 @@ void MainWindow::saveSettings()
     // size and dimensions
     s.setValue("size", size() );
     s.setValue("pos", pos() );
-
-    // font
-    QFont f = _view->textEdit()->font();
-    QString fontFamily = f.family();
-    int fontSize = f.pointSize() - _zoomRange; // consider the zoom...
-    int fontWeight = f.weight();
-    bool italic = f.italic();
-    s.setValue("fontFamily", fontFamily);
-    s.setValue("fontSize", fontSize);
-    s.setValue("fontWeight", fontWeight);
-    s.setValue("fontItalic", italic);
-
-    // options
-    bool highlight = _view->textEdit()->isCurrentLineHighlightingEnabled();
-    s.setValue("CurrentLineHighlight", highlight);
-    bool lineNumbers = _view->textEdit()->isLineNumbersEnabled();
-    s.setValue("LineNumbers", lineNumbers);
-    bool tabReplace = _view->textEdit()->isTabReplacementEnabled();
-    s.setValue("TabReplace", tabReplace);
 }
 
 
@@ -383,31 +373,8 @@ void MainWindow::setupActions()
     connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
 
     // option actions -----------------------------------------------------------------------------------------------------------
-    // LINE NUMBERS
-    QAction* actionLineNumbers = new QAction( "Line Numbers", this );
-    actionLineNumbers->setCheckable(true);
-    actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
-    connect(actionLineNumbers, &QAction::triggered, _view->textEdit(), &TextEdit::enableLineNumbers );
-
-    // CURRENT LINE HIGHLIGHT
-    QAction* actionCurrentLineHighlight = new QAction( "Current Line Highlight", this );
-    actionCurrentLineHighlight->setCheckable(true);
-    actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
-    connect(actionCurrentLineHighlight, &QAction::triggered, _view->textEdit(), &TextEdit::enableCurrentLineHighlighting );
-
-    // TAB SPACE REPLACE
-    QAction* actionTabSpaceReplace = new QAction("Replace tabs with (4) spaces", this);
-    actionTabSpaceReplace->setCheckable(true);
-    actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
-    connect(actionTabSpaceReplace, &QAction::triggered, _view->textEdit(), &TextEdit::enableTabReplacement);
-
-    // FONT
-    QAction* actionFontChange = new QAction( QIcon::fromTheme("applications-fonts"), "Font", this );
-    connect(actionFontChange, &QAction::triggered, this, &MainWindow::selectFont );
-
-    // RESET SETTINGS
-    QAction* actionResetSettings = new QAction("Reset all settings", this);
-    connect(actionResetSettings, &QAction::triggered, this, &MainWindow::resetSettings);
+    QAction* actionShowSettings = new QAction("Settings", this);
+    connect(actionShowSettings, &QAction::triggered, this, &MainWindow::showSettings);
 
     // about actions -----------------------------------------------------------------------------------------------------------
     // MANUAL
@@ -422,17 +389,9 @@ void MainWindow::setupActions()
     QAction* actionAboutApp = new QAction("About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
-    // UPDATE ACTION(s) STATUS -------------------------------------------------------------------------------------------------
-    connect(this, &MainWindow::updateActionStatus, this, [=] {
-            actionLineNumbers->setChecked(_view->textEdit()->isLineNumbersEnabled());
-            actionCurrentLineHighlight->setChecked(_view->textEdit()->isCurrentLineHighlightingEnabled());
-            actionTabSpaceReplace->setChecked(_view->textEdit()->isTabReplacementEnabled());
-        }
-    );
-
     // ------------------------------------------------------------------------------------------------------------------------
     // Encodings actions
-    QMenu* encodingsMenu = new QMenu("Encodings", this);
+    QMenu* encodingsMenu = new QMenu("Encodings... ", this);
 
     QVector<QTextCodec *> codecs = Encodings::findCodecs();
     for (const QTextCodec *codec : qAsConst(codecs)) {
@@ -481,13 +440,7 @@ void MainWindow::setupActions()
     QMenu* optionsMenu = menuBar()->addMenu("&Options");
     optionsMenu->addMenu(encodingsMenu);
     optionsMenu->addSeparator();
-    optionsMenu->addAction(actionLineNumbers);
-    optionsMenu->addAction(actionCurrentLineHighlight);
-    optionsMenu->addAction(actionTabSpaceReplace);
-    optionsMenu->addSeparator();
-    optionsMenu->addAction(actionFontChange);
-    optionsMenu->addSeparator();
-    optionsMenu->addAction(actionResetSettings);
+    optionsMenu->addAction(actionShowSettings);
 
     QMenu* helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction(actionShowManual);
@@ -646,22 +599,6 @@ void MainWindow::onFullscreen(bool on)
 }
 
 
-void MainWindow::selectFont()
-{
-    bool ok;
-    // initialFont is the font initially shown in the dialog
-    QFont initialFont = _view->textEdit()->font();
-    initialFont.setPointSize( initialFont.pointSize() - _zoomRange );
-    QFont font = QFontDialog::getFont(&ok, initialFont, this, "Select font", QFontDialog::MonospacedFonts);
-    if (!ok) {
-        return;
-    }
-
-    _view->textEdit()->setFont(font);
-    _view->textEdit()->setFocus();
-}
-
-
 void MainWindow::about()
 {
     QString version = qApp->applicationVersion();
@@ -669,33 +606,6 @@ void MainWindow::about()
     QMessageBox::about(this,
                        "About cutepad",
                         "cutepad " + version + "\n\nThe Qt pad ;)\nJust an easy plain text editor, based on Qt libraries");
-}
-
-
-void MainWindow::resetSettings()
-{
-    int risp = QMessageBox::question(this,
-                                     "Reset All Settings",
-                                     "Are you sure you want to reset all settings?",
-                                     QMessageBox::Reset | QMessageBox::Cancel);
-
-    switch(risp) {
-        case QMessageBox::Reset: {
-
-            // the settings object
-            QSettings s;
-            s.clear();
-            loadSettings();
-            emit updateActionStatus();
-            break;
-        }
-        case QMessageBox::Cancel:
-            return;
-
-        default:
-            // this should never happen
-            break;
-    }
 }
 
 
@@ -756,4 +666,14 @@ void MainWindow::encode()
     setWindowModified(true);
 
     updateStatusBar();
+}
+
+
+void MainWindow::showSettings()
+{
+    SettingsDialog* dialog = new SettingsDialog(this);
+    dialog->exec();
+    dialog->deleteLater();
+
+    loadSettings();
 }

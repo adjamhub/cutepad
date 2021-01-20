@@ -68,17 +68,13 @@ private slots:
     void onZoomOriginal();
     void onFullscreen(bool on);
 
-    void selectFont();
-    void resetSettings();
+    void showSettings();
 
     void about();
     void showManual();
 
     void updateStatusBar();
     void encode();
-
-signals:
-    void updateActionStatus();
 
 private:
     MainView* _view;

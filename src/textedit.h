@@ -22,12 +22,16 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
 
-    void enableLineNumbers(bool on);
-    bool isLineNumbersEnabled();
+    // 0 = hide (default), 1 = show, 2 = smart
+    void setLineNumbersMode(int mode);
+    int lineNumbersMode();
 
     void enableCurrentLineHighlighting(bool on);
     bool isCurrentLineHighlightingEnabled();
 
+    void setHighlightLineColor(const QColor& color);
+    QColor highlightLineColor();
+    
     // -------------------------------------------------------------------
     void lineNumberAreaPaintEvent (QPaintEvent *event);
     int lineNumberAreaWidth();
@@ -35,6 +39,9 @@ public:
     void checkTabSpaceReplacementNeeded();
     bool isTabReplacementEnabled();
 
+    void setTabsCount(int tabsCount);
+    int tabsCount();
+    
 public slots:
     void enableTabReplacement(bool on);
 
@@ -50,8 +57,13 @@ private slots:
 private:
     QWidget* _lineNumberArea;
 
+    int _lineNumbersMode;
+    
     bool _highlight;
+    QColor _highlightLineColor;
+    
     bool _tabReplace;
+    QString _spaces;
 };
 
 
