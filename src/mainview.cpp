@@ -13,9 +13,6 @@
 #include <QTextDocument>
 #include <QTextCursor>
 
-#include <KSyntaxHighlighting/Definition>
-#include <KSyntaxHighlighting/Theme>
-
 #include <QDebug>
 
 
@@ -24,9 +21,6 @@ MainView::MainView (QWidget *parent)
     , _textEdit(new TextEdit(this))
     , _searchBar(new SearchBar(this))
     , _replaceBar(new ReplaceBar(this))
-    , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(_textEdit->document()))
-    , _highlightRepo(new KSyntaxHighlighting::Repository)
-    , _lang("none")
     , _textCodec(nullptr)
 {
     // The UI
@@ -45,23 +39,6 @@ MainView::MainView (QWidget *parent)
     connect(this, &MainView::searchMessage, _searchBar, &SearchBar::searchMessage);
 
     connect(_replaceBar, &ReplaceBar::replace, this, &MainView::replace);
-}
-
-
-void MainView::syntaxHighlightForFile(const QString & path)
-{
-    _highlighter->setTheme((_textEdit->palette().color(QPalette::Base).lightness() < 128)
-                     ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
-                     : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme));
-
-    const auto def = _highlightRepo->definitionForFileName(path);
-    _highlighter->setDefinition(def);
-
-    qDebug() << "path:" << path;
-    qDebug() << "def name: " << def.name();
-
-    // consider moving to translatedName()
-    _lang = def.name();
 }
 
 

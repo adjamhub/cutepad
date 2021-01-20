@@ -10,6 +10,9 @@
 
 #include "textedit.h"
 
+#include <KSyntaxHighlighting/Theme>
+#include <KSyntaxHighlighting/Definition>
+
 #include <QMessageBox>
 #include <QPainter>
 #include <QTextBlock>
@@ -19,11 +22,34 @@
 
 TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
+    , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(this->document()))
+    , _highlightRepo(new KSyntaxHighlighting::Repository)
+    , _language("none")
     , _lineNumberArea(nullptr)
     , _lineNumbersMode(0)
     , _highlight(false)
     , _tabReplace(false)
 {
+}
+
+
+void TextEdit::syntaxHighlightForFile(const QString & path)
+{
+    _highlighter->setTheme((palette().color(QPalette::Base).lightness() < 128)
+                     ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
+                     : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme));
+
+    const auto def = _highlightRepo->definitionForFileName(path);
+    if (!def.isValid()) {
+        qDebug() << "no valid definitions found :(";
+        _language = "none";
+        return;
+    }
+
+    _highlighter->setDefinition(def);
+
+    // consider moving to translatedName()
+    _language = def.name();
 }
 
 
@@ -71,11 +97,31 @@ void TextEdit::enableTabReplacement(bool on)
 void TextEdit::setLineNumbersMode(int mode)
 {
     _lineNumbersMode = mode;
+    updateLineNumbersMode();
+}
 
-    // TODO: implement SMART mode
+
+void TextEdit::updateLineNumbersMode()
+{
+    bool enable;
+
+    switch (_lineNumbersMode)
+    {
+    case 0:
+        enable = false;
+        break;
+    case 1:
+        enable = true;
+        break;
+    case 2:
+        enable = (_language != "none");
+    default:
+        // this should NEVER happen...
+        break;
+    }
 
     // show
-    if (_lineNumbersMode == 1) {
+    if (enable) {
         _lineNumberArea = new LineNumberArea(this);
         _lineNumberArea->show();
         connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
@@ -86,14 +132,12 @@ void TextEdit::setLineNumbersMode(int mode)
     }
     
     // hide
-    if (_lineNumbersMode == 0) {
-        disconnect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
-        disconnect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
+    disconnect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
+    disconnect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
 
-        setViewportMargins(0, 0, 0, 0);
-        delete _lineNumberArea;
-        _lineNumberArea = nullptr;
-    }
+    setViewportMargins(0, 0, 0, 0);
+    delete _lineNumberArea;
+    _lineNumberArea = nullptr;
 }
 
 
@@ -229,7 +273,7 @@ void TextEdit::keyPressEvent(QKeyEvent *event)
             return;
         }
 
-        QString indentation = _tabReplace ? "    " : QString(QChar (QChar::Tabulation));
+        QString indentation = _tabReplace ? _spaces : QString(QChar (QChar::Tabulation));
 
         QTextCursor cur = textCursor();
         QString selection = cur.selectedText();
@@ -265,7 +309,7 @@ void TextEdit::keyPressEvent(QKeyEvent *event)
         while (!cur.atBlockEnd()) {
             cur.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
             QString sel = cur.selectedText();
-            if (sel != " " && sel != "\t") {
+            if (sel != QString(QChar(QChar::Space)) && sel != QString(QChar(QChar::Tabulation)) ) {
                 break;
             }
             indentation.append(sel);
@@ -310,9 +354,6 @@ void TextEdit::highlightCurrentLine()
 
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
-
-//        QColor lineColor = QColor(Qt::yellow).lighter(160);
-
         selection.format.setBackground(_highlightLineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
@@ -355,7 +396,7 @@ QColor TextEdit::highlightLineColor()
 
 void TextEdit::setTabsCount(int tabsCount)
 {
-    _spaces = "";
+    _spaces.clear();
     for (int i = 0; i < tabsCount; i++) {
         _spaces.append( QChar(QChar::Space) );
     }

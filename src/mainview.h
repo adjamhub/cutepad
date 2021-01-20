@@ -19,9 +19,6 @@
 #include "searchbar.h"
 #include "replacebar.h"
 
-#include <KSyntaxHighlighting/Repository>
-#include <KSyntaxHighlighting/SyntaxHighlighter>
-
 
 class MainView : public QWidget
 {
@@ -34,13 +31,8 @@ public:
         return _textEdit;
     }
 
-    // enable syntax highlighting
-    void syntaxHighlightForFile(const QString & path);
-
     bool isSearchBarActive();
     bool isReplaceBarActive();
-
-    inline QString language() const { return _lang; };
 
     QTextCodec* textCodec();
     void setTextCodec(QTextCodec* codec);
@@ -67,10 +59,6 @@ private:
     SearchBar* _searchBar;
     ReplaceBar* _replaceBar;
 
-    KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
-    KSyntaxHighlighting::Repository* _highlightRepo;
-
-    QString _lang;
     QTextCodec* _textCodec;
 };
 

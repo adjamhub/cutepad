@@ -14,6 +14,9 @@
 
 #include <QPlainTextEdit>
 
+#include <KSyntaxHighlighting/Repository>
+#include <KSyntaxHighlighting/SyntaxHighlighter>
+
 
 class TextEdit : public QPlainTextEdit
 {
@@ -22,7 +25,12 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
 
-    // 0 = hide (default), 1 = show, 2 = smart
+    // enable syntax highlighting
+    void syntaxHighlightForFile(const QString & path);
+
+    inline QString language() const { return _language; };
+
+    // 0 = hide (default), 1 = show, 2 = smart (show with code, hide with plain text)
     void setLineNumbersMode(int mode);
     int lineNumbersMode();
 
@@ -44,6 +52,7 @@ public:
     
 public slots:
     void enableTabReplacement(bool on);
+    void updateLineNumbersMode();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -56,6 +65,11 @@ private slots:
 
 private:
     QWidget* _lineNumberArea;
+
+    KSyntaxHighlighting::SyntaxHighlighter* _highlighter;
+    KSyntaxHighlighting::Repository* _highlightRepo;
+
+    QString _language;
 
     int _lineNumbersMode;
     

@@ -152,7 +152,7 @@ void MainWindow::loadFilePath(const QString &path)
     _view->setTextCodec(cod);
     QString fileText = in.readAll();
     _view->textEdit()->setPlainText(fileText);
-    _view->syntaxHighlightForFile(path);
+    _view->textEdit()->syntaxHighlightForFile(path);
     setCurrentFilePath(path);
 
     QGuiApplication::restoreOverrideCursor();
@@ -180,7 +180,7 @@ void MainWindow::saveFilePath(const QString &path)
     out << encodedString;
     file.close();
 
-    _view->syntaxHighlightForFile(path);
+    _view->textEdit()->syntaxHighlightForFile(path);
 
     QGuiApplication::restoreOverrideCursor();
 
@@ -664,7 +664,7 @@ void MainWindow::showManual()
 
 void MainWindow::updateStatusBar()
 {
-    _statusBar->setLanguage(_view->language());
+    _statusBar->setLanguage(_view->textEdit()->language());
 
     int row = _view->textEdit()->textCursor().blockNumber();
     int col = _view->textEdit()->textCursor().positionInBlock();
