@@ -7,17 +7,23 @@ Cutepad (Qt notepad) is a lightweight plain-text editor based on Qt libraries.
 It has some basic features, like cut-copy-paste, printing and some notable ones:
 
 * syntax highligthing (based on KF5 Syntax Highlighting library)
+
 * text zoom (NOT saved in settings, will be resetted on every restart)
+
 * full screen work
+
 * find && replace widgets
-* The OPTIONS "optional" features:
-    * line numbers
-    * current line highlight
-    * tab replacement (with 4 spaces), useful when programming
+
+* current line highlight (with your preferred color)
+
+* line numbers 
+  (also in "smart mode, that is automatically enabled when working on code, disabled on plain text)
+
+* tab replacement (with 4 spaces as default, changeable in the settings), useful when programming
+
 * This MANUAL
 
 And that's it! Ah... it also... WRITES plain-text files!!!
 In fact this MANUAL has been written with Cutepad ;)
 
 adjam
-
