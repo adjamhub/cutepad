@@ -393,8 +393,6 @@ void MainWindow::setupActions()
         QAction *action = new QAction(name, this);
         action->setData(QVariant(name));
         connect(action, &QAction::triggered, this, &MainWindow::encode);
-        qDebug() << "mib: " << mib;
-        qDebug() << "name: " << name;
         if (name.startsWith("UTF-")) {
             unicodeMenu->addAction(action);
         } else

@@ -21,7 +21,7 @@ MainView::MainView (QWidget *parent)
     , _textEdit(new TextEdit(this))
     , _searchBar(new SearchBar(this))
     , _replaceBar(new ReplaceBar(this))
-    , _textCodec(nullptr)
+    , _textCodec( QTextCodec::codecForLocale() )
 {
     // The UI
     auto layout = new QVBoxLayout;
