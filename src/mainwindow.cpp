@@ -40,6 +40,11 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
     setCentralWidget(_view);
 
+    // restore geometry and state
+    QSettings s;
+    restoreGeometry( s.value("geometry").toByteArray() );
+    restoreState( s.value("myWidget/windowState").toByteArray() );
+
     // we need to load settings BEFORE setup actions,
     // to SET initial states
     loadSettings();
@@ -57,24 +62,14 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->addWidget(_statusBar);
     connect(_view->textEdit(), &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::updateStatusBar);
 
-    // last, remember to save settings on exit
-    connect(qApp, &QCoreApplication::aboutToQuit, this, &MainWindow::saveSettings);
     updateStatusBar();
 }
 
 
 void MainWindow::loadSettings()
 {
-    qDebug() << "window id: " << winId() << "loading settings";
-
     // the settings object
     QSettings s;
-
-    // size and position
-    QSize size = s.value("size", QSize(800,600)).toSize();
-    resize(size);
-    QPoint pos = s.value("pos", QPoint(50,50)).toPoint();
-    move(pos);
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
@@ -103,19 +98,6 @@ void MainWindow::loadSettings()
     _view->textEdit()->setFont(font);
     QFontMetrics fm(font);
     _view->textEdit()->setTabStopDistance( fm.horizontalAdvance( QChar(QChar::Space) ) * tabsCount );
-}
-
-
-void MainWindow::saveSettings()
-{
-    qDebug() << "window id: " << winId() << "saving settings";
-
-    // the settings object
-    QSettings s;
-
-    // size and dimensions
-    s.setValue("size", size() );
-    s.setValue("pos", pos() );
 }
 
 
@@ -225,7 +207,10 @@ bool MainWindow::exitAfterSaving()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (exitAfterSaving()) {
-        saveSettings();
+        QSettings s;
+        s.setValue("geometry", saveGeometry());
+        s.setValue("windowState", saveState());
+
         event->accept();
         return;
     }

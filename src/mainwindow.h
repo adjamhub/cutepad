@@ -31,9 +31,7 @@ public:
         return _view;
     }
     
-    // load & save settings automagically
     void loadSettings();
-    void saveSettings();
 
     // needed to position next windows
     void tile(const QMainWindow *previous);
