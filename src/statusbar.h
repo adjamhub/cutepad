@@ -25,11 +25,13 @@ public:
     void setLanguage(const QString& lang);
     void setPosition(int row, int col);
     void setCodec(const QString& codec);
-    
+    void setZoom(const QString& zoom);
+
 private:
     QLabel* _langLabel;
     QLabel* _posLabel;
     QLabel* _codecLabel;
+    QLabel* _zoomLabel;
 };
 
 #endif

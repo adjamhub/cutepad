@@ -17,6 +17,7 @@ StatusBar::StatusBar(QWidget *parent)
     , _langLabel(new QLabel(this))
     , _posLabel(new QLabel(this))
     , _codecLabel(new QLabel(this))
+    , _zoomLabel(new QLabel(this))
 {
     // The UI
     auto layout = new QHBoxLayout;
@@ -24,6 +25,7 @@ StatusBar::StatusBar(QWidget *parent)
     layout->addWidget (_posLabel);
     layout->addWidget (_langLabel);
     layout->addWidget (_codecLabel);
+    layout->addWidget (_zoomLabel);
     setLayout (layout);
 }
 
@@ -56,4 +58,12 @@ void StatusBar::setCodec(const QString& codec)
     _codecLabel->setText(msg);
 }
 
+
+void StatusBar::setZoom(const QString& zoom)
+{
+    QString msg;
+    msg += "&nbsp;&nbsp;<b>Zoom: </b>";
+    msg += zoom;
+    _zoomLabel->setText(msg);
+}
     

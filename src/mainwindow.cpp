@@ -98,7 +98,7 @@ void MainWindow::loadSettings()
     int fontSize = s.value("fontSize", 12).toInt();
     int fontWeight = s.value("fontWeight", 50).toInt();
     bool italic = s.value("fontItalic", false).toBool();
-    QFont font(fontFamily,fontSize, fontWeight);
+    QFont font(fontFamily,fontSize + _zoomRange, fontWeight);
     font.setItalic(italic);
     _view->textEdit()->setFont(font);
     QFontMetrics fm(font);
@@ -599,6 +599,7 @@ void MainWindow::onZoomIn()
 {
     _zoomRange++;
     _view->textEdit()->zoomIn();
+    updateStatusBar();
 }
 
 
@@ -606,6 +607,7 @@ void MainWindow::onZoomOut()
 {
     _zoomRange--;
     _view->textEdit()->zoomOut();
+    updateStatusBar();
 }
 
 
@@ -617,6 +619,7 @@ void MainWindow::onZoomOriginal()
         _view->textEdit()->zoomIn( _zoomRange * -1 );
     }
     _zoomRange = 0;
+    updateStatusBar();
 }
 
 
@@ -674,6 +677,13 @@ void MainWindow::updateStatusBar()
         codecText = cod->name();
     }
     _statusBar->setCodec(codecText);
+
+    QString zoomText = "100%";
+    if (_zoomRange != 0) {
+        int z = 100 + _zoomRange * 10;
+        zoomText = QString::number(z) + "%";
+    }
+    _statusBar->setZoom(zoomText);
 }
 
 
