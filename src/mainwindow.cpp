@@ -135,6 +135,7 @@ void MainWindow::loadFilePath(const QString &path)
     QString fileText = in.readAll();
     _view->textEdit()->setPlainText(fileText);
     _view->textEdit()->syntaxHighlightForFile(path);
+    _view->textEdit()->updateLineNumbersMode();
     setCurrentFilePath(path);
 
     QGuiApplication::restoreOverrideCursor();
@@ -163,6 +164,7 @@ void MainWindow::saveFilePath(const QString &path)
     file.close();
 
     _view->textEdit()->syntaxHighlightForFile(path);
+    _view->textEdit()->updateLineNumbersMode();
 
     QGuiApplication::restoreOverrideCursor();
 
