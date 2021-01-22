@@ -471,6 +471,7 @@ void MainWindow::setupActions()
     // Create and set the MAIN TOOLBAR
 
     QToolBar* mainToolbar = addToolBar("Main Toolbar");
+    mainToolbar->setObjectName("Main Toolbar");
 
     mainToolbar->addAction(actionNew);
     mainToolbar->addAction(actionOpen);
