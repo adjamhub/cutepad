@@ -120,6 +120,12 @@ void TextEdit::updateLineNumbersMode()
         break;
     }
 
+    bool enabled = _lineNumberArea;
+    if (enable == enabled) {
+        qDebug() << "we'd like to enable/disable line numbers but they just are...";
+        return;
+    }
+
     // show
     if (enable) {
         _lineNumberArea = new LineNumberArea(this);
