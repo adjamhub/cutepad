@@ -16,16 +16,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_MINIMUM_VERSION "5.14.0")
 
 find_package(Qt5 "${QT_MINIMUM_VERSION}" COMPONENTS REQUIRED
-                Core
-                Gui
-                Widgets
-                PrintSupport
+    Core
+    Gui
+    Widgets
+    PrintSupport
 )
 
 # KF5 things --------------------------------------------------------------
 set(KF5_MINIMUM_VERSION "5.68.0")
 
-find_package(ECM "${KF5_MINIMUM_VERSION}" CONFIG REQUIRED)
+find_package(ECM "${KF5_MINIMUM_VERSION}" REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 
@@ -35,11 +35,11 @@ include(FeatureSummary)
 
 ## Generate header with version number
 ecm_setup_version(${CUTEPAD_VERSION}
-                  VARIABLE_PREFIX CUTEPAD
-                  VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/version.h"
+    VARIABLE_PREFIX CUTEPAD
+    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/version.h"
 )
 
-find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}")
+find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}" REQUIRED)
 
 
 # Compile && Link ---------------------------------------------------------
@@ -56,12 +56,12 @@ add_executable(cutepad
 )
 
 target_link_libraries(cutepad PRIVATE 
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::PrintSupport
-        # ----------------------
-        KF5::SyntaxHighlighting
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::PrintSupport
+    # ----------------------
+    KF5::SyntaxHighlighting
 )
 
 # INSTALL ----------------------------------------------------------------
