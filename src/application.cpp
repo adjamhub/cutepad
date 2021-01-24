@@ -11,13 +11,17 @@
 
 #include "application.h"
 #include "mainwindow.h"
+#include "cutepadadaptor.h"
 
 #include <QCommandLineParser>
 
+#include <QDBusConnection>
+#include <QDBusAbstractAdaptor>
 
 Application::Application(int &argc, char *argv[])
     : QApplication(argc,argv)
 {
+    new CutepadAdaptor(this);
 }
 
 
@@ -35,9 +39,15 @@ void Application::parseCommandlineArgs()
     parser.addPositionalArgument("file", "The file(s) to open.");
     parser.process(*this);
 
-    MainWindow *mainWin = nullptr;
     const QStringList posArgs = parser.positionalArguments();
-    for (const QString &file : posArgs) {
+    loadPaths(posArgs);
+}
+
+
+void Application::loadPaths(const QStringList& paths)
+{
+    MainWindow *mainWin = nullptr;
+    for (const QString &file : paths) {
         MainWindow *newWin = new MainWindow;
         newWin->tile(mainWin);
         newWin->show();

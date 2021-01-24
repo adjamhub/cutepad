@@ -20,6 +20,7 @@ find_package(Qt5 "${QT_MINIMUM_VERSION}" COMPONENTS REQUIRED
     Gui
     Widgets
     PrintSupport
+    DBus
 )
 
 # KF5 things --------------------------------------------------------------
@@ -46,6 +47,7 @@ find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}" REQUIRED)
 add_executable(cutepad
     src/main.cpp
     src/application.cpp
+    src/cutepadadaptor.cpp
     src/mainview.cpp
     src/mainwindow.cpp
     src/replacebar.cpp
@@ -60,6 +62,7 @@ target_link_libraries(cutepad PRIVATE
     Qt5::Gui
     Qt5::Widgets
     Qt5::PrintSupport
+    Qt5::DBus
     # ----------------------
     KF5::SyntaxHighlighting
 )

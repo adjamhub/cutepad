@@ -12,6 +12,7 @@
 
 
 #include <QApplication>
+#include <QStringList>
 
 
 class Application : public QApplication
@@ -23,6 +24,7 @@ public:
     ~Application();
 
     void parseCommandlineArgs();
+    void loadPaths(const QStringList& paths);
 };
 
 #endif // APPLICATION_H
