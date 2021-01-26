@@ -79,7 +79,6 @@ void MainWindow::loadSettings()
     _view->textEdit()->setHighlightLineColor(highlightLineColor);
 
     int lineNumbers = s.value("LineNumbers", 0).toInt();
-    qDebug() << "line numbers mode:" << lineNumbers;
     _view->textEdit()->setLineNumbersMode(lineNumbers);
 
     bool tabReplace = s.value("TabReplace", false).toBool();

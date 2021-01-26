@@ -88,7 +88,8 @@ void SettingsDialog::loadSettings()
     KSyntaxHighlighting::Repository repo;
     QVector<KSyntaxHighlighting::Theme> themes = repo.themes();
     QStringList themeNames;
-    themeNames << "No Theme";
+    // FIXME: implement ability to disable theming
+    // themeNames << "No Theme";
     for(int i = 0; i < themes.size(); i++) {
         QString n = themes.at(i).name();
         themeNames << n;

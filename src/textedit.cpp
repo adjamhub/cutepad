@@ -133,7 +133,6 @@ void TextEdit::updateLineNumbersMode()
 
     bool enabled = _lineNumberArea;
     if (enable == enabled) {
-        qDebug() << "we'd like to enable/disable line numbers but they just are...";
         return;
     }
 
