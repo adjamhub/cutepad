@@ -61,11 +61,12 @@ void SettingsDialog::loadSettings()
 
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
     ui->highlightCurrentLineCheckBox->setChecked(highlight);
-    
+
     QColor highlightLineColor = s.value("HighlightLineColor", QColor(Qt::yellow).lighter(160)).value<QColor>();
     QPalette p = ui->lineColorButton->palette();
     p.setColor(QPalette::Button, highlightLineColor);
     ui->lineColorButton->setPalette(p);
+    ui->lineColorButton->setEnabled(highlight);
 
     bool tabReplace = s.value("TabReplace", false).toBool();
     ui->replaceTabsWithSpacesCheckBox->setChecked(tabReplace);
@@ -114,6 +115,7 @@ void SettingsDialog::saveSettings()
 
     bool highlight = ui->highlightCurrentLineCheckBox->isChecked();
     s.setValue("CurrentLineHighlight", highlight);
+    ui->lineColorButton->setEnabled(highlight);
     
     QPalette p = ui->lineColorButton->palette();
     QColor highlightLineColor = p.color(QPalette::Button);

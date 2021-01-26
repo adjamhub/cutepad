@@ -174,6 +174,7 @@ void TextEdit::enableCurrentLineHighlighting(bool on)
         connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
         return;
     }
+
     // else... hide!!!
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -400,7 +401,9 @@ void TextEdit::setHighlightLineColor(const QColor& color)
 {
     _highlightLineColor = color;
     
-    highlightCurrentLine();
+    if (_highlight) {
+        highlightCurrentLine();
+    }
 }
 
 
