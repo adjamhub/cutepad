@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>464</width>
-    <height>470</height>
+    <width>506</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,20 @@
         <string>font chosen</string>
        </property>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="shLabel">
+       <property name="text">
+        <string>Syntax Highlighting</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="syntaxHighlightingComboBox"/>
      </item>
     </layout>
    </item>

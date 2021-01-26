@@ -35,10 +35,6 @@ TextEdit::TextEdit(QWidget *parent)
 
 void TextEdit::syntaxHighlightForFile(const QString & path)
 {
-    _highlighter->setTheme((palette().color(QPalette::Base).lightness() < 128)
-                     ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
-                     : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme));
-
     const auto def = _highlightRepo->definitionForFileName(path);
     if (!def.isValid()) {
         qDebug() << "no valid definitions found :(";
@@ -50,6 +46,21 @@ void TextEdit::syntaxHighlightForFile(const QString & path)
 
     // consider moving to translatedName()
     _language = def.name();
+}
+
+
+void TextEdit::setSyntaxTheme(const QString &name)
+{
+    KSyntaxHighlighting::Theme theme = _highlightRepo->theme(name);
+    if (!theme.isValid()) {
+        theme = (palette().color(QPalette::Base).lightness() < 128)
+                     ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
+                     : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
+    }
+    _highlighter->setTheme(theme);
+    if (_language != "none") {
+        _highlighter->rehighlight();
+    }
 }
 
 

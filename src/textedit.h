@@ -28,6 +28,8 @@ public:
     // enable syntax highlighting
     void syntaxHighlightForFile(const QString & path);
 
+    void setSyntaxTheme(const QString &name);
+
     inline QString language() const { return _language; };
 
     // 0 = hide (default), 1 = show, 2 = smart (show with code, hide with plain text)
