@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     Application app(argc,argv);
     
     app.setApplicationName(PROJECT_NAME);
-    app.setApplicationVersion(PROJECT_VER);
+    app.setApplicationVersion(PROJECT_VERSION);
     app.setOrganizationName("adjam");
     app.setOrganizationDomain("adjam.org");
 
