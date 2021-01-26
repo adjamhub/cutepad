@@ -6,9 +6,6 @@
  * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
 
-
-#include "version.h"
-
 #include "application.h"
 #include "mainwindow.h"
 #include "cutepadadaptor.h"
@@ -17,6 +14,7 @@
 
 #include <QDBusConnection>
 #include <QDBusAbstractAdaptor>
+
 
 Application::Application(int &argc, char *argv[])
     : QApplication(argc,argv)

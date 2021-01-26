@@ -9,7 +9,7 @@
 
 #include "application.h"
 
-#include "version.h"
+#include "config.h"
 
 #include <QDBusConnection>
 #include <QDBusInterface>
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
 
     Application app(argc,argv);
     
-    app.setApplicationName("cutepad");
-    app.setApplicationVersion(CUTEPAD_VERSION_STRING);
+    app.setApplicationName(PROJECT_NAME);
+    app.setApplicationVersion(PROJECT_VER);
     app.setOrganizationName("adjam");
     app.setOrganizationDomain("adjam.org");
 

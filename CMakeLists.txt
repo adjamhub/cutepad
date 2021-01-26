@@ -1,7 +1,5 @@
+# CMake things ------------------------------------------------------------
 cmake_minimum_required(VERSION 3.16)
-
-set(CUTEPAD_VERSION "0.0.5")
-project(cutepad VERSION ${CUTEPAD_VERSION} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -9,8 +7,18 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+include(FeatureSummary)
+
+
+# Project things ----------------------------------------------------------
+project(cutepad VERSION "0.0.5" LANGUAGES CXX)
+
+configure_file(config.h.in config.h)
+include_directories(${PROJECT_BINARY_BIN})
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 
 # Qt things ---------------------------------------------------------------
 set(QT_MINIMUM_VERSION "5.14.0")
@@ -23,22 +31,9 @@ find_package(Qt5 "${QT_MINIMUM_VERSION}" COMPONENTS REQUIRED
     DBus
 )
 
+
 # KF5 things --------------------------------------------------------------
 set(KF5_MINIMUM_VERSION "5.68.0")
-
-find_package(ECM "${KF5_MINIMUM_VERSION}" REQUIRED)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
-
-include(ECMSetupVersion)
-include(ECMAddAppIcon)
-include(FeatureSummary)
-
-## Generate header with version number
-ecm_setup_version(${CUTEPAD_VERSION}
-    VARIABLE_PREFIX CUTEPAD
-    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/version.h"
-)
 
 find_package(KF5SyntaxHighlighting "${KF5_MINIMUM_VERSION}" REQUIRED)
 
@@ -67,6 +62,7 @@ target_link_libraries(cutepad PRIVATE
     KF5::SyntaxHighlighting
 )
 
+
 # INSTALL ----------------------------------------------------------------
 install(TARGETS cutepad RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 
@@ -74,6 +70,7 @@ install(FILES data/cutepad.desktop     DESTINATION "${CMAKE_INSTALL_PREFIX}/shar
 install(FILES data/cutepad.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/metainfo")
 install(FILES LICENSE                  DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
 install(FILES data/MANUAL              DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
+
 
 # --------------------------------------------------------------------------
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
