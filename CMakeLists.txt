@@ -14,7 +14,7 @@ include(FeatureSummary)
 project(cutepad VERSION "0.0.5" LANGUAGES CXX)
 
 configure_file(config.h.in config.h)
-include_directories(${PROJECT_BINARY_BIN})
+include_directories(${CMAKE_CURRENT_BINARY_BIN})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
