@@ -406,7 +406,7 @@ void MainWindow::setupActions()
     encodingsMenu->addMenu(othersMenu);
     
     // SETTINGS
-    QAction* actionShowSettings = new QAction("Settings", this);
+    QAction* actionShowSettings = new QAction( QIcon::fromTheme("settings-configure"), "Settings", this);
     connect(actionShowSettings, &QAction::triggered, this, &MainWindow::showSettings);
 
     // about actions -----------------------------------------------------------------------------------------------------------
@@ -415,11 +415,11 @@ void MainWindow::setupActions()
     connect(actionShowManual, &QAction::triggered, this, &MainWindow::showManual);
     
     // ABOUT Qt
-    QAction* actionAboutQt = new QAction("About Qt", this );
+    QAction* actionAboutQt = new QAction( QIcon::fromTheme("qtlogo"), "About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
 
     // ABOUT
-    QAction* actionAboutApp = new QAction("About", this );
+    QAction* actionAboutApp = new QAction( QIcon::fromTheme("help-about"), "About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
     // ------------------------------------------------------------------------------------------------------------------------
