@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Andrea Diamantini 2020 <adjam@protonmail.com>
+ * Copyright (C) Andrea Diamantini 2020-2021 <adjam@protonmail.com>
  *
  * CutePad project
  *

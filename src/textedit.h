@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Andrea Diamantini 2020 <adjam@protonmail.com>
+ * Copyright (C) Andrea Diamantini 2020-2021 <adjam@protonmail.com>
  * Based on CodeEditor Example: https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
  *
  * CutePad project

@@ -1,10 +1,9 @@
 /*
- * Copyright (C) Pedram Pourang (aka Tsu Jan) 2014-2020 <tsujan2000@gmail.com>
- * Copyright (C) Andrea Diamantini 2020 <adjam@protonmail.com>
+ * Copyright (C) Andrea Diamantini 2020-2021 <adjam@protonmail.com>
  *
  * CutePad project
  *
- * @license GPL-3.0+ <https://spdx.org/licenses/GPL-3.0+.html>
+ * @license GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>
  */
 
 
