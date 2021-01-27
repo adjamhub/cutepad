@@ -630,9 +630,17 @@ void MainWindow::about()
 {
     QString version = qApp->applicationVersion();
 
-    QMessageBox::about(this,
-                       "About cutepad",
-                        "cutepad " + version + "\n\nThe Qt pad ;)\nJust an easy plain text editor, based on Qt libraries");
+    QString aboutText = "";
+    aboutText += "<h1>Cutepad " + version + "</h1>";
+    aboutText += "<p>";
+    aboutText += "The Qt pad ;)<br>Just an easy plain text editor, based on Qt libraries";
+    aboutText += "</p><p>";
+    aboutText += "(c) 2020-2021 <a href='mailto:adjam@protonmail.com'>Andrea Diamantini</a> (adjam)";
+    aboutText += "</p>";
+    aboutText += "<a href='https://github.com/adjamhub/cutepad'>https://github.com/adjamhub/cutepad</a>";
+    aboutText += "<br>";
+
+    QMessageBox::about(this, "About cutepad", aboutText);
 }
 
 
