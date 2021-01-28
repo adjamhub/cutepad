@@ -29,6 +29,12 @@ Application::~Application()
 }
 
 
+Application *Application::instance()
+{
+    return (qobject_cast<Application *>(QCoreApplication::instance()));
+}
+
+
 void Application::parseCommandlineArgs()
 {
     QCommandLineParser parser;
@@ -45,16 +51,32 @@ void Application::parseCommandlineArgs()
 
 void Application::loadPaths(const QStringList& paths)
 {
-    MainWindow *mainWin = nullptr;
-    for (const QString &file : paths) {
-        MainWindow *newWin = new MainWindow;
-        newWin->tile(mainWin);
-        newWin->show();
-        newWin->loadFilePath(file);
-        mainWin = newWin;
+    if (paths.isEmpty()) {
+        loadPath("");
+        return;
     }
 
-    if (!mainWin)
-        mainWin = new MainWindow;
+    for (const QString &file : paths) {
+        loadPath(file);
+    }
+}
+
+
+void Application::loadPath(const QString& path)
+{
+    MainWindow *mainWin = new MainWindow;
+    _windows.append(mainWin);
     mainWin->show();
+
+    if (!path.isEmpty()) {
+        mainWin->loadFilePath(path);
+    }
+}
+
+
+void Application::loadSettings()
+{
+    for (MainWindow* win : qAsConst(_windows)) {
+        win->loadSettings();
+    }
 }

@@ -12,7 +12,11 @@
 
 
 #include <QApplication>
+#include <QList>
 #include <QStringList>
+
+
+class MainWindow;
 
 
 class Application : public QApplication
@@ -23,8 +27,16 @@ public:
     Application(int &argc, char *argv[]);
     ~Application();
 
+    static Application* instance();
+
     void parseCommandlineArgs();
     void loadPaths(const QStringList& paths);
+    void loadPath(const QString& path);
+
+    void loadSettings();
+
+private:
+    QList<MainWindow*> _windows;
 };
 
 #endif // APPLICATION_H

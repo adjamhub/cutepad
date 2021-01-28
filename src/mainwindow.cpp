@@ -8,9 +8,9 @@
 
 
 #include "mainwindow.h"
+#include "application.h"
 #include "settingsdialog.h"
 
-#include <QApplication>
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QMenu>
@@ -544,9 +544,7 @@ void MainWindow::setCurrentFilePath(const QString& path)
 
 void MainWindow::newWindow()
 {
-    MainWindow *other = new MainWindow;
-    other->tile(this);
-    other->show();
+    Application::instance()->loadPath("");
 }
 
 
@@ -741,7 +739,7 @@ void MainWindow::showSettings()
     dialog->exec();
     dialog->deleteLater();
 
-    loadSettings();
+    Application::instance()->loadSettings();
 }
 
 
