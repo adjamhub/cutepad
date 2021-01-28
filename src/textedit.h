@@ -31,9 +31,6 @@ public:
     QTextCodec* textCodec();
     void setTextCodec(QTextCodec* codec);
 
-    // enable syntax highlighting
-    void syntaxHighlightForFile(const QString & path);
-
     void setSyntaxTheme(const QString &name);
 
     inline QString language() const { return _language; };
@@ -65,6 +62,10 @@ public slots:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+
+private:
+    // enable syntax highlighting
+    void syntaxHighlightForFile(const QString & path);
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);

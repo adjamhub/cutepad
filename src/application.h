@@ -30,10 +30,12 @@ public:
     static Application* instance();
 
     void parseCommandlineArgs();
+
     void loadPaths(const QStringList& paths);
     void loadPath(const QString& path);
 
     void removeWindowFromList(MainWindow* w);
+
     void loadSettings();
 
 private:
