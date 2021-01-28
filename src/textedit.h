@@ -25,6 +25,9 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
 
+    void loadFilePath(const QString & path);
+    void saveFilePath(const QString & path);
+
     QTextCodec* textCodec();
     void setTextCodec(QTextCodec* codec);
 
@@ -39,7 +42,7 @@ public:
     void setLineNumbersMode(int mode);
     int lineNumbersMode();
 
-    void enableCurrentLineHighlighting(bool on);
+    void setCurrentLineHighlightingEnabled(bool on);
     bool isCurrentLineHighlightingEnabled();
 
     void setHighlightLineColor(const QColor& color);

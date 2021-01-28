@@ -35,6 +35,12 @@ Application *Application::instance()
 }
 
 
+void Application::removeWindowFromList(MainWindow* w)
+{
+    _windows.removeOne(w);
+}
+
+
 void Application::parseCommandlineArgs()
 {
     QCommandLineParser parser;

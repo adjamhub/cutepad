@@ -17,6 +17,7 @@
 #include <QPainter>
 #include <QTextBlock>
 #include <QTextCodec>
+#include <QTextStream>
 
 #include <QDebug>
 
@@ -32,6 +33,46 @@ TextEdit::TextEdit(QWidget *parent)
     , _tabReplace(false)
     , _textCodec( QTextCodec::codecForLocale() )
 {
+}
+
+
+void TextEdit::loadFilePath(const QString & path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error", "Cannot open file. Not readable");
+        return;
+    }
+
+    QTextStream in(&file);
+    QTextCodec* cod = in.codec();
+    setTextCodec(cod);
+
+    QString fileText = in.readAll();
+    setPlainText(fileText);
+    syntaxHighlightForFile(path);
+    updateLineNumbersMode();
+    checkTabSpaceReplacementNeeded();
+}
+
+
+void TextEdit::saveFilePath(const QString & path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Error", "Cannot save file. Not writable");
+        return;
+    }
+
+    QString content = toPlainText();
+    QByteArray encodedString = _textCodec->fromUnicode(content);
+
+    QTextStream out(&file);
+    out << encodedString;
+    file.close();
+
+    syntaxHighlightForFile(path);
+    updateLineNumbersMode();
 }
 
 
@@ -178,7 +219,7 @@ int TextEdit::lineNumbersMode()
 }
 
 
-void TextEdit::enableCurrentLineHighlighting(bool on)
+void TextEdit::setCurrentLineHighlightingEnabled(bool on)
 {
     if (_highlight == on)
         return;

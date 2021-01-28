@@ -94,7 +94,7 @@ void MainWindow::loadSettings()
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
-    _textEdit->enableCurrentLineHighlighting(highlight);
+    _textEdit->setCurrentLineHighlightingEnabled(highlight);
 
     QColor highlightLineColor = s.value("HighlightLineColor", QColor(Qt::yellow).lighter(160)).value<QColor>();
     _textEdit->setHighlightLineColor(highlightLineColor);
@@ -145,51 +145,19 @@ void MainWindow::tile(const QMainWindow *previous)
 
 void MainWindow::loadFilePath(const QString &path)
 {
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Error", "Cannot open file. Not readable");
-        return;
-    }
-
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
-    QTextStream in(&file);
-    QTextCodec* cod = in.codec();
-    _textEdit->setTextCodec(cod);
-    QString fileText = in.readAll();
-    _textEdit->setPlainText(fileText);
-    _textEdit->syntaxHighlightForFile(path);
-    _textEdit->updateLineNumbersMode();
-    setCurrentFilePath(path);
-
+    _textEdit->loadFilePath(path);
     QGuiApplication::restoreOverrideCursor();
 
-    _textEdit->checkTabSpaceReplacementNeeded();
+    setCurrentFilePath(path);
     updateStatusBar();
 }
 
 
 void MainWindow::saveFilePath(const QString &path)
 {
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::critical(this, "Error", "Cannot save file. Not writable");
-        return;
-    }
-
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-
-    QString content = _textEdit->toPlainText();
-    QTextCodec* codec = _textEdit->textCodec();
-    QByteArray encodedString = codec->fromUnicode(content);
-    
-    QTextStream out(&file);
-    out << encodedString;
-    file.close();
-
-    _textEdit->syntaxHighlightForFile(path);
-    _textEdit->updateLineNumbersMode();
-
+    _textEdit->saveFilePath(path);
     QGuiApplication::restoreOverrideCursor();
 
     setCurrentFilePath(path);
@@ -237,6 +205,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         s.setValue("geometry", saveGeometry());
         s.setValue("windowState", saveState());
 
+        Application::instance()->removeWindowFromList(this);
         event->accept();
         return;
     }
