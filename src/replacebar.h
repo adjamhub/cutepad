@@ -15,7 +15,7 @@
 #include <QLineEdit>
 
 
-class MainView;
+class MainWindow;
 
 
 class ReplaceBar : public QWidget
@@ -33,7 +33,7 @@ private slots:
     void replaceAll();
 
 private:
-    friend class MainView;
+    friend class MainWindow;
 
     QLineEdit* _replaceLineEdit;
 };

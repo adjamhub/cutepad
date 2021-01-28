@@ -13,7 +13,9 @@
 
 #include <QMainWindow>
 
-#include "mainview.h"
+#include "textedit.h"
+#include "searchbar.h"
+#include "replacebar.h"
 #include "statusbar.h"
 
 class QCloseEvent;
@@ -27,10 +29,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
-    MainView* view() {
-        return _view;
-    }
-    
     void loadSettings();
 
     // needed to position next windows
@@ -74,8 +72,22 @@ private slots:
     void updateStatusBar();
     void encode();
 
+    void showSearchBar();
+    void showReplaceBar();
+
+    void search(const QString & search,
+                bool forward = true,
+                bool casesensitive = false);
+
+    void replace(const QString &replace, bool justNext = true);
+
+signals:
+    void searchMessage(const QString &);
+
 private:
-    MainView* _view;
+    TextEdit* _textEdit;
+    SearchBar* _searchBar;
+    ReplaceBar* _replaceBar;
     StatusBar* _statusBar;
 
     QString _filePath;

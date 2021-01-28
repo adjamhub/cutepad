@@ -18,7 +18,7 @@
 #include <QLineEdit>
 
 
-class MainView;
+class MainWindow;
 
 
 class SearchBar : public QWidget
@@ -41,7 +41,7 @@ private slots:
     void findForward();
 
 private:
-    friend class MainView;
+    friend class MainWindow;
 
     QLineEdit* _findLineEdit;
 

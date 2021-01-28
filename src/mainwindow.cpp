@@ -23,6 +23,7 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QToolBar>
+#include <QVBoxLayout>
 
 #include <QDebug>
 
@@ -32,13 +33,31 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , _view(new MainView(this))
+    , _textEdit(new TextEdit(this))
+    , _searchBar(new SearchBar(this))
+    , _replaceBar(new ReplaceBar(this))
     , _statusBar(new StatusBar(this))
     , _filePath("")
     , _zoomRange(0)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setCentralWidget(_view);
+
+    // The UI
+    auto layout = new QVBoxLayout;
+    layout->setContentsMargins (0, 0, 0, 0);
+    layout->addWidget (_textEdit);
+    layout->addWidget (_searchBar);
+    layout->addWidget (_replaceBar);
+    centralWidget()->setLayout (layout);
+
+    // let's start with the hidden bar(s)
+    _searchBar->setVisible(false);
+    _replaceBar->setVisible(false);
+
+    connect(_searchBar, &SearchBar::search, this, &MainWindow::search);
+    connect(this, &MainWindow::searchMessage, _searchBar, &SearchBar::searchMessage);
+
+    connect(_replaceBar, &ReplaceBar::replace, this, &MainWindow::replace);
 
     // restore geometry and state
     QSettings s;
@@ -55,12 +74,12 @@ MainWindow::MainWindow(QWidget *parent)
     QIcon appIcon = QIcon::fromTheme( "accessories-text-editor" );
     setWindowIcon(appIcon);
 
-    connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
+    connect(_textEdit->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
     setCurrentFilePath("");
 
     // take care of the statusbar
     statusBar()->addWidget(_statusBar);
-    connect(_view->textEdit(), &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::updateStatusBar);
+    connect(_textEdit, &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::updateStatusBar);
 
     updateStatusBar();
 }
@@ -73,19 +92,19 @@ void MainWindow::loadSettings()
 
     // options
     bool highlight = s.value("CurrentLineHighlight", false).toBool();
-    _view->textEdit()->enableCurrentLineHighlighting(highlight);
+    _textEdit->enableCurrentLineHighlighting(highlight);
 
     QColor highlightLineColor = s.value("HighlightLineColor", QColor(Qt::yellow).lighter(160)).value<QColor>();
-    _view->textEdit()->setHighlightLineColor(highlightLineColor);
+    _textEdit->setHighlightLineColor(highlightLineColor);
 
     int lineNumbers = s.value("LineNumbers", 0).toInt();
-    _view->textEdit()->setLineNumbersMode(lineNumbers);
+    _textEdit->setLineNumbersMode(lineNumbers);
 
     bool tabReplace = s.value("TabReplace", false).toBool();
-    _view->textEdit()->enableTabReplacement(tabReplace);
+    _textEdit->enableTabReplacement(tabReplace);
     
     int tabsCount = s.value("TabsCount", 4).toInt();
-    _view->textEdit()->setTabsCount(tabsCount);
+    _textEdit->setTabsCount(tabsCount);
 
     // font
     QString fontFamily = s.value("fontFamily", "Monospace").toString();
@@ -94,13 +113,13 @@ void MainWindow::loadSettings()
     bool italic = s.value("fontItalic", false).toBool();
     QFont font(fontFamily,fontSize + _zoomRange, fontWeight);
     font.setItalic(italic);
-    _view->textEdit()->setFont(font);
+    _textEdit->setFont(font);
     QFontMetrics fm(font);
-    _view->textEdit()->setTabStopDistance( fm.horizontalAdvance( QChar(QChar::Space) ) * tabsCount );
+    _textEdit->setTabStopDistance( fm.horizontalAdvance( QChar(QChar::Space) ) * tabsCount );
 
     // syntax highlight theme
     QString sht = s.value("SyntaxHightlightTheme", "Breeze Light").toString();
-    _view->textEdit()->setSyntaxTheme(sht);
+    _textEdit->setSyntaxTheme(sht);
 }
 
 
@@ -134,16 +153,16 @@ void MainWindow::loadFilePath(const QString &path)
 
     QTextStream in(&file);
     QTextCodec* cod = in.codec();
-    _view->textEdit()->setTextCodec(cod);
+    _textEdit->setTextCodec(cod);
     QString fileText = in.readAll();
-    _view->textEdit()->setPlainText(fileText);
-    _view->textEdit()->syntaxHighlightForFile(path);
-    _view->textEdit()->updateLineNumbersMode();
+    _textEdit->setPlainText(fileText);
+    _textEdit->syntaxHighlightForFile(path);
+    _textEdit->updateLineNumbersMode();
     setCurrentFilePath(path);
 
     QGuiApplication::restoreOverrideCursor();
 
-    _view->textEdit()->checkTabSpaceReplacementNeeded();
+    _textEdit->checkTabSpaceReplacementNeeded();
     updateStatusBar();
 }
 
@@ -158,16 +177,16 @@ void MainWindow::saveFilePath(const QString &path)
 
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
-    QString content = _view->textEdit()->toPlainText();
-    QTextCodec* codec = _view->textEdit()->textCodec();
+    QString content = _textEdit->toPlainText();
+    QTextCodec* codec = _textEdit->textCodec();
     QByteArray encodedString = codec->fromUnicode(content);
     
     QTextStream out(&file);
     out << encodedString;
     file.close();
 
-    _view->textEdit()->syntaxHighlightForFile(path);
-    _view->textEdit()->updateLineNumbersMode();
+    _textEdit->syntaxHighlightForFile(path);
+    _textEdit->updateLineNumbersMode();
 
     QGuiApplication::restoreOverrideCursor();
 
@@ -227,15 +246,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape) {
 
-        if (_view->isReplaceBarActive()) {
-            _view->hideSearchBar();
-            _view->hideReplaceBar();
+        if (_replaceBar->isVisible()) {
+            _searchBar->hide();
+            _replaceBar->hide();
             event->accept();
             return;
         }
 
-        if (_view->isSearchBarActive()) {
-            _view->hideSearchBar();
+        if (_searchBar->isVisible()) {
+            _searchBar->hide();
             event->accept();
             return;
         }
@@ -268,7 +287,7 @@ void MainWindow::setupActions()
     actionSave->setShortcut(QKeySequence::Save);
     connect(actionSave, &QAction::triggered, this, &MainWindow::saveFile);
     actionSave->setEnabled(false);
-    connect(_view->textEdit()->document(), &QTextDocument::modificationChanged, actionSave, &QAction::setEnabled);
+    connect(_textEdit->document(), &QTextDocument::modificationChanged, actionSave, &QAction::setEnabled);
 
     // SAVE AS
     QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
@@ -293,40 +312,40 @@ void MainWindow::setupActions()
     // UNDO
     QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
     actionUndo->setShortcut(QKeySequence::Undo);
-    connect(actionUndo, &QAction::triggered, _view->textEdit(), &TextEdit::undo );
+    connect(actionUndo, &QAction::triggered, _textEdit, &TextEdit::undo );
     actionUndo->setEnabled(false);
-    connect(_view->textEdit(), &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
+    connect(_textEdit, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
 
     // REDO
     QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
     actionRedo->setShortcut(QKeySequence::Redo);
-    connect(actionRedo, &QAction::triggered, _view->textEdit(), &TextEdit::redo );
+    connect(actionRedo, &QAction::triggered, _textEdit, &TextEdit::redo );
     actionRedo->setEnabled(false);
-    connect(_view->textEdit(), &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
+    connect(_textEdit, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     // CUT
     QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
     actionCut->setShortcut(QKeySequence::Cut);
-    connect(actionCut, &QAction::triggered, _view->textEdit(), &TextEdit::cut );
+    connect(actionCut, &QAction::triggered, _textEdit, &TextEdit::cut );
     actionCut->setEnabled(false);
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
+    connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
 
     // COPY
     QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
     actionCopy->setShortcut(QKeySequence::Copy);
-    connect(actionCopy, &QAction::triggered, _view->textEdit(), &TextEdit::copy );
+    connect(actionCopy, &QAction::triggered, _textEdit, &TextEdit::copy );
     actionCopy->setEnabled(false);
-    connect(_view->textEdit(), &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
+    connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
     // PASTE
     QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
     actionPaste->setShortcut(QKeySequence::Paste);
-    connect(actionPaste, &QAction::triggered,  _view->textEdit(), &TextEdit::paste );
+    connect(actionPaste, &QAction::triggered,  _textEdit, &TextEdit::paste );
 
     //SELECT ALL
     QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
     actionSelectAll->setShortcut(QKeySequence::SelectAll);
-    connect(actionSelectAll, &QAction::triggered, _view->textEdit(), &TextEdit::selectAll );
+    connect(actionSelectAll, &QAction::triggered, _textEdit, &TextEdit::selectAll );
 
     // view actions -----------------------------------------------------------------------------------------------------------
     // ZOOM IN
@@ -354,12 +373,12 @@ void MainWindow::setupActions()
     // FIND
     QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
-    connect(actionFind, &QAction::triggered, _view, &MainView::showSearchBar );
+    connect(actionFind, &QAction::triggered, this, &MainWindow::showSearchBar );
 
     // REPLACE
     QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
-    connect(actionReplace, &QAction::triggered, _view, &MainView::showReplaceBar );
+    connect(actionReplace, &QAction::triggered, this, &MainWindow::showReplaceBar );
 
     // option actions -----------------------------------------------------------------------------------------------------------
     // ENCODINGS
@@ -514,7 +533,7 @@ void MainWindow::setCurrentFilePath(const QString& path)
         _filePath = path;
     }
 
-    _view->textEdit()->document()->setModified(false);
+    _textEdit->document()->setModified(false);
     setWindowModified(false);
 
     setWindowFilePath(curFile);
@@ -581,7 +600,7 @@ void MainWindow::printFile()
     QPrinter printer;
     QPrintDialog printDialog(&printer, this);
     if (printDialog.exec() == QDialog::Accepted) {
-        _view->textEdit()->print(&printer);
+        _textEdit->print(&printer);
     }
 }
 
@@ -589,7 +608,7 @@ void MainWindow::printFile()
 void MainWindow::onZoomIn()
 {
     _zoomRange++;
-    _view->textEdit()->zoomIn();
+    _textEdit->zoomIn();
     updateStatusBar();
 }
 
@@ -597,7 +616,7 @@ void MainWindow::onZoomIn()
 void MainWindow::onZoomOut()
 {
     _zoomRange--;
-    _view->textEdit()->zoomOut();
+    _textEdit->zoomOut();
     updateStatusBar();
 }
 
@@ -605,9 +624,9 @@ void MainWindow::onZoomOut()
 void MainWindow::onZoomOriginal()
 {
     if (_zoomRange > 0) {
-        _view->textEdit()->zoomOut( _zoomRange );
+        _textEdit->zoomOut( _zoomRange );
     } else {
-        _view->textEdit()->zoomIn( _zoomRange * -1 );
+        _textEdit->zoomIn( _zoomRange * -1 );
     }
     _zoomRange = 0;
     updateStatusBar();
@@ -658,19 +677,19 @@ void MainWindow::showManual()
     other->tile(this);
     other->show();
     other->loadFilePath(manual);
-    other->view()->textEdit()->setReadOnly(true);
+    // FIXME other->view()->textEdit()->setReadOnly(true);
 }
 
 
 void MainWindow::updateStatusBar()
 {
-    _statusBar->setLanguage(_view->textEdit()->language());
+    _statusBar->setLanguage(_textEdit->language());
 
-    int row = _view->textEdit()->textCursor().blockNumber();
-    int col = _view->textEdit()->textCursor().positionInBlock();
+    int row = _textEdit->textCursor().blockNumber();
+    int col = _textEdit->textCursor().positionInBlock();
     _statusBar->setPosition(row,col);
 
-    QTextCodec* cod = _view->textEdit()->textCodec();
+    QTextCodec* cod = _textEdit->textCodec();
     QString codecText = "none";
     if (cod) {
         codecText = cod->name();
@@ -691,23 +710,23 @@ void MainWindow::encode()
     const QAction *action = qobject_cast<const QAction *>(sender());
     const QByteArray codecName = action->data().toByteArray();
     QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
-    QTextCodec* actualCodec = _view->textEdit()->textCodec();
+    QTextCodec* actualCodec = _textEdit->textCodec();
 
     if (codecName == actualCodec->name()) {
         qDebug() << "we are moving to the same codec. Aborting...";
         return;
     }
-    QString content = _view->textEdit()->toPlainText();
+    QString content = _textEdit->toPlainText();
 
     // FIXME: What about "state"???
     QByteArray encodedData = actualCodec->fromUnicode(content);
     QTextCodec::ConverterState state;
     QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
     
-    _view->textEdit()->setPlainText(decodedString);
-    _view->textEdit()->setTextCodec(targetCodec);
+    _textEdit->setPlainText(decodedString);
+    _textEdit->setTextCodec(targetCodec);
 
-    _view->textEdit()->document()->setModified(true);
+    _textEdit->document()->setModified(true);
     setWindowModified(true);
 
     updateStatusBar();
@@ -721,4 +740,129 @@ void MainWindow::showSettings()
     dialog->deleteLater();
 
     loadSettings();
+}
+
+
+void MainWindow::showSearchBar()
+{
+    if (_replaceBar->isVisible()) {
+        _replaceBar->hide();
+        return;
+    }
+
+    if (_searchBar->isVisible()) {
+        _searchBar->hide();
+        return;
+    }
+
+    _searchBar->show();
+
+    // if text is selected, copy to lineEdit
+    QString sel = _textEdit->textCursor().selectedText();
+    if (!sel.isEmpty()) {
+        _searchBar->_findLineEdit->setText(sel);
+    }
+
+    _searchBar->setFocus();
+}
+
+
+void MainWindow::showReplaceBar()
+{
+    if (_replaceBar->isVisible()) {
+        _searchBar->hide();
+        _replaceBar->hide();
+        return;
+    }
+
+    _searchBar->show();
+    _replaceBar->show();
+
+    // if text is selected, copy to FIND lineEdit
+    QString sel = _textEdit->textCursor().selectedText();
+    if (!sel.isEmpty()) {
+        _searchBar->_findLineEdit->setText(sel);
+    }
+
+    _replaceBar->setFocus();
+}
+
+
+void MainWindow::search(const QString & search, bool forward, bool casesensitive)
+{
+    QTextDocument::FindFlags flags;
+
+    if (!forward) {
+        flags |= QTextDocument::FindBackward;
+    }
+
+    if (casesensitive) {
+        flags |= QTextDocument::FindCaseSensitively;
+    }
+
+    bool found = _textEdit->find(search, flags);
+    if (!found) {
+        QTextCursor cur = _textEdit->textCursor();
+        if (forward) {
+            cur.movePosition(QTextCursor::Start);
+        } else {
+            cur.movePosition(QTextCursor::End);
+        }
+        _textEdit->setTextCursor(cur);
+        emit searchMessage("Search restarted");
+        found = _textEdit->find(search, flags);
+        if (!found) {
+            emit searchMessage("not found");
+            return;
+        }
+    }
+}
+
+
+void MainWindow::replace(const QString &replace, bool justNext)
+{
+    QString search = _searchBar->_findLineEdit->text();
+    bool matchCase = _searchBar->_caseCheckBox->isChecked();
+
+    if (search.isEmpty()) {
+        return;
+    }
+
+    Qt::CaseSensitivity cs = matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    QString content = _textEdit->toPlainText();
+
+    if (!justNext) {
+        content.replace(search, replace, cs);
+        _textEdit->setPlainText(content);
+        _textEdit->document()->setModified(true);
+        return;
+    }
+
+    QTextDocument::FindFlags flags;
+
+    if (matchCase) {
+        flags |= QTextDocument::FindCaseSensitively;
+    }
+
+    bool found = _textEdit->find(search, flags);
+    if (!found) {
+        QTextCursor cur = _textEdit->textCursor();
+        cur.movePosition(QTextCursor::Start);
+        _textEdit->setTextCursor(cur);
+        emit searchMessage("Search restarted");
+        found = _textEdit->find(search, flags);
+        if (!found) {
+            emit searchMessage("not found");
+            return;
+        }
+    }
+    int n = search.length();
+    int position = _textEdit->textCursor().position() - n;
+    content.replace(position, n, replace);
+    _textEdit->setPlainText(content);
+    _textEdit->document()->setModified(true);
+    QTextCursor cur = _textEdit->textCursor();
+    cur.setPosition(position + n);
+    _textEdit->setTextCursor(cur);
+    return;
 }
