@@ -43,12 +43,14 @@ MainWindow::MainWindow(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
 
     // The UI
+    QWidget* w = new QWidget(this);
     auto layout = new QVBoxLayout;
     layout->setContentsMargins (0, 0, 0, 0);
     layout->addWidget (_textEdit);
     layout->addWidget (_searchBar);
     layout->addWidget (_replaceBar);
-    centralWidget()->setLayout (layout);
+    w->setLayout (layout);
+    setCentralWidget(w);
 
     // let's start with the hidden bar(s)
     _searchBar->setVisible(false);
