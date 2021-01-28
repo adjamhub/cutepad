@@ -21,7 +21,6 @@ MainView::MainView (QWidget *parent)
     , _textEdit(new TextEdit(this))
     , _searchBar(new SearchBar(this))
     , _replaceBar(new ReplaceBar(this))
-    , _textCodec( QTextCodec::codecForLocale() )
 {
     // The UI
     auto layout = new QVBoxLayout;
@@ -108,19 +107,6 @@ void MainView::hideReplaceBar()
 bool MainView::isReplaceBarActive()
 {
     return _replaceBar->isVisible();
-}
-
-
-QTextCodec* MainView::textCodec()
-{
-    return _textCodec;
-}
-
-
-void MainView::setTextCodec(QTextCodec* codec)
-{
-    qDebug() << "using codec:" << codec->name();
-    _textCodec = codec;
 }
 
 

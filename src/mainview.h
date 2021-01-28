@@ -12,7 +12,6 @@
 
 
 #include <QWidget>
-#include <QTextCodec>
 
 #include "textedit.h"
 #include "searchbar.h"
@@ -32,9 +31,6 @@ public:
 
     bool isSearchBarActive();
     bool isReplaceBarActive();
-
-    QTextCodec* textCodec();
-    void setTextCodec(QTextCodec* codec);
 
 public slots:
     void showSearchBar();
@@ -57,8 +53,6 @@ private:
     TextEdit* _textEdit;
     SearchBar* _searchBar;
     ReplaceBar* _replaceBar;
-
-    QTextCodec* _textCodec;
 };
 
 

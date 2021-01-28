@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QTextBlock>
+#include <QTextCodec>
 
 #include <QDebug>
 
@@ -29,7 +30,21 @@ TextEdit::TextEdit(QWidget *parent)
     , _lineNumbersMode(0)
     , _highlight(false)
     , _tabReplace(false)
+    , _textCodec( QTextCodec::codecForLocale() )
 {
+}
+
+
+QTextCodec* TextEdit::textCodec()
+{
+    return _textCodec;
+}
+
+
+void TextEdit::setTextCodec(QTextCodec* codec)
+{
+    qDebug() << "using codec:" << codec->name();
+    _textCodec = codec;
 }
 
 

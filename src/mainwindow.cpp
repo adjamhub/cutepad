@@ -134,7 +134,7 @@ void MainWindow::loadFilePath(const QString &path)
 
     QTextStream in(&file);
     QTextCodec* cod = in.codec();
-    _view->setTextCodec(cod);
+    _view->textEdit()->setTextCodec(cod);
     QString fileText = in.readAll();
     _view->textEdit()->setPlainText(fileText);
     _view->textEdit()->syntaxHighlightForFile(path);
@@ -159,7 +159,7 @@ void MainWindow::saveFilePath(const QString &path)
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
 
     QString content = _view->textEdit()->toPlainText();
-    QTextCodec* codec = _view->textCodec();
+    QTextCodec* codec = _view->textEdit()->textCodec();
     QByteArray encodedString = codec->fromUnicode(content);
     
     QTextStream out(&file);
@@ -670,7 +670,7 @@ void MainWindow::updateStatusBar()
     int col = _view->textEdit()->textCursor().positionInBlock();
     _statusBar->setPosition(row,col);
 
-    QTextCodec* cod = _view->textCodec();
+    QTextCodec* cod = _view->textEdit()->textCodec();
     QString codecText = "none";
     if (cod) {
         codecText = cod->name();
@@ -691,7 +691,7 @@ void MainWindow::encode()
     const QAction *action = qobject_cast<const QAction *>(sender());
     const QByteArray codecName = action->data().toByteArray();
     QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
-    QTextCodec* actualCodec = _view->textCodec();
+    QTextCodec* actualCodec = _view->textEdit()->textCodec();
 
     if (codecName == actualCodec->name()) {
         qDebug() << "we are moving to the same codec. Aborting...";
@@ -705,7 +705,7 @@ void MainWindow::encode()
     QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
     
     _view->textEdit()->setPlainText(decodedString);
-    _view->setTextCodec(targetCodec);
+    _view->textEdit()->setTextCodec(targetCodec);
 
     _view->textEdit()->document()->setModified(true);
     setWindowModified(true);

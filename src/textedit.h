@@ -25,6 +25,9 @@ class TextEdit : public QPlainTextEdit
 public:
     TextEdit(QWidget *parent = nullptr);
 
+    QTextCodec* textCodec();
+    void setTextCodec(QTextCodec* codec);
+
     // enable syntax highlighting
     void syntaxHighlightForFile(const QString & path);
 
@@ -80,6 +83,8 @@ private:
     
     bool _tabReplace;
     QString _spaces;
+
+    QTextCodec* _textCodec;
 };
 
 
