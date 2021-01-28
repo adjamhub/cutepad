@@ -11,7 +11,7 @@ include(FeatureSummary)
 
 
 # Project things ----------------------------------------------------------
-project(cutepad VERSION "0.0.5" LANGUAGES CXX)
+project(cutepad VERSION "0.0.6" LANGUAGES CXX)
 
 configure_file(config.h.in config.h)
 include_directories(${CMAKE_CURRENT_BINARY_BIN})
