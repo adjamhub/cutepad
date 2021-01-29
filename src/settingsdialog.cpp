@@ -16,9 +16,6 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include <KSyntaxHighlighting/Repository>
-#include <KSyntaxHighlighting/Theme>
-
 
 SettingsDialog::SettingsDialog(QWidget *parent) 
     : QDialog(parent)
@@ -40,8 +37,6 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     connect(ui->replaceTabsWithSpacesCheckBox, &QCheckBox::stateChanged, this, &SettingsDialog::saveSettings);
     connect(ui->spacesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsDialog::saveSettings);
-
-    connect(ui->syntaxHighlightingComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SettingsDialog::saveSettings);
 }
 
 
@@ -84,24 +79,6 @@ void SettingsDialog::loadSettings()
     QString fontName = fontFamily + ", " + QString::number(fontSize) + "pt";
     ui->fontLabel->setText(fontName);
     ui->fontLabel->setFont(font);
-
-    // syntax highlight
-    KSyntaxHighlighting::Repository repo;
-    QVector<KSyntaxHighlighting::Theme> themes = repo.themes();
-    QStringList themeNames;
-    // FIXME: implement ability to disable theming
-    // themeNames << "No Theme";
-    for(int i = 0; i < themes.size(); i++) {
-        QString n = themes.at(i).name();
-        themeNames << n;
-    }
-    ui->syntaxHighlightingComboBox->addItems(themeNames);
-    QString sht = s.value("SyntaxHightlightTheme", "Breeze Light").toString();
-    int index = themeNames.indexOf(sht);
-    if (index == -1) {
-        index = 0;
-    }
-    ui->syntaxHighlightingComboBox->setCurrentIndex(index);
 }
 
 
@@ -137,10 +114,6 @@ void SettingsDialog::saveSettings()
     s.setValue("fontSize", fontSize);
     s.setValue("fontWeight", fontWeight);
     s.setValue("fontItalic", italic);
-
-    // syntax highlight
-    QString name = ui->syntaxHighlightingComboBox->currentText();
-    s.setValue("SyntaxHightlightTheme", name);
 }
 
 

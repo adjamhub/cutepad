@@ -98,25 +98,16 @@ void TextEdit::syntaxHighlightForFile(const QString & path)
         return;
     }
 
+    KSyntaxHighlighting::Theme theme = (palette().color(QPalette::Base).lightness() < 128)
+        ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
+        : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
+
+    _highlighter->setTheme(theme);
+
     _highlighter->setDefinition(def);
 
     // consider moving to translatedName()
     _language = def.name();
-}
-
-
-void TextEdit::setSyntaxTheme(const QString &name)
-{
-    KSyntaxHighlighting::Theme theme = _highlightRepo->theme(name);
-    if (!theme.isValid()) {
-        theme = (palette().color(QPalette::Base).lightness() < 128)
-                     ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
-                     : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
-    }
-    _highlighter->setTheme(theme);
-    if (_language != "none") {
-        _highlighter->rehighlight();
-    }
 }
 
 

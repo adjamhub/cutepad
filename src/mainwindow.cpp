@@ -118,10 +118,6 @@ void MainWindow::loadSettings()
     _textEdit->setFont(font);
     QFontMetrics fm(font);
     _textEdit->setTabStopDistance( fm.horizontalAdvance( QChar(QChar::Space) ) * tabsCount );
-
-    // syntax highlight theme
-    QString sht = s.value("SyntaxHightlightTheme", "Breeze Light").toString();
-    _textEdit->setSyntaxTheme(sht);
 }
 
 
