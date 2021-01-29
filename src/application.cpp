@@ -70,13 +70,24 @@ void Application::loadPaths(const QStringList& paths)
 
 void Application::loadPath(const QString& path)
 {
+    if (path.isEmpty()) {
+        MainWindow *mainWin = new MainWindow;
+        _windows.append(mainWin);
+        mainWin->show();
+        return;
+    }
+
+    for (MainWindow* win : qAsConst(_windows)) {
+        if (win->filePath() == path) {
+            win->setFocus();
+            return;
+        }
+    }
+
     MainWindow *mainWin = new MainWindow;
     _windows.append(mainWin);
     mainWin->show();
-
-    if (!path.isEmpty()) {
-        mainWin->loadFilePath(path);
-    }
+    mainWin->loadFilePath(path);
 }
 
 

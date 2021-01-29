@@ -253,6 +253,25 @@ void MainWindow::setupActions()
     actionOpen->setShortcut(QKeySequence::Open);
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
+    // RECENT FILES
+    QMenu* menuRecentFiles = new QMenu("Recent Files", this);
+    connect(menuRecentFiles, &QMenu::aboutToShow, this, [=] () {
+            QSettings s;
+            QStringList recentFiles = s.value("recentFiles").toStringList();
+            if (recentFiles.count() == 0) {
+                QAction* voidAction = new QAction("no recent files", this);
+                menuRecentFiles->addAction(voidAction);
+                return;
+            }
+            for (const QString &path : qAsConst(recentFiles)) {
+                QAction* recentFileAction = new QAction(path, this);
+                menuRecentFiles->addAction(recentFileAction);
+                connect(recentFileAction, &QAction::triggered, this, &MainWindow::recentFileTriggered);
+            }
+        }
+    );
+    connect(menuRecentFiles, &QMenu::aboutToHide, menuRecentFiles, &QMenu::clear);
+
     // SAVE
     QAction* actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
     actionSave->setShortcut(QKeySequence::Save);
@@ -413,14 +432,12 @@ void MainWindow::setupActions()
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
     // ------------------------------------------------------------------------------------------------------------------------
-
-
-    // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MENUBAR
 
     QMenu* fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction(actionNew);
     fileMenu->addAction(actionOpen);
+    fileMenu->addMenu(menuRecentFiles);
     fileMenu->addAction(actionSave);
     fileMenu->addAction(actionSaveAs);
     fileMenu->addSeparator();
@@ -502,6 +519,7 @@ void MainWindow::setCurrentFilePath(const QString& path)
     } else {
         curFile = QFileInfo(path).canonicalFilePath();
         _filePath = path;
+        addPathToRecentFiles(_filePath);
     }
 
     _textEdit->document()->setModified(false);
@@ -834,4 +852,25 @@ void MainWindow::replace(const QString &replace, bool justNext)
     cur.setPosition(position + n);
     _textEdit->setTextCursor(cur);
     return;
+}
+
+
+void MainWindow::addPathToRecentFiles(const QString& path)
+{
+    QSettings s;
+    QStringList recentFiles = s.value("recentFiles").toStringList();
+    recentFiles.removeOne(path);
+    recentFiles.prepend(path);
+    if (recentFiles.count() > 10) {
+        recentFiles.removeLast();
+    }
+    s.setValue("recentFiles", recentFiles);
+}
+
+
+void MainWindow::recentFileTriggered()
+{
+    QAction* a = qobject_cast<QAction* >(sender());
+    QString path = a->text();
+    Application::instance()->loadPath(path);
 }

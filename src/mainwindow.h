@@ -29,6 +29,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
+    inline QString filePath() const { return _filePath; }
+
     void loadSettings();
 
     // needed to position next windows
@@ -51,6 +53,7 @@ private:
     void setupActions();
 
     void setCurrentFilePath(const QString& path);
+    void addPathToRecentFiles(const QString& path);
 
 private slots:
     void newWindow();
@@ -80,6 +83,8 @@ private slots:
                 bool casesensitive = false);
 
     void replace(const QString &replace, bool justNext = true);
+
+    void recentFileTriggered();
 
 signals:
     void searchMessage(const QString &);

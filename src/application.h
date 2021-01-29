@@ -15,7 +15,6 @@
 #include <QList>
 #include <QStringList>
 
-
 class MainWindow;
 
 
