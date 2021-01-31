@@ -868,5 +868,9 @@ void MainWindow::recentFileTriggered()
 {
     QAction* a = qobject_cast<QAction* >(sender());
     QString path = a->text();
+    if (_filePath.isEmpty()) {
+        loadFilePath(path);
+        return;
+    }
     Application::instance()->loadPath(path);
 }
