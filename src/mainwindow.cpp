@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
 
     // application icon and title
-    QIcon appIcon = QIcon::fromTheme( "accessories-text-editor" );
+    QIcon appIcon = QIcon::fromTheme("accessories-text-editor", QIcon(":/icons/accessories-text-editor.svg") );
     setWindowIcon(appIcon);
 
     connect(_textEdit->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
@@ -240,12 +240,12 @@ void MainWindow::setupActions()
 
     // file actions -----------------------------------------------------------------------------------------------------------
     // NEW
-    QAction* actionNew = new QAction( QIcon::fromTheme("document-new") , "New", this);
+    QAction* actionNew = new QAction( QIcon::fromTheme("document-new", QIcon(":/icons/document-new.svg") ) , "New", this);
     actionNew->setShortcut(QKeySequence::New);
     connect(actionNew, &QAction::triggered, this, &MainWindow::newWindow);
 
     // OPEN
-    QAction* actionOpen = new QAction( QIcon::fromTheme("document-open"), "Open", this);
+    QAction* actionOpen = new QAction( QIcon::fromTheme("document-open", QIcon(":/icons/document-open.svg") ) , "Open", this);
     actionOpen->setShortcut(QKeySequence::Open);
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
@@ -269,100 +269,100 @@ void MainWindow::setupActions()
     connect(menuRecentFiles, &QMenu::aboutToHide, menuRecentFiles, &QMenu::clear);
 
     // SAVE
-    QAction* actionSave = new QAction( QIcon::fromTheme("document-save"), "Save", this);
+    QAction* actionSave = new QAction( QIcon::fromTheme("document-save", QIcon(":/icons/document-save.svg") ) , "Save", this);
     actionSave->setShortcut(QKeySequence::Save);
     connect(actionSave, &QAction::triggered, this, &MainWindow::saveFile);
     actionSave->setEnabled(false);
     connect(_textEdit->document(), &QTextDocument::modificationChanged, actionSave, &QAction::setEnabled);
 
     // SAVE AS
-    QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as"), "Save As", this);
+    QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as", QIcon(":/icons/document-save-as.svg") ) , "Save As", this);
     connect(actionSaveAs, &QAction::triggered, this, &MainWindow::saveFileAs);
 
     // PRINT
-    QAction* actionPrint = new QAction( QIcon::fromTheme("document-print"), "Print", this);
+    QAction* actionPrint = new QAction( QIcon::fromTheme("document-print", QIcon(":/icons/document-print.svg") ) , "Print", this);
     actionPrint->setShortcut(QKeySequence::Print);
     connect(actionPrint, &QAction::triggered, this, &MainWindow::printFile);
 
     // CLOSE
-    QAction* actionClose = new QAction( QIcon::fromTheme("document-close"), "Close", this);
+    QAction* actionClose = new QAction( QIcon::fromTheme("document-close", QIcon(":/icons/document-close.svg") ) , "Close", this);
     actionClose->setShortcut(QKeySequence::Close);
     connect(actionClose, &QAction::triggered, this, &MainWindow::close);
 
     // QUIT
-    QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit"), "Exit", this );
+    QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit", QIcon(":/icons/application-exit.svg") ) , "Exit", this );
     actionQuit->setShortcut(QKeySequence::Quit);
     connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit, Qt::QueuedConnection);
 
     // edit actions -----------------------------------------------------------------------------------------------------------
     // UNDO
-    QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo"), "Undo", this );
+    QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo", QIcon(":/icons/edit-undo.svg") ) , "Undo", this );
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(actionUndo, &QAction::triggered, _textEdit, &TextEdit::undo );
     actionUndo->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
 
     // REDO
-    QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo") , "Redo", this);
+    QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo", QIcon(":/icons/edit-redo.svg") )  , "Redo", this);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(actionRedo, &QAction::triggered, _textEdit, &TextEdit::redo );
     actionRedo->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     // CUT
-    QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut"), "Cut", this );
+    QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut", QIcon(":/icons/edit-cut.svg") ) , "Cut", this );
     actionCut->setShortcut(QKeySequence::Cut);
     connect(actionCut, &QAction::triggered, _textEdit, &TextEdit::cut );
     actionCut->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
 
     // COPY
-    QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy"), "Copy", this );
+    QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy", QIcon(":/icons/edit-copy.svg") ) , "Copy", this );
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, _textEdit, &TextEdit::copy );
     actionCopy->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
     // PASTE
-    QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste"), "Paste", this );
+    QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste", QIcon(":/icons/edit-paste.svg") ) , "Paste", this );
     actionPaste->setShortcut(QKeySequence::Paste);
     connect(actionPaste, &QAction::triggered,  _textEdit, &TextEdit::paste );
 
     //SELECT ALL
-    QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all"), "Select All", this );
+    QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all", QIcon(":/icons/edit-select-all.svg") ) , "Select All", this );
     actionSelectAll->setShortcut(QKeySequence::SelectAll);
     connect(actionSelectAll, &QAction::triggered, _textEdit, &TextEdit::selectAll );
 
     // view actions -----------------------------------------------------------------------------------------------------------
     // ZOOM IN
-    QAction* actionZoomIn = new QAction( QIcon::fromTheme("zoom-in"), "Zoom In", this );
+    QAction* actionZoomIn = new QAction( QIcon::fromTheme("zoom-in", QIcon(":/icons/zoom-in.svg") ) , "Zoom In", this );
     actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );
 
     // ZOOM OUT
-    QAction* actionZoomOut = new QAction( QIcon::fromTheme("zoom-out"), "Zoom Out", this );
+    QAction* actionZoomOut = new QAction( QIcon::fromTheme("zoom-out", QIcon(":/icons/zoom-out.svg") ) , "Zoom Out", this );
     actionZoomOut->setShortcut(QKeySequence::ZoomOut);
     connect(actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut );
 
     // ZOOM ORIGINAL
-    QAction* actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original"), "Zoom Original", this );
+    QAction* actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original", QIcon(":/icons/zoom-original.svg") ) , "Zoom Original", this );
     actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
     connect(actionZoomOriginal, &QAction::triggered, this, &MainWindow::onZoomOriginal );
 
     // FULL SCREEN
-    QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen"), "FullScreen", this );
+    QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen", QIcon(":/icons/view-fullscreen.svg") ) , "FullScreen", this );
     actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );
 
     // find actions -----------------------------------------------------------------------------------------------------------
     // FIND
-    QAction* actionFind = new QAction( QIcon::fromTheme("edit-find"), "Find", this );
+    QAction* actionFind = new QAction( QIcon::fromTheme("edit-find", QIcon(":/icons/edit-find.svg") ) , "Find", this );
     actionFind->setShortcut(QKeySequence::Find);
     connect(actionFind, &QAction::triggered, this, &MainWindow::showSearchBar );
 
     // REPLACE
-    QAction* actionReplace = new QAction( QIcon::fromTheme("edit-replace"), "Replace", this );
+    QAction* actionReplace = new QAction( QIcon::fromTheme("edit-find-replace", QIcon(":/icons/edit-find-replace.svg") ) , "Replace", this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, this, &MainWindow::showReplaceBar );
 
@@ -411,20 +411,21 @@ void MainWindow::setupActions()
     encodingsMenu->addMenu(othersMenu);
     
     // SETTINGS
-    QAction* actionShowSettings = new QAction( QIcon::fromTheme("settings-configure"), "Settings", this);
+    QAction* actionShowSettings = new QAction( QIcon::fromTheme("configure", QIcon(":/icons/configure.svg") ) , "Settings", this);
     connect(actionShowSettings, &QAction::triggered, this, &MainWindow::showSettings);
 
     // about actions -----------------------------------------------------------------------------------------------------------
     // MANUAL
-    QAction* actionShowManual = new QAction( QIcon::fromTheme("help"), "Help", this );
+    QAction* actionShowManual = new QAction( QIcon::fromTheme("help-contents", QIcon(":/icons/help-contents.svg") ) , "Help", this );
+    actionShowManual->setShortcut(QKeySequence::HelpContents);
     connect(actionShowManual, &QAction::triggered, this, &MainWindow::showManual);
     
     // ABOUT Qt
-    QAction* actionAboutQt = new QAction( QIcon::fromTheme("qtlogo"), "About Qt", this );
+    QAction* actionAboutQt = new QAction( QIcon::fromTheme("qt", QIcon(":/icons/qt.svg") ) , "About Qt", this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
 
     // ABOUT
-    QAction* actionAboutApp = new QAction( QIcon::fromTheme("help-about"), "About", this );
+    QAction* actionAboutApp = new QAction( QIcon::fromTheme("help-about", QIcon(":/icons/help-about.svg") ) , "About", this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
     // ------------------------------------------------------------------------------------------------------------------------
@@ -649,12 +650,12 @@ void MainWindow::about()
 void MainWindow::showManual()
 {
     QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    qDebug() << "dirs: " << dirs;
     QString manual = QStandardPaths::locate(QStandardPaths::AppDataLocation, "MANUAL");
     qDebug() << "manual path: " << manual;
-    if (manual.isEmpty())
+    if (manual.isEmpty()) {
+        QMessageBox::critical(this, "Error", "I cannot open the manual, sorry");
         return;
-    // TODO: needs to advise on return
+    }
     
     MainWindow *other = new MainWindow;
     other->tile(this);

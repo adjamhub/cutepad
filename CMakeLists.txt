@@ -49,6 +49,7 @@ add_executable(cutepad
     src/settingsdialog.cpp
     src/statusbar.cpp
     src/textedit.cpp
+    resources.qrc
 )
 
 target_link_libraries(cutepad PRIVATE 
@@ -70,6 +71,7 @@ install(FILES data/cutepad.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/shar
 install(FILES LICENSE                  DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
 install(FILES data/MANUAL              DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
 
+install(DIRECTORY icons DESTINATION "${CMAKE_INSTALL_PREFIX}/share/adjam/cutepad")
 
 # --------------------------------------------------------------------------
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
