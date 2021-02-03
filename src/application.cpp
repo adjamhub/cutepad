@@ -15,12 +15,18 @@
 
 #include <QDBusConnection>
 #include <QDBusAbstractAdaptor>
+#include <QFileInfo>
+
+#include <QDebug>
 
 
 Application::Application(int &argc, char *argv[])
     : QApplication(argc,argv)
+    , _watcher(new QFileSystemWatcher(this))
 {
     new CutepadAdaptor(this);
+
+    connect(_watcher, &QFileSystemWatcher::fileChanged, this, &Application::notifyFileChanged);
 }
 
 
@@ -95,5 +101,38 @@ void Application::loadSettings()
 {
     for (MainWindow* win : qAsConst(_windows)) {
         win->loadSettings();
+    }
+}
+
+
+void Application::addWatchedPath(const QString& path)
+{
+    if (_watcher->files().contains(path)) {
+        return;
+    }
+    _watcher->addPath(path);
+}
+
+
+void Application::removeWatchedPath(const QString& path)
+{
+    if (_watcher->files().contains(path)) {
+        _watcher->removePath(path);
+    }
+}
+
+
+void Application::notifyFileChanged(const QString& path)
+{
+    if (!QFileInfo::exists(path)) {
+        qDebug() << "no more existing file...";
+        return;
+    }
+    qDebug() << "File changed:" << path;
+    for (MainWindow* win : qAsConst(_windows)) {
+        if (win->filePath() == path) {
+            win->reloadChangedFile();
+            return;
+        }
     }
 }

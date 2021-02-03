@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     , _statusBar(new StatusBar(this))
     , _filePath("")
     , _zoomRange(0)
+    , _canBeReloaded(true)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -152,6 +153,9 @@ void MainWindow::loadFilePath(const QString &path)
 
 void MainWindow::saveFilePath(const QString &path)
 {
+    // don't react to our file sytem modifications
+    Application::instance()->removeWatchedPath(path);
+
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     _textEdit->saveFilePath(path);
     QGuiApplication::restoreOverrideCursor();
@@ -194,6 +198,27 @@ bool MainWindow::exitAfterSaving()
 }
 
 
+void MainWindow::reloadChangedFile()
+{
+    if (!_canBeReloaded) {
+        return;
+    }
+
+    _canBeReloaded = false;
+
+    int risp = QMessageBox::warning(this,
+                                     "File Changed!",
+                                     "The file has been modified OUTSIDE cutepad. Do you want to reload it?",
+                                     QMessageBox::Yes | QMessageBox::No);
+
+    if (risp == QMessageBox::Yes) {
+        Application::instance()->removeWatchedPath(_filePath);
+        loadFilePath(_filePath);
+    }
+    _canBeReloaded = true;
+}
+
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (exitAfterSaving()) {
@@ -202,6 +227,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
         s.setValue("windowState", saveState());
 
         Application::instance()->removeWindowFromList(this);
+        if (!_filePath.isEmpty()) {
+            Application::instance()->removeWatchedPath(_filePath);
+        }
         event->accept();
         return;
     }
@@ -517,6 +545,7 @@ void MainWindow::setCurrentFilePath(const QString& path)
         curFile = QFileInfo(path).canonicalFilePath();
         _filePath = path;
         addPathToRecentFiles(_filePath);
+        Application::instance()->addWatchedPath(_filePath);
     }
 
     _textEdit->document()->setModified(false);
@@ -543,10 +572,7 @@ void MainWindow::openFile()
         return;
     }
 
-    MainWindow *other = new MainWindow;
-    other->tile(this);
-    other->show();
-    other->loadFilePath(path);
+    Application::instance()->loadPath(path);
 }
 
 
@@ -650,18 +676,15 @@ void MainWindow::about()
 void MainWindow::showManual()
 {
     QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    QString manual = QStandardPaths::locate(QStandardPaths::AppDataLocation, "MANUAL");
-    qDebug() << "manual path: " << manual;
-    if (manual.isEmpty()) {
+    QString manualPath = QStandardPaths::locate(QStandardPaths::AppDataLocation, "MANUAL");
+    qDebug() << "manual path: " << manualPath;
+    if (manualPath.isEmpty()) {
         QMessageBox::critical(this, "Error", "I cannot open the manual, sorry");
         return;
     }
-    
-    MainWindow *other = new MainWindow;
-    other->tile(this);
-    other->show();
-    other->loadFilePath(manual);
-    // FIXME other->view()->textEdit()->setReadOnly(true);
+
+    // FIXME: needs to be opened in read only mode
+    Application::instance()->loadPath(manualPath);
 }
 
 

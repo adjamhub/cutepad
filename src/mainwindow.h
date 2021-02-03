@@ -45,6 +45,10 @@ public:
     // returns true if window has to be closed, false otherwise
     bool exitAfterSaving();
 
+    // reload file modified OUTSIDE of cutepad management
+    // (asking user before)
+    void reloadChangedFile();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
@@ -97,6 +101,7 @@ private:
 
     QString _filePath;
     int _zoomRange;
+    bool _canBeReloaded;
 };
 
 #endif // MAINWINDOW_H

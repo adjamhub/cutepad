@@ -12,6 +12,7 @@
 
 
 #include <QApplication>
+#include <QFileSystemWatcher>
 #include <QList>
 #include <QStringList>
 
@@ -37,8 +38,16 @@ public:
 
     void loadSettings();
 
+    // File System Watcher
+    void addWatchedPath(const QString& path);
+    void removeWatchedPath(const QString& path);
+
+private Q_SLOTS:
+    void notifyFileChanged(const QString& path);
+
 private:
     QList<MainWindow*> _windows;
+    QFileSystemWatcher* _watcher;
 };
 
 #endif // APPLICATION_H
