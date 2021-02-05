@@ -85,7 +85,8 @@ void Application::loadPath(const QString& path)
 
     for (MainWindow* win : qAsConst(_windows)) {
         if (win->filePath() == path) {
-            win->setFocus();
+            win->activateWindow();
+            win->raise();
             return;
         }
     }
