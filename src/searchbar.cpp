@@ -11,29 +11,31 @@
 
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 
 
 SearchBar::SearchBar(QWidget *parent)
     : QWidget(parent)
     , _findLineEdit( new QLineEdit(this) )
-    , _caseCheckBox( new QCheckBox("Match Case", this) )
+    , _caseCheckBox( new QCheckBox( tr("Match Case") , this) )
     , _notFoundLabel( new QLabel(this) )
 {
     connect(_findLineEdit, &QLineEdit::returnPressed, this, &SearchBar::findForward);
 
-    auto label = new QLabel("Search for:", this);
+    auto label = new QLabel( tr("Search for:"), this);
     label->setMinimumWidth(100);
 
     _findLineEdit->setMinimumWidth(250);
     _findLineEdit->setMaximumWidth(250);
 
-    auto prevButton = new QPushButton("Previous", this);
+    auto prevButton = new QPushButton( tr("Previous") , this);
     prevButton->setMinimumWidth(120);
     prevButton->setShortcut(QKeySequence::FindPrevious);
     connect(prevButton, &QPushButton::clicked, this, &SearchBar::findBackward);
 
-    auto nextButton = new QPushButton("Next", this);
+    auto nextButton = new QPushButton( tr("Next"), this);
     nextButton->setShortcut(QKeySequence::FindNext);
     nextButton->setMinimumWidth(120);
     connect(nextButton, &QPushButton::clicked, this, &SearchBar::findForward);
@@ -61,28 +63,46 @@ SearchBar::SearchBar(QWidget *parent)
 }
 
 
+void SearchBar::setText(const QString& text)
+{
+    _findLineEdit->setText(text);
+}
+
+
+QString SearchBar::text()
+{
+    return _findLineEdit->text();
+}
+
+
+bool SearchBar::caseChecked()
+{
+    return _caseCheckBox->isChecked();
+}
+
+
 void SearchBar::findBackward()
 {
-    _notFoundLabel->setText("");
+    _notFoundLabel->clear();
 
     QString str = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    emit search(str, false, caseSensitive);
+    Q_EMIT search(str, false, caseSensitive);
 }
 
 
 void SearchBar::findForward()
 {
-    _notFoundLabel->setText("");
+    _notFoundLabel->clear();
 
     QString str = _findLineEdit->text();
     bool caseSensitive = _caseCheckBox->isChecked();
-    emit search(str, true, caseSensitive);
+    Q_EMIT search(str, true, caseSensitive);
 }
 
 
 void SearchBar::searchMessage(const QString &msg)
 {
-    QString text = QString("<b>") + msg + QString("</b>");
+    QString text = QLatin1String("<b>") + msg + QLatin1String("</b>");
     _notFoundLabel->setText(text);
 }

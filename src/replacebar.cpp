@@ -11,6 +11,7 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 
 
@@ -18,17 +19,17 @@ ReplaceBar::ReplaceBar(QWidget *parent)
     : QWidget(parent)
     , _replaceLineEdit( new QLineEdit(this) )
 {
-    auto replaceLabel = new QLabel("Replace with:", this);
+    auto replaceLabel = new QLabel( tr("Replace with:") , this);
     replaceLabel->setMinimumWidth(100);
 
     _replaceLineEdit->setMinimumWidth(250);
     _replaceLineEdit->setMaximumWidth(250);
 
-    auto replaceNextButton = new QPushButton("Replace", this);
+    auto replaceNextButton = new QPushButton( tr("Replace"), this);
     replaceNextButton->setMinimumWidth(120);
     connect(replaceNextButton, &QPushButton::clicked, this, &ReplaceBar::replaceNext);
 
-    auto replaceAllButton = new QPushButton("Replace All", this);
+    auto replaceAllButton = new QPushButton( tr("Replace All"), this);
     replaceAllButton->setMinimumWidth(120);
     connect(replaceAllButton, &QPushButton::clicked, this, &ReplaceBar::replaceAll);
 
@@ -53,12 +54,12 @@ ReplaceBar::ReplaceBar(QWidget *parent)
 void ReplaceBar::replaceNext()
 {
     QString rep = _replaceLineEdit->text();
-    emit replace(rep, true);
+    Q_EMIT replace(rep, true);
 }
 
 
 void ReplaceBar::replaceAll()
 {
     QString rep = _replaceLineEdit->text();
-    emit replace(rep, false);
+    Q_EMIT replace(rep, false);
 }

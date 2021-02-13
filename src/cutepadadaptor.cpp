@@ -8,6 +8,7 @@
 
 
 #include "cutepadadaptor.h"
+#include "application.h"
 
 #include <QDBusConnection>
 
@@ -16,7 +17,7 @@ CutepadAdaptor::CutepadAdaptor (Application* app)
     : QDBusAbstractAdaptor(app)
     , _app(app)
 {
-    QDBusConnection::sessionBus().registerObject( "/App" , this, QDBusConnection::ExportScriptableSlots);
+    QDBusConnection::sessionBus().registerObject( QStringLiteral("/App") , this, QDBusConnection::ExportScriptableSlots);
 }
 
 

@@ -17,13 +17,15 @@
 #include <KSyntaxHighlighting/Repository>
 #include <KSyntaxHighlighting/SyntaxHighlighter>
 
+class QTextCodec;
+
 
 class TextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    TextEdit(QWidget *parent = nullptr);
+    explicit TextEdit(QWidget *parent = nullptr);
 
     void loadFilePath(const QString & path);
     void saveFilePath(const QString & path);
@@ -53,7 +55,7 @@ public:
     void setTabsCount(int tabsCount);
     int tabsCount();
     
-public slots:
+public Q_SLOTS:
     void enableTabReplacement(bool on);
     void updateLineNumbersMode();
 
@@ -61,14 +63,13 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-private:
-    // enable syntax highlighting
-    void syntaxHighlightForFile(const QString & path);
-
-private slots:
+private Q_SLOTS:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
+
+    // enable syntax highlighting
+    void syntaxHighlightForFile(const QString & path);
 
 private:
     QWidget* _lineNumberArea;
@@ -98,7 +99,7 @@ class LineNumberArea : public QWidget
     Q_OBJECT
 
 public:
-    LineNumberArea (TextEdit *editor)
+    explicit LineNumberArea (TextEdit *editor)
         : QWidget (editor) {
         _editor = editor;
     }

@@ -13,13 +13,13 @@
 
 #include <QMainWindow>
 
-#include "textedit.h"
-#include "searchbar.h"
-#include "replacebar.h"
-#include "statusbar.h"
-
 class QCloseEvent;
 class QKeyEvent;
+
+class TextEdit;
+class SearchBar;
+class ReplaceBar;
+class StatusBar;
 
 
 class MainWindow : public QMainWindow
@@ -27,7 +27,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
 
     inline QString filePath() const { return _filePath; }
 
@@ -59,7 +59,7 @@ private:
     void setCurrentFilePath(const QString& path);
     void addPathToRecentFiles(const QString& path);
 
-private slots:
+private Q_SLOTS:
     void newWindow();
     void openFile();
     void saveFile();
@@ -90,7 +90,7 @@ private slots:
 
     void recentFileTriggered();
 
-signals:
+Q_SIGNALS:
     void searchMessage(const QString &);
 
 private:

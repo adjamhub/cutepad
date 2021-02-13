@@ -10,6 +10,10 @@
 #include "mainwindow.h"
 #include "application.h"
 #include "settingsdialog.h"
+#include "textedit.h"
+#include "searchbar.h"
+#include "replacebar.h"
+#include "statusbar.h"
 
 #include <QCloseEvent>
 #include <QFileDialog>
@@ -37,7 +41,6 @@ MainWindow::MainWindow(QWidget *parent)
     , _searchBar(new SearchBar(this))
     , _replaceBar(new ReplaceBar(this))
     , _statusBar(new StatusBar(this))
-    , _filePath("")
     , _zoomRange(0)
     , _canBeReloaded(true)
 {
@@ -64,8 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // restore geometry and state
     QSettings s;
-    restoreGeometry( s.value("geometry").toByteArray() );
-    restoreState( s.value("myWidget/windowState").toByteArray() );
+    restoreGeometry( s.value( QStringLiteral("geometry") ).toByteArray() );
+    restoreState( s.value( QStringLiteral("myWidget/windowState") ).toByteArray() );
 
     // we need to load settings BEFORE setup actions,
     // to SET initial states
@@ -74,11 +77,11 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
 
     // application icon and title
-    QIcon appIcon = QIcon::fromTheme("accessories-text-editor", QIcon(":/icons/accessories-text-editor.svg") );
+    QIcon appIcon = QIcon::fromTheme( QStringLiteral("accessories-text-editor"), QIcon( QStringLiteral(":/icons/accessories-text-editor.svg") ) );
     setWindowIcon(appIcon);
 
     connect(_textEdit->document(), &QTextDocument::modificationChanged, this, &MainWindow::setWindowModified);
-    setCurrentFilePath("");
+    setCurrentFilePath( QLatin1String("") );
 
     // take care of the statusbar
     statusBar()->addWidget(_statusBar);
@@ -94,26 +97,26 @@ void MainWindow::loadSettings()
     QSettings s;
 
     // options
-    bool highlight = s.value("CurrentLineHighlight", false).toBool();
+    bool highlight = s.value( QStringLiteral("CurrentLineHighlight") , false).toBool();
     _textEdit->setCurrentLineHighlightingEnabled(highlight);
 
-    QColor highlightLineColor = s.value("HighlightLineColor", QColor(Qt::yellow).lighter(160)).value<QColor>();
+    QColor highlightLineColor = s.value( QStringLiteral("HighlightLineColor") , QColor(Qt::yellow).lighter(160)).value<QColor>();
     _textEdit->setHighlightLineColor(highlightLineColor);
 
-    int lineNumbers = s.value("LineNumbers", 0).toInt();
+    int lineNumbers = s.value( QStringLiteral("LineNumbers"), 0).toInt();
     _textEdit->setLineNumbersMode(lineNumbers);
 
-    bool tabReplace = s.value("TabReplace", false).toBool();
+    bool tabReplace = s.value( QStringLiteral("TabReplace"), false).toBool();
     _textEdit->enableTabReplacement(tabReplace);
     
-    int tabsCount = s.value("TabsCount", 4).toInt();
+    int tabsCount = s.value( QStringLiteral("TabsCount"), 4).toInt();
     _textEdit->setTabsCount(tabsCount);
 
     // font
-    QString fontFamily = s.value("fontFamily", "Monospace").toString();
-    int fontSize = s.value("fontSize", 12).toInt();
-    int fontWeight = s.value("fontWeight", 50).toInt();
-    bool italic = s.value("fontItalic", false).toBool();
+    QString fontFamily = s.value( QStringLiteral("fontFamily"), QStringLiteral("Monospace") ).toString();
+    int fontSize = s.value( QStringLiteral("fontSize"), 12).toInt();
+    int fontWeight = s.value( QStringLiteral("fontWeight"), 50).toInt();
+    bool italic = s.value( QStringLiteral("fontItalic"), false).toBool();
     QFont font(fontFamily,fontSize + _zoomRange, fontWeight);
     font.setItalic(italic);
     _textEdit->setFont(font);
@@ -170,8 +173,8 @@ bool MainWindow::exitAfterSaving()
     if (isWindowModified()) {
 
         int risp = QMessageBox::question(this,
-                                         "Save Changes",
-                                         "The file has unsaved changes",
+                                         tr("Save Changes"),
+                                         tr("The file has unsaved changes"),
                                          QMessageBox::Save | QMessageBox::No | QMessageBox::Cancel);
 
         switch(risp) {
@@ -207,8 +210,8 @@ void MainWindow::reloadChangedFile()
     _canBeReloaded = false;
 
     int risp = QMessageBox::warning(this,
-                                     "File Changed!",
-                                     "The file has been modified OUTSIDE cutepad. Do you want to reload it?",
+                                     tr("File Changed!"),
+                                     tr("The file has been modified OUTSIDE cutepad. Do you want to reload it?"),
                                      QMessageBox::Yes | QMessageBox::No);
 
     if (risp == QMessageBox::Yes) {
@@ -223,8 +226,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (exitAfterSaving()) {
         QSettings s;
-        s.setValue("geometry", saveGeometry());
-        s.setValue("windowState", saveState());
+        s.setValue( QStringLiteral("geometry") , saveGeometry());
+        s.setValue( QStringLiteral("windowState") , saveState());
 
         Application::instance()->removeWindowFromList(this);
         if (!_filePath.isEmpty()) {
@@ -268,22 +271,22 @@ void MainWindow::setupActions()
 
     // file actions -----------------------------------------------------------------------------------------------------------
     // NEW
-    QAction* actionNew = new QAction( QIcon::fromTheme("document-new", QIcon(":/icons/document-new.svg") ) , "New", this);
+    QAction* actionNew = new QAction( QIcon::fromTheme( QStringLiteral("document-new") , QIcon( QStringLiteral(":/icons/document-new.svg") ) ) , tr("New"), this);
     actionNew->setShortcut(QKeySequence::New);
     connect(actionNew, &QAction::triggered, this, &MainWindow::newWindow);
 
     // OPEN
-    QAction* actionOpen = new QAction( QIcon::fromTheme("document-open", QIcon(":/icons/document-open.svg") ) , "Open", this);
+    QAction* actionOpen = new QAction( QIcon::fromTheme( QStringLiteral("document-open"), QIcon( QStringLiteral(":/icons/document-open.svg") ) ) , tr("Open"), this);
     actionOpen->setShortcut(QKeySequence::Open);
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
     // RECENT FILES
-    QMenu* menuRecentFiles = new QMenu("Recent Files", this);
+    QMenu* menuRecentFiles = new QMenu( tr("Recent Files"), this);
     connect(menuRecentFiles, &QMenu::aboutToShow, this, [=] () {
             QSettings s;
-            QStringList recentFiles = s.value("recentFiles").toStringList();
+            QStringList recentFiles = s.value( QStringLiteral("recentFiles") ).toStringList();
             if (recentFiles.count() == 0) {
-                QAction* voidAction = new QAction("no recent files", this);
+                QAction* voidAction = new QAction( tr("no recent files"), this);
                 menuRecentFiles->addAction(voidAction);
                 return;
             }
@@ -297,118 +300,118 @@ void MainWindow::setupActions()
     connect(menuRecentFiles, &QMenu::aboutToHide, menuRecentFiles, &QMenu::clear);
 
     // SAVE
-    QAction* actionSave = new QAction( QIcon::fromTheme("document-save", QIcon(":/icons/document-save.svg") ) , "Save", this);
+    QAction* actionSave = new QAction( QIcon::fromTheme( QStringLiteral("document-save"), QIcon( QStringLiteral(":/icons/document-save.svg") ) ) , tr("Save"), this);
     actionSave->setShortcut(QKeySequence::Save);
     connect(actionSave, &QAction::triggered, this, &MainWindow::saveFile);
     actionSave->setEnabled(false);
     connect(_textEdit->document(), &QTextDocument::modificationChanged, actionSave, &QAction::setEnabled);
 
     // SAVE AS
-    QAction* actionSaveAs = new QAction( QIcon::fromTheme("document-save-as", QIcon(":/icons/document-save-as.svg") ) , "Save As", this);
+    QAction* actionSaveAs = new QAction( QIcon::fromTheme( QStringLiteral("document-save-as"), QIcon( QStringLiteral(":/icons/document-save-as.svg") ) ) , tr("Save As"), this);
     connect(actionSaveAs, &QAction::triggered, this, &MainWindow::saveFileAs);
 
     // PRINT
-    QAction* actionPrint = new QAction( QIcon::fromTheme("document-print", QIcon(":/icons/document-print.svg") ) , "Print", this);
+    QAction* actionPrint = new QAction( QIcon::fromTheme( QStringLiteral("document-print"), QIcon( QStringLiteral(":/icons/document-print.svg") ) ) , tr("Print"), this);
     actionPrint->setShortcut(QKeySequence::Print);
     connect(actionPrint, &QAction::triggered, this, &MainWindow::printFile);
 
     // CLOSE
-    QAction* actionClose = new QAction( QIcon::fromTheme("document-close", QIcon(":/icons/document-close.svg") ) , "Close", this);
+    QAction* actionClose = new QAction( QIcon::fromTheme( QStringLiteral("document-close"), QIcon( QStringLiteral(":/icons/document-close.svg") ) ) , tr("Close"), this);
     actionClose->setShortcut(QKeySequence::Close);
     connect(actionClose, &QAction::triggered, this, &MainWindow::close);
 
     // QUIT
-    QAction* actionQuit = new QAction( QIcon::fromTheme("application-exit", QIcon(":/icons/application-exit.svg") ) , "Exit", this );
+    QAction* actionQuit = new QAction( QIcon::fromTheme( QStringLiteral("application-exit"), QIcon( QStringLiteral(":/icons/application-exit.svg") ) ) , tr("Exit"), this );
     actionQuit->setShortcut(QKeySequence::Quit);
     connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit, Qt::QueuedConnection);
 
     // edit actions -----------------------------------------------------------------------------------------------------------
     // UNDO
-    QAction* actionUndo = new QAction( QIcon::fromTheme("edit-undo", QIcon(":/icons/edit-undo.svg") ) , "Undo", this );
+    QAction* actionUndo = new QAction( QIcon::fromTheme( QStringLiteral("edit-undo") , QIcon( QStringLiteral(":/icons/edit-undo.svg") ) ) , tr("Undo"), this );
     actionUndo->setShortcut(QKeySequence::Undo);
     connect(actionUndo, &QAction::triggered, _textEdit, &TextEdit::undo );
     actionUndo->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
 
     // REDO
-    QAction* actionRedo = new QAction(QIcon::fromTheme("edit-redo", QIcon(":/icons/edit-redo.svg") )  , "Redo", this);
+    QAction* actionRedo = new QAction(QIcon::fromTheme( QStringLiteral("edit-redo") , QIcon( QStringLiteral(":/icons/edit-redo.svg") ) )  , tr("Redo"), this);
     actionRedo->setShortcut(QKeySequence::Redo);
     connect(actionRedo, &QAction::triggered, _textEdit, &TextEdit::redo );
     actionRedo->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
     // CUT
-    QAction* actionCut = new QAction(QIcon::fromTheme("edit-cut", QIcon(":/icons/edit-cut.svg") ) , "Cut", this );
+    QAction* actionCut = new QAction(QIcon::fromTheme( QStringLiteral("edit-cut") , QIcon( QStringLiteral(":/icons/edit-cut.svg") ) ) , tr("Cut"), this );
     actionCut->setShortcut(QKeySequence::Cut);
     connect(actionCut, &QAction::triggered, _textEdit, &TextEdit::cut );
     actionCut->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
 
     // COPY
-    QAction* actionCopy = new QAction(QIcon::fromTheme("edit-copy", QIcon(":/icons/edit-copy.svg") ) , "Copy", this );
+    QAction* actionCopy = new QAction(QIcon::fromTheme( QStringLiteral("edit-copy") , QIcon( QStringLiteral(":/icons/edit-copy.svg") ) ) , tr("Copy"), this );
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, _textEdit, &TextEdit::copy );
     actionCopy->setEnabled(false);
     connect(_textEdit, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
 
     // PASTE
-    QAction* actionPaste = new QAction(QIcon::fromTheme("edit-paste", QIcon(":/icons/edit-paste.svg") ) , "Paste", this );
+    QAction* actionPaste = new QAction(QIcon::fromTheme( QStringLiteral("edit-paste") , QIcon( QStringLiteral(":/icons/edit-paste.svg") ) ) , tr("Paste"), this );
     actionPaste->setShortcut(QKeySequence::Paste);
     connect(actionPaste, &QAction::triggered,  _textEdit, &TextEdit::paste );
 
     //SELECT ALL
-    QAction* actionSelectAll = new QAction(QIcon::fromTheme("edit-select-all", QIcon(":/icons/edit-select-all.svg") ) , "Select All", this );
+    QAction* actionSelectAll = new QAction(QIcon::fromTheme( QStringLiteral("edit-select-all") , QIcon( QStringLiteral(":/icons/edit-select-all.svg") ) ) , tr("Select All"), this );
     actionSelectAll->setShortcut(QKeySequence::SelectAll);
     connect(actionSelectAll, &QAction::triggered, _textEdit, &TextEdit::selectAll );
 
     // view actions -----------------------------------------------------------------------------------------------------------
     // ZOOM IN
-    QAction* actionZoomIn = new QAction( QIcon::fromTheme("zoom-in", QIcon(":/icons/zoom-in.svg") ) , "Zoom In", this );
+    QAction* actionZoomIn = new QAction( QIcon::fromTheme( QStringLiteral("zoom-in"), QIcon( QStringLiteral(":/icons/zoom-in.svg") ) ) , tr("Zoom In"), this );
     actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     connect(actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn );
 
     // ZOOM OUT
-    QAction* actionZoomOut = new QAction( QIcon::fromTheme("zoom-out", QIcon(":/icons/zoom-out.svg") ) , "Zoom Out", this );
+    QAction* actionZoomOut = new QAction( QIcon::fromTheme( QStringLiteral("zoom-out") , QIcon( QStringLiteral(":/icons/zoom-out.svg") ) ) , tr("Zoom Out"), this );
     actionZoomOut->setShortcut(QKeySequence::ZoomOut);
     connect(actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut );
 
     // ZOOM ORIGINAL
-    QAction* actionZoomOriginal = new QAction( QIcon::fromTheme("zoom-original", QIcon(":/icons/zoom-original.svg") ) , "Zoom Original", this );
+    QAction* actionZoomOriginal = new QAction( QIcon::fromTheme( QStringLiteral("zoom-original") , QIcon( QStringLiteral(":/icons/zoom-original.svg") ) ) , tr("Zoom Original"), this );
     actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
     connect(actionZoomOriginal, &QAction::triggered, this, &MainWindow::onZoomOriginal );
 
     // FULL SCREEN
-    QAction* actionFullScreen = new QAction( QIcon::fromTheme("view-fullscreen", QIcon(":/icons/view-fullscreen.svg") ) , "FullScreen", this );
+    QAction* actionFullScreen = new QAction( QIcon::fromTheme( QStringLiteral("view-fullscreen") , QIcon( QStringLiteral(":/icons/view-fullscreen.svg") ) ) , tr("FullScreen"), this );
     actionFullScreen->setShortcuts(QKeySequence::FullScreen);
     actionFullScreen->setCheckable(true);
     connect(actionFullScreen, &QAction::triggered, this, &MainWindow::onFullscreen );
 
     // find actions -----------------------------------------------------------------------------------------------------------
     // FIND
-    QAction* actionFind = new QAction( QIcon::fromTheme("edit-find", QIcon(":/icons/edit-find.svg") ) , "Find", this );
+    QAction* actionFind = new QAction( QIcon::fromTheme( QStringLiteral("edit-find") , QIcon( QStringLiteral(":/icons/edit-find.svg") ) ) , tr("Find"), this );
     actionFind->setShortcut(QKeySequence::Find);
     connect(actionFind, &QAction::triggered, this, &MainWindow::showSearchBar );
 
     // REPLACE
-    QAction* actionReplace = new QAction( QIcon::fromTheme("edit-find-replace", QIcon(":/icons/edit-find-replace.svg") ) , "Replace", this );
+    QAction* actionReplace = new QAction( QIcon::fromTheme( QStringLiteral("edit-find-replace"), QIcon( QStringLiteral(":/icons/edit-find-replace.svg") ) ) , tr("Replace"), this );
     actionReplace->setShortcut(QKeySequence::Replace);
     connect(actionReplace, &QAction::triggered, this, &MainWindow::showReplaceBar );
 
     // option actions -----------------------------------------------------------------------------------------------------------
     // ENCODINGS
-    QMenu* encodingsMenu = new QMenu("Encodings... ", this);
+    QMenu* encodingsMenu = new QMenu( tr("Encodings... "), this);
 
-    QMenu* unicodeMenu = new QMenu("UNICODE", this);
-    QMenu* iso8859Menu = new QMenu("ISO-8859", this);
-    QMenu* ibmMenu = new QMenu("IBM", this);
-    QMenu* windowsMenu = new QMenu("Windows", this);
-    QMenu* othersMenu = new QMenu("Others", this);
+    QMenu* unicodeMenu = new QMenu( QStringLiteral("UNICODE") , this);
+    QMenu* iso8859Menu = new QMenu( QStringLiteral("ISO-8859") , this);
+    QMenu* ibmMenu = new QMenu( QStringLiteral("IBM") , this);
+    QMenu* windowsMenu = new QMenu( QStringLiteral("Windows") , this);
+    QMenu* othersMenu = new QMenu( tr("Others"), this);
     
     const QList<int> mibs = QTextCodec::availableMibs();
     QStringList codecsName;
     for (int mib : mibs) {
         QTextCodec *codec = QTextCodec::codecForMib(mib);
-        QString name = codec->name().toUpper();
+        QString name = QLatin1String(codec->name().toUpper());
         if (codecsName.contains(name)) {
             continue;
         }
@@ -416,16 +419,16 @@ void MainWindow::setupActions()
         QAction *action = new QAction(name, this);
         action->setData(QVariant(name));
         connect(action, &QAction::triggered, this, &MainWindow::encode);
-        if (name.startsWith("UTF-")) {
+        if (name.startsWith( QStringLiteral("UTF-") )) {
             unicodeMenu->addAction(action);
         } else
-        if (name.startsWith("ISO-8859")) {
+        if (name.startsWith( QStringLiteral("ISO-8859") )) {
             iso8859Menu->addAction(action);
         } else
-        if (name.startsWith("IBM")) {
+        if (name.startsWith( QStringLiteral("IBM") )) {
             ibmMenu->addAction(action);
         } else
-        if (name.startsWith("WINDOWS")) {
+        if (name.startsWith( QStringLiteral("WINDOWS") )) {
             windowsMenu->addAction(action);
         } else {
             othersMenu->addAction(action);
@@ -439,27 +442,27 @@ void MainWindow::setupActions()
     encodingsMenu->addMenu(othersMenu);
     
     // SETTINGS
-    QAction* actionShowSettings = new QAction( QIcon::fromTheme("configure", QIcon(":/icons/configure.svg") ) , "Settings", this);
+    QAction* actionShowSettings = new QAction( QIcon::fromTheme( QStringLiteral("configure"), QIcon( QStringLiteral(":/icons/configure.svg") ) ) , tr("Settings"), this);
     connect(actionShowSettings, &QAction::triggered, this, &MainWindow::showSettings);
 
     // about actions -----------------------------------------------------------------------------------------------------------
     // MANUAL
-    QAction* actionShowManual = new QAction( QIcon::fromTheme("help-contents", QIcon(":/icons/help-contents.svg") ) , "Help", this );
+    QAction* actionShowManual = new QAction( QIcon::fromTheme( QStringLiteral("help-contents") , QIcon( QStringLiteral(":/icons/help-contents.svg") ) ) , tr("Help"), this );
     actionShowManual->setShortcut(QKeySequence::HelpContents);
     connect(actionShowManual, &QAction::triggered, this, &MainWindow::showManual);
     
     // ABOUT Qt
-    QAction* actionAboutQt = new QAction( QIcon::fromTheme("qt", QIcon(":/icons/qt.svg") ) , "About Qt", this );
+    QAction* actionAboutQt = new QAction( QIcon::fromTheme( QStringLiteral("qt") , QIcon( QStringLiteral(":/icons/qt.svg") ) ) , tr("About Qt"), this );
     connect(actionAboutQt, &QAction::triggered, qApp, &QApplication::aboutQt);
 
     // ABOUT
-    QAction* actionAboutApp = new QAction( QIcon::fromTheme("help-about", QIcon(":/icons/help-about.svg") ) , "About", this );
+    QAction* actionAboutApp = new QAction( QIcon::fromTheme( QStringLiteral("help-about") , QIcon( QStringLiteral(":/icons/help-about.svg") ) ) , tr("About"), this );
     connect(actionAboutApp, &QAction::triggered, this, &MainWindow::about);
 
     // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MENUBAR
 
-    QMenu* fileMenu = menuBar()->addMenu("&File");
+    QMenu* fileMenu = menuBar()->addMenu( tr("&File") );
     fileMenu->addAction(actionNew);
     fileMenu->addAction(actionOpen);
     fileMenu->addMenu(menuRecentFiles);
@@ -471,7 +474,7 @@ void MainWindow::setupActions()
     fileMenu->addAction(actionClose);
     fileMenu->addAction(actionQuit);
 
-    QMenu* editMenu = menuBar()->addMenu("&Edit");
+    QMenu* editMenu = menuBar()->addMenu( tr("&Edit") );
     editMenu->addAction(actionUndo);
     editMenu->addAction(actionRedo);
     editMenu->addSeparator();
@@ -481,23 +484,23 @@ void MainWindow::setupActions()
     editMenu->addSeparator();
     editMenu->addAction(actionSelectAll);
 
-    QMenu* viewMenu = menuBar()->addMenu("&View");
+    QMenu* viewMenu = menuBar()->addMenu( tr("&View") );
     viewMenu->addAction(actionZoomIn);
     viewMenu->addAction(actionZoomOut);
     viewMenu->addAction(actionZoomOriginal);
     viewMenu->addSeparator();
     viewMenu->addAction(actionFullScreen);
 
-    QMenu* searchMenu = menuBar()->addMenu("&Search");
+    QMenu* searchMenu = menuBar()->addMenu( tr("&Search") );
     searchMenu->addAction(actionFind);
     searchMenu->addAction(actionReplace);
 
-    QMenu* optionsMenu = menuBar()->addMenu("&Options");
+    QMenu* optionsMenu = menuBar()->addMenu( tr("&Options") );
     optionsMenu->addMenu(encodingsMenu);
     optionsMenu->addSeparator();
     optionsMenu->addAction(actionShowSettings);
 
-    QMenu* helpMenu = menuBar()->addMenu("&Help");
+    QMenu* helpMenu = menuBar()->addMenu( tr("&Help") );
     helpMenu->addAction(actionShowManual);
     helpMenu->addAction(actionAboutQt);
     helpMenu->addAction(actionAboutApp);
@@ -505,8 +508,8 @@ void MainWindow::setupActions()
     // ------------------------------------------------------------------------------------------------------------------------
     // Create and set the MAIN TOOLBAR
 
-    QToolBar* mainToolbar = addToolBar("Main Toolbar");
-    mainToolbar->setObjectName("Main Toolbar");
+    QToolBar* mainToolbar = addToolBar( QStringLiteral("Main Toolbar") );
+    mainToolbar->setObjectName( QStringLiteral("Main Toolbar") );
 
     mainToolbar->addAction(actionNew);
     mainToolbar->addAction(actionOpen);
@@ -521,10 +524,10 @@ void MainWindow::setupActions()
     connect(actionFullScreen, &QAction::triggered, this, [=](bool on) {
             if (on) {
                 mainToolbar->addAction(actionFullScreen);
-                actionFullScreen->setText("Exit FullScreen");
+                actionFullScreen->setText( tr("Exit FullScreen") );
             } else {
                 mainToolbar->removeAction(actionFullScreen);
-                actionFullScreen->setText("FullScreen");
+                actionFullScreen->setText( tr("FullScreen") );
             }
         }
     );
@@ -539,8 +542,8 @@ void MainWindow::setCurrentFilePath(const QString& path)
 {
     QString curFile;
     if (path.isEmpty()) {
-        curFile = "untitled";
-        _filePath = "";
+        curFile = tr("untitled");
+        _filePath = QLatin1String("");
     } else {
         curFile = QFileInfo(path).canonicalFilePath();
         _filePath = path;
@@ -557,7 +560,7 @@ void MainWindow::setCurrentFilePath(const QString& path)
 
 void MainWindow::newWindow()
 {
-    Application::instance()->loadPath("");
+    Application::instance()->loadPath( QLatin1String("") );
 }
 
 
@@ -591,14 +594,14 @@ void MainWindow::saveFileAs()
 {
     // needed to catch document dir location (and it has to be writable, obviously...)
     QString documentDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QString path = QFileDialog::getSaveFileName(this,"Save File", documentDir);
+    QString path = QFileDialog::getSaveFileName(this, tr("Save File"), documentDir);
     if (path.isEmpty())
         return;
 
     // try to add .txt extension in the end
     QFileInfo info(path);
     if (info.fileName() == info.baseName()) {
-        path += ".txt";
+        path += QLatin1String(".txt");
     }
 
     saveFilePath(path);
@@ -659,27 +662,27 @@ void MainWindow::about()
 {
     QString version = qApp->applicationVersion();
 
-    QString aboutText = "";
-    aboutText += "<h1>Cutepad " + version + "</h1>";
-    aboutText += "<p>";
-    aboutText += "The Qt pad ;)<br>Just an easy plain text editor, based on Qt libraries";
-    aboutText += "</p><p>";
-    aboutText += "(c) 2020-2021 <a href='mailto:adjam@protonmail.com'>Andrea Diamantini</a> (adjam)";
-    aboutText += "</p>";
-    aboutText += "<a href='https://github.com/adjamhub/cutepad'>https://github.com/adjamhub/cutepad</a>";
-    aboutText += "<br>";
+    QString aboutText;
+    aboutText += QStringLiteral("<h1>Cutepad ") + version + QStringLiteral("</h1>");
+    aboutText += QStringLiteral("<p>");
+    aboutText += QStringLiteral("The Qt pad ;)<br>Just an easy plain text editor, based on Qt libraries");
+    aboutText += QStringLiteral("</p><p>");
+    aboutText += QStringLiteral("(c) 2020-2021 <a href='mailto:adjam@protonmail.com'>Andrea Diamantini</a> (adjam)");
+    aboutText += QStringLiteral("</p>");
+    aboutText += QStringLiteral("<a href='https://github.com/adjamhub/cutepad'>https://github.com/adjamhub/cutepad</a>");
+    aboutText += QStringLiteral("<br>");
 
-    QMessageBox::about(this, "About cutepad", aboutText);
+    QMessageBox::about(this, QStringLiteral("About cutepad"), aboutText);
 }
 
 
 void MainWindow::showManual()
 {
     QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    QString manualPath = QStandardPaths::locate(QStandardPaths::AppDataLocation, "MANUAL");
+    QString manualPath = QStandardPaths::locate(QStandardPaths::AppDataLocation, QStringLiteral("MANUAL") );
     qDebug() << "manual path: " << manualPath;
     if (manualPath.isEmpty()) {
-        QMessageBox::critical(this, "Error", "I cannot open the manual, sorry");
+        QMessageBox::critical(this, tr("Error"), tr("I cannot open the manual, sorry") );
         return;
     }
 
@@ -690,23 +693,27 @@ void MainWindow::showManual()
 
 void MainWindow::updateStatusBar()
 {
-    _statusBar->setLanguage(_textEdit->language());
+    if (_textEdit->language().isEmpty()) {
+        _statusBar->setLanguage( tr("none") );
+    } else {
+        _statusBar->setLanguage(_textEdit->language());
+    }
 
     int row = _textEdit->textCursor().blockNumber();
     int col = _textEdit->textCursor().positionInBlock();
     _statusBar->setPosition(row,col);
 
     QTextCodec* cod = _textEdit->textCodec();
-    QString codecText = "none";
+    QString codecText = QStringLiteral("none");
     if (cod) {
-        codecText = cod->name();
+        codecText = QLatin1String(cod->name());
     }
     _statusBar->setCodec(codecText);
 
-    QString zoomText = "100%";
+    QString zoomText = QStringLiteral("100%");
     if (_zoomRange != 0) {
         int z = 100 + _zoomRange * 10;
-        zoomText = QString::number(z) + "%";
+        zoomText = QString::number(z) + QStringLiteral("%");
     }
     _statusBar->setZoom(zoomText);
 }
@@ -767,7 +774,7 @@ void MainWindow::showSearchBar()
     // if text is selected, copy to lineEdit
     QString sel = _textEdit->textCursor().selectedText();
     if (!sel.isEmpty()) {
-        _searchBar->_findLineEdit->setText(sel);
+        _searchBar->setText(sel);
     }
 
     _searchBar->setFocus();
@@ -788,7 +795,7 @@ void MainWindow::showReplaceBar()
     // if text is selected, copy to FIND lineEdit
     QString sel = _textEdit->textCursor().selectedText();
     if (!sel.isEmpty()) {
-        _searchBar->_findLineEdit->setText(sel);
+        _searchBar->setText(sel);
     }
 
     _replaceBar->setFocus();
@@ -816,10 +823,10 @@ void MainWindow::search(const QString & search, bool forward, bool casesensitive
             cur.movePosition(QTextCursor::End);
         }
         _textEdit->setTextCursor(cur);
-        emit searchMessage("Search restarted");
+        Q_EMIT searchMessage( tr("Search restarted") );
         found = _textEdit->find(search, flags);
         if (!found) {
-            emit searchMessage("not found");
+            Q_EMIT searchMessage( tr("not found") );
             return;
         }
     }
@@ -828,8 +835,8 @@ void MainWindow::search(const QString & search, bool forward, bool casesensitive
 
 void MainWindow::replace(const QString &replace, bool justNext)
 {
-    QString search = _searchBar->_findLineEdit->text();
-    bool matchCase = _searchBar->_caseCheckBox->isChecked();
+    QString search = _searchBar->text();
+    bool matchCase = _searchBar->caseChecked();
 
     if (search.isEmpty()) {
         return;
@@ -856,10 +863,10 @@ void MainWindow::replace(const QString &replace, bool justNext)
         QTextCursor cur = _textEdit->textCursor();
         cur.movePosition(QTextCursor::Start);
         _textEdit->setTextCursor(cur);
-        emit searchMessage("Search restarted");
+        Q_EMIT searchMessage( tr("Search restarted") );
         found = _textEdit->find(search, flags);
         if (!found) {
-            emit searchMessage("not found");
+            Q_EMIT searchMessage( tr("not found") );
             return;
         }
     }
@@ -878,13 +885,13 @@ void MainWindow::replace(const QString &replace, bool justNext)
 void MainWindow::addPathToRecentFiles(const QString& path)
 {
     QSettings s;
-    QStringList recentFiles = s.value("recentFiles").toStringList();
+    QStringList recentFiles = s.value( QStringLiteral("recentFiles") ).toStringList();
     recentFiles.removeOne(path);
     recentFiles.prepend(path);
     if (recentFiles.count() > 10) {
         recentFiles.removeLast();
     }
-    s.setValue("recentFiles", recentFiles);
+    s.setValue( QStringLiteral("recentFiles") , recentFiles);
 }
 
 

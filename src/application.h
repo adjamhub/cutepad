@@ -12,11 +12,11 @@
 
 
 #include <QApplication>
-#include <QFileSystemWatcher>
 #include <QList>
-#include <QStringList>
 
 class MainWindow;
+class QFileSystemWatcher;
+class QStringList;
 
 
 class Application : public QApplication
@@ -25,7 +25,6 @@ class Application : public QApplication
 
 public:
     Application(int &argc, char *argv[]);
-    ~Application();
 
     static Application* instance();
 

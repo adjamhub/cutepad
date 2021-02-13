@@ -28,7 +28,7 @@ public:
 private:
     void loadSettings();
 
-private slots:
+private Q_SLOTS:
     void saveSettings();
     void chooseHighlightColor();
     void chooseFont();

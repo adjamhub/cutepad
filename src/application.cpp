@@ -16,6 +16,8 @@
 #include <QDBusConnection>
 #include <QDBusAbstractAdaptor>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QStringList>
 
 #include <QDebug>
 
@@ -27,11 +29,6 @@ Application::Application(int &argc, char *argv[])
     new CutepadAdaptor(this);
 
     connect(_watcher, &QFileSystemWatcher::fileChanged, this, &Application::notifyFileChanged);
-}
-
-
-Application::~Application()
-{
 }
 
 
@@ -53,7 +50,7 @@ void Application::parseCommandlineArgs()
     parser.setApplicationDescription(QCoreApplication::applicationName());
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument("file", "The file(s) to open.");
+    parser.addPositionalArgument( QStringLiteral("file"), QStringLiteral("The file(s) to open.") );
     parser.process(*this);
 
     const QStringList posArgs = parser.positionalArguments();
@@ -64,7 +61,7 @@ void Application::parseCommandlineArgs()
 void Application::loadPaths(const QStringList& paths)
 {
     if (paths.isEmpty()) {
-        loadPath("");
+        loadPath( QLatin1String("") );
         return;
     }
 

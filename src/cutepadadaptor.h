@@ -11,9 +11,9 @@
 #define CUTEPAD_ADAPTOR_H
 
 
-#include "application.h"
-
 #include <QDBusAbstractAdaptor>
+
+class Application;
 
 
 class CutepadAdaptor : public QDBusAbstractAdaptor
@@ -22,9 +22,9 @@ class CutepadAdaptor : public QDBusAbstractAdaptor
     Q_CLASSINFO("D-Bus Interface", "org.adjam.cutepad")
 
 public:
-    CutepadAdaptor (Application* app);
+    explicit CutepadAdaptor (Application* app);
 
-public slots:    
+public Q_SLOTS:
     Q_SCRIPTABLE void loadPaths(const QStringList &paths);
 
 private:

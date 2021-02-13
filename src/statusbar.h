@@ -12,7 +12,8 @@
 
 
 #include <QWidget>
-#include <QLabel>
+
+class QLabel;
 
 
 class StatusBar : public QWidget
@@ -20,7 +21,7 @@ class StatusBar : public QWidget
     Q_OBJECT
 
 public:
-    StatusBar(QWidget *parent = nullptr);
+    explicit StatusBar(QWidget *parent = nullptr);
     
     void setLanguage(const QString& lang);
     void setPosition(int row, int col);

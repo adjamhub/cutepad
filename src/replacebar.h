@@ -12,9 +12,8 @@
 
 
 #include <QWidget>
-#include <QLineEdit>
 
-
+class QLineEdit;
 class MainWindow;
 
 
@@ -23,12 +22,12 @@ class ReplaceBar : public QWidget
     Q_OBJECT
 
 public:
-    ReplaceBar(QWidget *parent = nullptr);
+    explicit ReplaceBar(QWidget *parent = nullptr);
 
-signals:
+Q_SIGNALS:
     void replace(const QString &replace, bool justNext = true);
 
-private slots:
+private Q_SLOTS:
     void replaceNext();
     void replaceAll();
 

@@ -10,6 +10,7 @@
 #include "statusbar.h"
 
 #include <QHBoxLayout>
+#include <QLabel>
 
 
 StatusBar::StatusBar(QWidget *parent)
@@ -33,7 +34,7 @@ StatusBar::StatusBar(QWidget *parent)
 void StatusBar::setLanguage(const QString& lang)
 {
     QString msg;
-    msg += "&nbsp;&nbsp;<b>Language: </b>";
+    msg += QLatin1String("&nbsp;&nbsp;<b>") + tr("Language") + QLatin1String(": </b>");
     msg += lang;
     _langLabel->setText(msg);
 }
@@ -42,9 +43,9 @@ void StatusBar::setLanguage(const QString& lang)
 void StatusBar::setPosition(int row, int col)
 {
     QString msg;
-    msg += "&nbsp;&nbsp;<b>Row: </b>";
+    msg += QLatin1String("&nbsp;&nbsp;<b>") + tr("Row") + QLatin1String(": </b>");
     msg += QString::number(row + 1);
-    msg += ", <b>Column: </b>";
+    msg += QLatin1String(", <b>") + tr("Column") + QLatin1String(": </b>");
     msg += QString::number(col + 1);
     _posLabel->setText(msg);
 }
@@ -53,7 +54,7 @@ void StatusBar::setPosition(int row, int col)
 void StatusBar::setCodec(const QString& codec)
 {
     QString msg;
-    msg += "&nbsp;&nbsp;<b>Encoding: </b>";
+    msg += QLatin1String("&nbsp;&nbsp;<b>") + tr("Encoding") + QLatin1String(": </b>");
     msg += codec;
     _codecLabel->setText(msg);
 }
@@ -62,8 +63,7 @@ void StatusBar::setCodec(const QString& codec)
 void StatusBar::setZoom(const QString& zoom)
 {
     QString msg;
-    msg += "&nbsp;&nbsp;<b>Zoom: </b>";
+    msg += QLatin1String("&nbsp;&nbsp;<b>") + tr("Zoom") + QLatin1String(": </b>");
     msg += zoom;
     _zoomLabel->setText(msg);
 }
-    

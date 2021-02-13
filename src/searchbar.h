@@ -13,12 +13,9 @@
 
 #include <QWidget>
 
-#include <QCheckBox>
-#include <QLabel>
-#include <QLineEdit>
-
-
-class MainWindow;
+class QCheckBox;
+class QLabel;
+class QLineEdit;
 
 
 class SearchBar : public QWidget
@@ -26,23 +23,26 @@ class SearchBar : public QWidget
     Q_OBJECT
 
 public:
-    SearchBar(QWidget *parent);
+    explicit SearchBar(QWidget *parent);
 
-signals:
+    void setText(const QString& text);
+    QString text();
+
+    bool caseChecked();
+
+Q_SIGNALS:
     void search(const QString &search,
                 bool forward = true,
                 bool casesensitive = false);
 
-public slots:
+public Q_SLOTS:
     void searchMessage(const QString & msg);
 
-private slots:
+private Q_SLOTS:
     void findBackward();
     void findForward();
 
 private:
-    friend class MainWindow;
-
     QLineEdit* _findLineEdit;
 
     QCheckBox* _caseCheckBox;

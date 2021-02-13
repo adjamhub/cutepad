@@ -10,8 +10,8 @@
 
 #include "textedit.h"
 
-#include <KSyntaxHighlighting/Theme>
 #include <KSyntaxHighlighting/Definition>
+#include <KSyntaxHighlighting/Theme>
 
 #include <QMessageBox>
 #include <QPainter>
@@ -26,7 +26,6 @@ TextEdit::TextEdit(QWidget *parent)
     : QPlainTextEdit(parent)
     , _highlighter(new KSyntaxHighlighting::SyntaxHighlighter(this->document()))
     , _highlightRepo(new KSyntaxHighlighting::Repository)
-    , _language("none")
     , _lineNumberArea(nullptr)
     , _lineNumbersMode(0)
     , _highlight(false)
@@ -40,7 +39,7 @@ void TextEdit::loadFilePath(const QString & path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Error", "Cannot open file. Not readable");
+        QMessageBox::warning(this, tr("Error"), tr("Cannot open file. Not readable") );
         return;
     }
 
@@ -60,7 +59,7 @@ void TextEdit::saveFilePath(const QString & path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::critical(this, "Error", "Cannot save file. Not writable");
+        QMessageBox::critical(this, tr("Error"), tr("Cannot save file. Not writable") );
         return;
     }
 
@@ -94,7 +93,7 @@ void TextEdit::syntaxHighlightForFile(const QString & path)
     const auto def = _highlightRepo->definitionForFileName(path);
     if (!def.isValid()) {
         qDebug() << "no valid definitions found :(";
-        _language = "none";
+        _language.clear();
         return;
     }
 
@@ -123,8 +122,8 @@ void TextEdit::checkTabSpaceReplacementNeeded()
     }
 
     int risp = QMessageBox::question(this,
-                                     "Replace Tabs with Spaces",
-                                     "Your document contains tabs. Would you like them to be replaced with spaces?",
+                                     tr("Replace Tabs with Spaces"),
+                                     tr("Your document contains tabs. Would you like them to be replaced with spaces?"),
                                      QMessageBox::Yes | QMessageBox::No);
 
     if (risp == QMessageBox::No) {
@@ -172,7 +171,7 @@ void TextEdit::updateLineNumbersMode()
         enable = true;
         break;
     case 2:
-        enable = (_language != "none");
+        enable = (!_language.isEmpty());
     default:
         // this should NEVER happen...
         break;
