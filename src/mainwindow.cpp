@@ -8,12 +8,13 @@
 
 
 #include "mainwindow.h"
+
 #include "application.h"
-#include "settingsdialog.h"
-#include "textedit.h"
-#include "searchbar.h"
 #include "replacebar.h"
+#include "searchbar.h"
+#include "settingsdialog.h"
 #include "statusbar.h"
+#include "textedit.h"
 
 #include <QCloseEvent>
 #include <QFileDialog>
@@ -724,21 +725,8 @@ void MainWindow::encode()
     const QAction *action = qobject_cast<const QAction *>(sender());
     const QByteArray codecName = action->data().toByteArray();
     QTextCodec* targetCodec = QTextCodec::codecForName(codecName);
-    QTextCodec* actualCodec = _textEdit->textCodec();
-
-    if (codecName == actualCodec->name()) {
-        qDebug() << "we are moving to the same codec. Aborting...";
-        return;
-    }
-    QString content = _textEdit->toPlainText();
-
-    // FIXME: What about "state"???
-    QByteArray encodedData = actualCodec->fromUnicode(content);
-    QTextCodec::ConverterState state;
-    QString decodedString = targetCodec->toUnicode(encodedData.constData(), encodedData.size(), &state);
     
-    _textEdit->setPlainText(decodedString);
-    _textEdit->setTextCodec(targetCodec);
+    _textEdit->encode(targetCodec);
 
     _textEdit->document()->setModified(true);
     setWindowModified(true);

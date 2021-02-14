@@ -31,7 +31,7 @@ public:
     void saveFilePath(const QString & path);
 
     QTextCodec* textCodec();
-    void setTextCodec(QTextCodec* codec);
+    void encode(QTextCodec* targetCodec);
 
     inline QString language() const { return _language; };
 

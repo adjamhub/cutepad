@@ -10,6 +10,8 @@
 
 #include "textedit.h"
 
+#include "textcodec.h"
+
 #include <KSyntaxHighlighting/Definition>
 #include <KSyntaxHighlighting/Theme>
 
@@ -43,12 +45,13 @@ void TextEdit::loadFilePath(const QString & path)
         return;
     }
 
-    QTextStream in(&file);
-    QTextCodec* cod = in.codec();
-    setTextCodec(cod);
+    QByteArray bytes = file.readAll();
+    _textCodec = TextCodec::codecForByteArray(bytes);
 
-    QString fileText = in.readAll();
+    QTextCodec::ConverterState state;
+    QString fileText = _textCodec->toUnicode(bytes.constData(), bytes.size(), &state);
     setPlainText(fileText);
+
     syntaxHighlightForFile(path);
     updateLineNumbersMode();
     checkTabSpaceReplacementNeeded();
@@ -81,10 +84,18 @@ QTextCodec* TextEdit::textCodec()
 }
 
 
-void TextEdit::setTextCodec(QTextCodec* codec)
+void TextEdit::encode(QTextCodec* targetCodec)
 {
-    qDebug() << "using codec:" << codec->name();
-    _textCodec = codec;
+    if (_textCodec->name() == targetCodec->name()) {
+        qDebug() << "we are moving to the same codec. Aborting...";
+        return;
+    }
+
+    QString actualContent = this->toPlainText();
+    QString decodedString = TextCodec::encode(actualContent, _textCodec, targetCodec);
+
+    setPlainText(decodedString);
+    _textCodec = targetCodec;
 }
 
 
