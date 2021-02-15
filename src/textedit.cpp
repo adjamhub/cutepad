@@ -34,6 +34,8 @@ TextEdit::TextEdit(QWidget *parent)
     , _tabReplace(false)
     , _textCodec( QTextCodec::codecForLocale() )
 {
+    KSyntaxHighlighting::Theme theme = _highlightRepo->themeForPalette(this->palette());
+    _highlighter->setTheme(theme);
 }
 
 
@@ -107,9 +109,6 @@ void TextEdit::syntaxHighlightForFile(const QString & path)
         _language.clear();
         return;
     }
-
-    KSyntaxHighlighting::Theme theme = _highlightRepo->themeForPalette(palette());
-    _highlighter->setTheme(theme);
 
     _highlighter->setDefinition(def);
 
