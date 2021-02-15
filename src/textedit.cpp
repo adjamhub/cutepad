@@ -108,10 +108,7 @@ void TextEdit::syntaxHighlightForFile(const QString & path)
         return;
     }
 
-    KSyntaxHighlighting::Theme theme = (palette().color(QPalette::Base).lightness() < 128)
-        ? _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::DarkTheme)
-        : _highlightRepo->defaultTheme(KSyntaxHighlighting::Repository::LightTheme);
-
+    KSyntaxHighlighting::Theme theme = _highlightRepo->themeForPalette(palette());
     _highlighter->setTheme(theme);
 
     _highlighter->setDefinition(def);
